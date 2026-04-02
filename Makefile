@@ -16,20 +16,22 @@ all: $(OUTPUT)
 $(OUTPUT): $(SOURCES)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $(SOURCES) -o $(OUTPUT)
-	@echo "Kompilasi berhasil! Gunakan ./$(OUTPUT) untuk melanjutkan."
+	@echo "Kompilasi berhasil! Gunakan 'make run' untuk melanjutkan."
 
 run: $(OUTPUT)
 	@read -p "Masukkan File input (contoh: test/input2.txt): " filepath; \
 	if [ -z "$$filepath" ]; then echo "Input kosong."; exit 1; fi; \
 	if [ ! -f "$$filepath" ]; then echo "File tidak ditemukan: $$filepath"; exit 1; fi; \
-	last_num=$$(ls -1 $(TEST_DIR)/output_[0-9]*.txt 2>/dev/null \
+	outdir="$(TEST_DIR)/milestone-1"; \
+	mkdir -p "$$outdir"; \
+	last_num=$$(ls -1 "$$outdir"/output_[0-9]*.txt 2>/dev/null \
 		| sed -E 's|.*/output_([0-9]+)\.txt|\1|' \
 		| grep -E '^[0-9]+$$' \
 		| sort -n \
 		| tail -n 1); \
 	if [ -z "$$last_num" ]; then last_num=0; fi; \
 	next_num=$$((last_num + 1)); \
-	outpath="$(TEST_DIR)/output_$${next_num}.txt"; \
+	outpath="$$outdir/output_$${next_num}.txt"; \
 	echo "Menyimpan output ke $$outpath"; \
 	./$(OUTPUT) "$$filepath" | tee "$$outpath"
 

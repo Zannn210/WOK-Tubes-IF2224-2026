@@ -1,0 +1,16 @@
+beginsy
+ident (hasil)
+becomes
+lparent
+intcon (10)
+plus
+intcon (5)
+rparent
+times
+intcon (2)
+idiv
+intcon (3)
+semicolon
+
+endsy
+period

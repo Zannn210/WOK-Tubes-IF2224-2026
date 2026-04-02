@@ -1,0 +1,22 @@
+beginsy
+ifsy
+lparent
+ident (x)
+geq
+intcon (10)
+rparent
+andsy
+notsy
+lparent
+ident (y)
+eql
+intcon (5)
+rparent
+thensy
+ident (x)
+becomes
+intcon (0)
+semicolon
+
+endsy
+period

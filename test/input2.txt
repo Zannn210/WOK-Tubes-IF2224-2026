@@ -1,4 +1,0 @@
-begin
-  v1 := 'A';
-  v2 := 'Tubes TBFO';
-end.

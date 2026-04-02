@@ -1,0 +1,8 @@
+beginsy
+ident (x)
+becomes
+intcon (10)
+semicolon
+
+endsy
+period

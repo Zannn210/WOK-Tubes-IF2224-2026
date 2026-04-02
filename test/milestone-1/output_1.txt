@@ -1,0 +1,20 @@
+programsy
+ident (TestSatu)
+semicolon
+
+varsy
+ident (x)
+comma
+ident (y)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (x)
+becomes
+intcon (10)
+semicolon
+
+endsy
+period

@@ -1,0 +1,17 @@
+beginsy
+ident (luas)
+becomes
+realcon (3.14)
+rdiv
+realcon (2.0)
+semicolon
+
+ident (sisa)
+becomes
+intcon (10)
+imod
+intcon (3)
+semicolon
+
+endsy
+period

@@ -1,0 +1,14 @@
+varsy
+ident (identiniSangatPanjang24tetapiTetapValid)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (identiniSangatPanjang24tetapiTetapValid)
+becomes
+intcon (100)
+semicolon
+
+endsy
+period

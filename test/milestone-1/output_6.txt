@@ -1,0 +1,10 @@
+beginsy
+comment ( Komentar format pertama )
+ident (x)
+becomes
+intcon (1)
+semicolon
+
+comment ( Komentar format kedua )
+endsy
+period

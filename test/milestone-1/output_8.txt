@@ -1,0 +1,22 @@
+varsy
+ident (arr)
+colon
+arraysy
+lbrack
+intcon (5)
+rbrack
+ofsy
+ident (integer)
+semicolon
+
+beginsy
+ident (arr)
+lbrack
+intcon (1)
+rbrack
+becomes
+intcon (100)
+semicolon
+
+endsy
+period
