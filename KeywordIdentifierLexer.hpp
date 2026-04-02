@@ -3,25 +3,21 @@
 #define KEYWORD_IDENTIFIER_LEXER_HPP
 
 #include <string>
-#include <unordered_map>
 
 class KeywordIdentifierLexer {
 private:
-    std::unordered_map<std::string, std::string> keywords;
     std::string buffer;
     int state;
-
-    void initializeKeywords();
-    std::string toLowerCase(const std::string& str);
+    
     bool isLetter(char c);
     bool isDigit(char c);
+    char toLower(char c);
 
 public:
     KeywordIdentifierLexer();
 
     void reset();
 
-    // Proses karakter satu per satu (DFA)
     bool processChar(char c);
     std::string getToken();
     bool canStart(char c);
