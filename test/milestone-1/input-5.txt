@@ -1,0 +1,4 @@
+begin
+  if (x >= 10) AND NOT (y == 5) then
+    x := 0;
+end.

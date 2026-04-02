@@ -1,0 +1,5 @@
+begin
+  { Komentar format pertama }
+  x := 1;
+  (* Komentar format kedua *)
+end.
