@@ -1,0 +1,13 @@
+beginsy
+ident (v1)
+becomes
+charcon ('A')
+semicolon
+
+ident (v2)
+becomes
+string ('Tubes TBFO')
+semicolon
+
+endsy
+period
