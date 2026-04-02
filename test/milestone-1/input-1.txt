@@ -1,0 +1,6 @@
+program TestSatu;
+var
+  x, y: integer;
+begin
+  x := 10;
+end.

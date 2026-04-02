@@ -1,0 +1,5 @@
+var
+  identiniSangatPanjang24tetapiTetapValid: integer;
+begin
+  identiniSangatPanjang24tetapiTetapValid := 100;
+end.

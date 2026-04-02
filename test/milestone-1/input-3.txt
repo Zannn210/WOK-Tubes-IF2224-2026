@@ -1,0 +1,3 @@
+begin
+  hasil := (10 + 5) * 2 div 3;
+end.

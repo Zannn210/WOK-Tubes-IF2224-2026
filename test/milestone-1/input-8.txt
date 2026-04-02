@@ -1,0 +1,5 @@
+var
+  arr: array [5] of integer;
+begin
+  arr[1] := 100;
+end.
