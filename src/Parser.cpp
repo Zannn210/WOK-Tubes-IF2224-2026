@@ -83,7 +83,7 @@ bool Parser::match(const std::string& expectedType) {
     Token t = currentToken();
     if (t.type == expectedType) {
         std::string printText = t.type;
-        if (!t.value.empty()) printText += " (" + t.value + ")";
+        if (!t.value.empty()) printText += "(" + t.value + ")";
         
         printNode(printText);
         advance();
@@ -415,9 +415,6 @@ void Parser::parseStatementList() {
 }
 
 void Parser::parseStatement() {
-    printNode("<statement>");
-    indentLevel++;
-
     std::string t = currentToken().type;
 
     if (t == "ident") {
@@ -446,8 +443,6 @@ void Parser::parseStatement() {
     } else if (t == "beginsy") {
         parseCompoundStatement();
     }
-
-    indentLevel--;
 }
 
 void Parser::parseVariable() {
@@ -497,7 +492,13 @@ void Parser::parseIndexList() {
 void Parser::parseAssignmentStatement() {
     printNode("<assignment-statement>");
     indentLevel++;
-    parseVariable();
+
+    bool isPlainIdent = check("ident") && lookahead(1).type == "becomes";
+    if (isPlainIdent) {
+        match("ident");
+    } else {
+        parseVariable();
+    }
     match("becomes");
     parseExpression();
     indentLevel--;
@@ -618,10 +619,7 @@ void Parser::parseExpression() {
     indentLevel++;
     parseSimpleExpression();
     if (isRelationalOp()) {
-        printNode("<relational-operator>");
-        indentLevel++;
         match(currentToken().type);
-        indentLevel--;
         parseSimpleExpression();
     }
     indentLevel--;
@@ -635,10 +633,7 @@ void Parser::parseSimpleExpression() {
 
     parseTerm();
     while (isAdditiveOp()) {
-        printNode("<additive-operator>");
-        indentLevel++;
         match(currentToken().type);
-        indentLevel--;
         parseTerm();
     }
     indentLevel--;
@@ -649,10 +644,7 @@ void Parser::parseTerm() {
     indentLevel++;
     parseFactor();
     while (isMultiplecativeOp()) {
-        printNode("<multiplicative-operator>");
-        indentLevel++;
         match(currentToken().type);
-        indentLevel--;
         parseFactor();
     }
     indentLevel--;
@@ -680,8 +672,10 @@ void Parser::parseFactor() {
     } else if (check("ident")) {
         if (lookahead(1).type == "lparent") {
             parseProcFuncCall();
-        } else {
+        } else if (lookahead(1).type == "lbrack" || lookahead(1).type == "period") {
             parseVariable();
+        } else {
+            match("ident");
         }
     } else {
         std::cerr << "[SYNTAX ERROR] Unexpected token in factor: '"
