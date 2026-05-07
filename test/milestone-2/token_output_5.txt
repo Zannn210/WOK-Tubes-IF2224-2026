@@ -1,0 +1,101 @@
+programsy
+ident (RecordAndCase)
+semicolon
+
+typesy
+ident (Month)
+eql
+lparent
+ident (Jan)
+comma
+ident (Feb)
+comma
+ident (Mar)
+comma
+ident (Apr)
+comma
+ident (May)
+comma
+ident (Jun)
+rparent
+semicolon
+
+ident (Student)
+eql
+recordsy
+ident (name)
+colon
+ident (integer)
+semicolon
+
+ident (grade)
+colon
+ident (integer)
+semicolon
+
+endsy
+semicolon
+
+varsy
+ident (s)
+colon
+ident (Student)
+semicolon
+
+ident (score)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (score)
+becomes
+intcon (85)
+semicolon
+
+casesy
+ident (score)
+ofsy
+intcon (90)
+colon
+ident (writeln)
+lparent
+charcon ('A')
+rparent
+semicolon
+
+intcon (80)
+colon
+ident (writeln)
+lparent
+charcon ('B')
+rparent
+semicolon
+
+intcon (70)
+colon
+ident (writeln)
+lparent
+charcon ('C')
+rparent
+semicolon
+
+endsy
+semicolon
+
+repeatsy
+ident (score)
+becomes
+ident (score)
+minus
+intcon (10)
+semicolon
+
+untilsy
+ident (score)
+eql
+intcon (0)
+semicolon
+
+endsy
+period

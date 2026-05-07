@@ -1,0 +1,92 @@
+<program>
+|   |-- <program-header>
+|   |   |-- programsy
+|   |   |-- ident(ArrayDemo)
+|   |   |-- semicolon
+|   |-- <declaration-part>
+|   |   |-- <const-declaration>
+|   |   |   |-- constsy
+|   |   |   |-- ident(MAX)
+|   |   |   |-- eql
+|   |   |   |-- <constant>
+|   |   |   |   |-- intcon(10)
+|   |   |   |-- semicolon
+|   |   |-- <type-declaration>
+|   |   |   |-- typesy
+|   |   |   |-- ident(Range)
+|   |   |   |-- eql
+|   |   |   |-- <type>
+|   |   |   |   |-- <range>
+|   |   |   |   |   |-- <constant>
+|   |   |   |   |   |   |-- intcon(1)
+|   |   |   |   |   |-- period
+|   |   |   |   |   |-- period
+|   |   |   |   |   |-- <constant>
+|   |   |   |   |   |   |-- intcon(10)
+|   |   |   |-- semicolon
+|   |   |-- <var-declaration>
+|   |   |   |-- varsy
+|   |   |   |-- <identifier-list>
+|   |   |   |   |-- ident(arr)
+|   |   |   |-- colon
+|   |   |   |-- <type>
+|   |   |   |   |-- <array-type>
+|   |   |   |   |   |-- arraysy
+|   |   |   |   |   |-- lbrack
+|   |   |   |   |   |-- <range>
+|   |   |   |   |   |   |-- <constant>
+|   |   |   |   |   |   |   |-- intcon(1)
+|   |   |   |   |   |   |-- period
+|   |   |   |   |   |   |-- period
+|   |   |   |   |   |   |-- <constant>
+|   |   |   |   |   |   |   |-- intcon(10)
+|   |   |   |   |   |-- rbrack
+|   |   |   |   |   |-- ofsy
+|   |   |   |   |   |-- <type>
+|   |   |   |   |   |   |-- ident(integer)
+|   |   |   |-- semicolon
+|   |   |   |-- <identifier-list>
+|   |   |   |   |-- ident(i)
+|   |   |   |-- colon
+|   |   |   |-- <type>
+|   |   |   |   |-- ident(integer)
+|   |   |   |-- semicolon
+|   |-- <compound-statement>
+|   |   |-- beginsy
+|   |   |-- <statement-list>
+|   |   |   |-- <for-statement>
+|   |   |   |   |-- forsy
+|   |   |   |   |-- ident(i)
+|   |   |   |   |-- becomes
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(1)
+|   |   |   |   |-- tosy
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- ident(MAX)
+|   |   |   |   |-- dosy
+|   |   |   |   |-- <assignment-statement>
+|   |   |   |   |   |-- <variable>
+|   |   |   |   |   |   |-- ident(arr)
+|   |   |   |   |   |   |-- <component-variable>
+|   |   |   |   |   |   |   |-- lbrack
+|   |   |   |   |   |   |   |-- <index-list>
+|   |   |   |   |   |   |   |   |-- ident(i)
+|   |   |   |   |   |   |   |-- rbrack
+|   |   |   |   |   |-- becomes
+|   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- ident(i)
+|   |   |   |   |   |   |   |   |-- times
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- intcon(2)
+|   |   |   |-- semicolon
+|   |   |-- endsy
+|   |-- period

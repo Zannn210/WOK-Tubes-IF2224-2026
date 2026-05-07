@@ -1,0 +1,159 @@
+<program>
+|   |-- <program-header>
+|   |   |-- programsy
+|   |   |-- ident(RecordAndCase)
+|   |   |-- semicolon
+|   |-- <declaration-part>
+|   |   |-- <type-declaration>
+|   |   |   |-- typesy
+|   |   |   |-- ident(Month)
+|   |   |   |-- eql
+|   |   |   |-- <type>
+|   |   |   |   |-- <enumerated>
+|   |   |   |   |   |-- lparent
+|   |   |   |   |   |-- ident(Jan)
+|   |   |   |   |   |-- comma
+|   |   |   |   |   |-- ident(Feb)
+|   |   |   |   |   |-- comma
+|   |   |   |   |   |-- ident(Mar)
+|   |   |   |   |   |-- comma
+|   |   |   |   |   |-- ident(Apr)
+|   |   |   |   |   |-- comma
+|   |   |   |   |   |-- ident(May)
+|   |   |   |   |   |-- comma
+|   |   |   |   |   |-- ident(Jun)
+|   |   |   |   |   |-- rparent
+|   |   |   |-- semicolon
+|   |   |   |-- ident(Student)
+|   |   |   |-- eql
+|   |   |   |-- <type>
+|   |   |   |   |-- <record-type>
+|   |   |   |   |   |-- recordsy
+|   |   |   |   |   |-- <field-list>
+|   |   |   |   |   |   |-- <field-part>
+|   |   |   |   |   |   |   |-- <identifier-list>
+|   |   |   |   |   |   |   |   |-- ident(name)
+|   |   |   |   |   |   |   |-- colon
+|   |   |   |   |   |   |   |-- <type>
+|   |   |   |   |   |   |   |   |-- ident(integer)
+|   |   |   |   |   |   |-- semicolon
+|   |   |   |   |   |   |-- <field-part>
+|   |   |   |   |   |   |   |-- <identifier-list>
+|   |   |   |   |   |   |   |   |-- ident(grade)
+|   |   |   |   |   |   |   |-- colon
+|   |   |   |   |   |   |   |-- <type>
+|   |   |   |   |   |   |   |   |-- ident(integer)
+|   |   |   |   |   |   |-- semicolon
+|   |   |   |   |   |-- endsy
+|   |   |   |-- semicolon
+|   |   |-- <var-declaration>
+|   |   |   |-- varsy
+|   |   |   |-- <identifier-list>
+|   |   |   |   |-- ident(s)
+|   |   |   |-- colon
+|   |   |   |-- <type>
+|   |   |   |   |-- ident(Student)
+|   |   |   |-- semicolon
+|   |   |   |-- <identifier-list>
+|   |   |   |   |-- ident(score)
+|   |   |   |-- colon
+|   |   |   |-- <type>
+|   |   |   |   |-- ident(integer)
+|   |   |   |-- semicolon
+|   |-- <compound-statement>
+|   |   |-- beginsy
+|   |   |-- <statement-list>
+|   |   |   |-- <assignment-statement>
+|   |   |   |   |-- ident(score)
+|   |   |   |   |-- becomes
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(85)
+|   |   |   |-- semicolon
+|   |   |   |-- <case-statement>
+|   |   |   |   |-- casesy
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- ident(score)
+|   |   |   |   |-- ofsy
+|   |   |   |   |-- <case-block>
+|   |   |   |   |   |-- <constant>
+|   |   |   |   |   |   |-- intcon(90)
+|   |   |   |   |   |-- colon
+|   |   |   |   |   |-- <procedure/function-call>
+|   |   |   |   |   |   |-- ident(writeln)
+|   |   |   |   |   |   |-- lparent
+|   |   |   |   |   |   |-- <parameter-list>
+|   |   |   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |   |   |-- charcon('A')
+|   |   |   |   |   |   |-- rparent
+|   |   |   |   |   |-- semicolon
+|   |   |   |   |   |-- <case-block>
+|   |   |   |   |   |   |-- <constant>
+|   |   |   |   |   |   |   |-- intcon(80)
+|   |   |   |   |   |   |-- colon
+|   |   |   |   |   |   |-- <procedure/function-call>
+|   |   |   |   |   |   |   |-- ident(writeln)
+|   |   |   |   |   |   |   |-- lparent
+|   |   |   |   |   |   |   |-- <parameter-list>
+|   |   |   |   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |   |   |   |-- charcon('B')
+|   |   |   |   |   |   |   |-- rparent
+|   |   |   |   |   |   |-- semicolon
+|   |   |   |   |   |   |-- <case-block>
+|   |   |   |   |   |   |   |-- <constant>
+|   |   |   |   |   |   |   |   |-- intcon(70)
+|   |   |   |   |   |   |   |-- colon
+|   |   |   |   |   |   |   |-- <procedure/function-call>
+|   |   |   |   |   |   |   |   |-- ident(writeln)
+|   |   |   |   |   |   |   |   |-- lparent
+|   |   |   |   |   |   |   |   |-- <parameter-list>
+|   |   |   |   |   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |   |   |   |   |-- charcon('C')
+|   |   |   |   |   |   |   |   |-- rparent
+|   |   |   |   |   |   |   |-- semicolon
+|   |   |   |   |-- endsy
+|   |   |   |-- semicolon
+|   |   |   |-- <repeat-statement>
+|   |   |   |   |-- repeatsy
+|   |   |   |   |-- <statement-list>
+|   |   |   |   |   |-- <assignment-statement>
+|   |   |   |   |   |   |-- ident(score)
+|   |   |   |   |   |   |-- becomes
+|   |   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |   |-- ident(score)
+|   |   |   |   |   |   |   |   |-- minus
+|   |   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |   |-- intcon(10)
+|   |   |   |   |   |-- semicolon
+|   |   |   |   |-- untilsy
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- ident(score)
+|   |   |   |   |   |-- eql
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(0)
+|   |   |   |-- semicolon
+|   |   |-- endsy
+|   |-- period

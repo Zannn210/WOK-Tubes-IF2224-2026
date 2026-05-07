@@ -1,19 +1,21 @@
 #include "TipeDataKomentar.hpp"
 
 InputBuffer::InputBuffer(std::istream &input)
-    : in(input), hasBuffer(false), buffer(0) {}
+    : in(input), hasBuffer(false), buffer("") {}
 
 char InputBuffer::get() {
     if (hasBuffer) {
-        hasBuffer = false;
-        return buffer;
+        char c = buffer.back();
+        buffer.pop_back();
+        hasBuffer = !buffer.empty();
+        return c;
     }
     return in.get();
 }
 
 void InputBuffer::put(char c) {
+    buffer.push_back(c);
     hasBuffer = true;
-    buffer = c;
 }
 
 std::string NumberHandler::process(InputBuffer &in, char firstChar) {
@@ -33,6 +35,14 @@ std::string NumberHandler::process(InputBuffer &in, char firstChar) {
             if (isReal) validReal = true;
         }
         else if (c == '.' && !isReal) {
+            char next = in.get();
+            if (next == '.') {
+                in.put(next);
+                in.put(c);
+                break;
+            }
+
+            in.put(next);
             isReal = true;
             buffer += c;
         }

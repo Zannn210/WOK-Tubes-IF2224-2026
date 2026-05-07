@@ -1,0 +1,21 @@
+program RecordAndCase;
+type
+  Month == (Jan, Feb, Mar, Apr, May, Jun);
+  Student == record
+    name: integer;
+    grade: integer;
+  end;
+var
+  s: Student;
+  score: integer;
+begin
+  score := 85;
+  case score of
+    90: writeln('A');
+    80: writeln('B');
+    70: writeln('C');
+  end;
+  repeat
+    score := score - 10;
+  until score == 0;
+end.

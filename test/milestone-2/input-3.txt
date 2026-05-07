@@ -1,0 +1,12 @@
+program ArrayDemo;
+const
+  MAX == 10;
+type
+  Range == 1..10;
+var
+  arr: array[1..10] of integer;
+  i: integer;
+begin
+  for i := 1 to MAX do
+    arr[i] := i * 2;
+end.
