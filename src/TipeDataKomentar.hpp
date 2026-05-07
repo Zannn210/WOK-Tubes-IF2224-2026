@@ -7,7 +7,7 @@
 struct InputBuffer {
     std::istream &in;
     bool hasBuffer;
-    char buffer;
+    std::string buffer;
 
     InputBuffer(std::istream &input);
 

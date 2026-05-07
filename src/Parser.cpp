@@ -21,6 +21,7 @@ std::vector<Token> loadTokensFromFile(const std::string& filename) {
             t.type = line;
             t.value = "";
         }
+        if (t.type == "comment") continue;
         tokens.push_back(t);
     }
     return tokens;
@@ -95,6 +96,11 @@ bool Parser::match(const std::string& expectedType) {
 
 void Parser::parse() {
     parseProgram();
+    if (!check("EOF")) {
+        std::cerr << "\n[SYNTAX ERROR] Unexpected token '" << currentToken().type
+                  << "' after program end\n";
+        exit(1);
+    }
 }
 
 //root program
@@ -103,9 +109,11 @@ void Parser::parseProgram() {
     printNode("<program>");
     indentLevel++;
     
-    parseProgramHeader();
-    // parseDeclarationPart(); 
-    // parseCompoundStatement(); 
+    if (check("programsy")) {
+        parseProgramHeader();
+    }
+    parseDeclarationPart(); 
+    parseCompoundStatement(); 
     match("period");
     
     indentLevel--;
@@ -137,7 +145,7 @@ void Parser::parseDeclarationPart(){
     {
         parseVarDeclaration();
     }
-    while (check("procedurecy") || check("functionsy"))
+    while (check("proceduresy") || check("functionsy"))
     {
         parseSubprogramDeclaration();
     }
@@ -393,9 +401,14 @@ void Parser::parseCompoundStatement() {
 void Parser::parseStatementList() {
     printNode("<statement-list>");
     indentLevel++;
-    parseStatement();
+    if (!check("endsy") && !check("untilsy")) {
+        parseStatement();
+    }
     while (check("semicolon")) {
         match("semicolon");
+        if (check("endsy") || check("untilsy")) {
+            break;
+        }
         parseStatement();
     }
     indentLevel--;

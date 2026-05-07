@@ -22,18 +22,7 @@ run: $(OUTPUT)
 	@read -p "Masukkan File input (contoh: test/input2.txt): " filepath; \
 	if [ -z "$$filepath" ]; then echo "Input kosong."; exit 1; fi; \
 	if [ ! -f "$$filepath" ]; then echo "File tidak ditemukan: $$filepath"; exit 1; fi; \
-	outdir="$(TEST_DIR)/milestone-1"; \
-	mkdir -p "$$outdir"; \
-	last_num=$$(ls -1 "$$outdir"/output_[0-9]*.txt 2>/dev/null \
-		| sed -E 's|.*/output_([0-9]+)\.txt|\1|' \
-		| grep -E '^[0-9]+$$' \
-		| sort -n \
-		| tail -n 1); \
-	if [ -z "$$last_num" ]; then last_num=0; fi; \
-	next_num=$$((last_num + 1)); \
-	outpath="$$outdir/output_$${next_num}.txt"; \
-	echo "Menyimpan output ke $$outpath"; \
-	./$(OUTPUT) "$$filepath" | tee "$$outpath"
+	./$(OUTPUT) "$$filepath"
 
 test: $(OUTPUT)
 	@echo "Menjalankan Lexer pada file di folder $(TEST_DIR)..."
@@ -86,10 +75,10 @@ clean-all: clean clean-output
 	@echo "Semua file executable dan output berhasil dihapus."
 
 help:
-	@echo "=== Arion Lexer Makefile ==="
+	@echo "=== Arion Lexer + Parser Makefile ==="
 	@echo "Target yang tersedia:"
 	@echo "  make              - Kompilasi program"
-	@echo "  make run          - Jalankan lexer dengan input manual (tampilkan + simpan ke output_N.txt)"
+	@echo "  make run          - Jalankan lexer+parser dan simpan token serta parse tree"
 	@echo "  make test         - Test semua file input*.txt (output ke output_N.txt)"
 	@echo "  make test-all     - Test semua file .txt (output auto-increment)"
 	@echo "  make clean        - Hapus executable"
