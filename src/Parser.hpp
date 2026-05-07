@@ -25,6 +25,10 @@ private:
     Token lookahead(int offset);
     void advance();
     void printNode(const std::string& nodeName);
+    bool check(const std::string& type);
+    bool isRelationalOp();
+    bool isAdditiveOp();
+    bool isMultiplecativeOp();
 
 public:
     Parser(const std::vector<Token>& t, const std::string& outFilename);
@@ -38,8 +42,44 @@ public:
 
     void parseProgram();
     void parseProgramHeader();
-
-    //di bawah diisi fungsi anggota2 lain
+    void parseDeclarationPart();
+    void parseBlock();
+    void parseConstDeclaration();
+    void parseConstant();
+    void parseTypeDeclaration();
+    void parseType();
+    void parseArrayType();
+    void parseRange();
+    void parseEnumerated();
+    void parseRecordType();
+    void parseFieldList();
+    void parseFieldPart();
+    void parseVarDeclaration();
+    void parseIdentifierList();
+    void parseSubprogramDeclaration();
+    void parseProcedureDeclaration();
+    void parseFunctionDeclaration();
+    void parseFormalParameterList();
+    void parseParameterGroup();
+    void parseCompoundStatement();
+    void parseStatementList();
+    void parseStatement();
+    void parseAssignmentStatement();
+    void parseIfStatement();
+    void parseCaseStatement();
+    void parseCaseBlock();
+    void parseWhileStatement();
+    void parseRepeatStatement();
+    void parseForStatement();
+    void parseProcFuncCall();
+    void parseVariable();
+    void parseComponentVariable();
+    void parseIndexList();
+    void parseParameterList();
+    void parseExpression();
+    void parseSimpleExpression();
+    void parseTerm();
+    void parseFactor();
 
 };
 
