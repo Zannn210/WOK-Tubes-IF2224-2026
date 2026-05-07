@@ -1,0 +1,83 @@
+programsy
+ident (SubprogramDemo)
+semicolon
+
+varsy
+ident (result)
+colon
+ident (integer)
+semicolon
+
+proceduresy
+ident (printMsg)
+lparent
+ident (msg)
+colon
+arraysy
+lbrack
+ident (char)
+rbrack
+ofsy
+ident (integer)
+rparent
+semicolon
+
+varsy
+ident (i)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (writeln)
+lparent
+ident (msg)
+rparent
+semicolon
+
+endsy
+semicolon
+
+functionsy
+ident (add)
+lparent
+ident (a)
+comma
+ident (b)
+colon
+ident (integer)
+rparent
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (add)
+becomes
+ident (a)
+plus
+ident (b)
+semicolon
+
+endsy
+semicolon
+
+beginsy
+ident (result)
+becomes
+ident (add)
+lparent
+intcon (3)
+comma
+intcon (7)
+rparent
+semicolon
+
+ident (printMsg)
+lparent
+string ('Done')
+rparent
+semicolon
+
+endsy
+period

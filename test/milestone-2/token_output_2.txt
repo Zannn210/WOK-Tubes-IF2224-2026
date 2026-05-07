@@ -1,0 +1,46 @@
+programsy
+ident (ControlFlow)
+semicolon
+
+varsy
+ident (x)
+comma
+ident (y)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (x)
+becomes
+intcon (10)
+semicolon
+
+ifsy
+ident (x)
+gtr
+intcon (5)
+thensy
+ident (y)
+becomes
+intcon (1)
+elsesy
+ident (y)
+becomes
+intcon (0)
+semicolon
+
+whilesy
+ident (x)
+gtr
+intcon (0)
+dosy
+ident (x)
+becomes
+ident (x)
+minus
+intcon (1)
+semicolon
+
+endsy
+period

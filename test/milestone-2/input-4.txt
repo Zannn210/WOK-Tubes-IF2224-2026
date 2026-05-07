@@ -1,0 +1,20 @@
+program SubprogramDemo;
+var
+  result: integer;
+
+procedure printMsg(msg: array[char] of integer);
+var
+  i: integer;
+begin
+  writeln(msg);
+end;
+
+function add(a, b: integer): integer;
+begin
+  add := a + b;
+end;
+
+begin
+  result := add(3, 7);
+  printMsg('Done');
+end.

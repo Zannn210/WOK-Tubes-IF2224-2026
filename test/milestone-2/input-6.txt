@@ -1,0 +1,6 @@
+program Hello
+var
+  a, b: integer;
+begin
+  a := 5;
+end.

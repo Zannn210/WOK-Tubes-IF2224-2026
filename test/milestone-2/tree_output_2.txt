@@ -1,0 +1,87 @@
+<program>
+|   |-- <program-header>
+|   |   |-- programsy
+|   |   |-- ident(ControlFlow)
+|   |   |-- semicolon
+|   |-- <declaration-part>
+|   |   |-- <var-declaration>
+|   |   |   |-- varsy
+|   |   |   |-- <identifier-list>
+|   |   |   |   |-- ident(x)
+|   |   |   |   |-- comma
+|   |   |   |   |-- ident(y)
+|   |   |   |-- colon
+|   |   |   |-- <type>
+|   |   |   |   |-- ident(integer)
+|   |   |   |-- semicolon
+|   |-- <compound-statement>
+|   |   |-- beginsy
+|   |   |-- <statement-list>
+|   |   |   |-- <assignment-statement>
+|   |   |   |   |-- ident(x)
+|   |   |   |   |-- becomes
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(10)
+|   |   |   |-- semicolon
+|   |   |   |-- <if-statement>
+|   |   |   |   |-- ifsy
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- ident(x)
+|   |   |   |   |   |-- gtr
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(5)
+|   |   |   |   |-- thensy
+|   |   |   |   |-- <assignment-statement>
+|   |   |   |   |   |-- ident(y)
+|   |   |   |   |   |-- becomes
+|   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- intcon(1)
+|   |   |   |   |-- elsesy
+|   |   |   |   |-- <assignment-statement>
+|   |   |   |   |   |-- ident(y)
+|   |   |   |   |   |-- becomes
+|   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- intcon(0)
+|   |   |   |-- semicolon
+|   |   |   |-- <while-statement>
+|   |   |   |   |-- whilesy
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- ident(x)
+|   |   |   |   |   |-- gtr
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(0)
+|   |   |   |   |-- dosy
+|   |   |   |   |-- <assignment-statement>
+|   |   |   |   |   |-- ident(x)
+|   |   |   |   |   |-- becomes
+|   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- ident(x)
+|   |   |   |   |   |   |   |-- minus
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- intcon(1)
+|   |   |   |-- semicolon
+|   |   |-- endsy
+|   |-- period

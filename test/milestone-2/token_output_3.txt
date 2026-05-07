@@ -1,0 +1,58 @@
+programsy
+ident (ArrayDemo)
+semicolon
+
+constsy
+ident (MAX)
+eql
+intcon (10)
+semicolon
+
+typesy
+ident (Range)
+eql
+intcon (1)
+period
+period
+intcon (10)
+semicolon
+
+varsy
+ident (arr)
+colon
+arraysy
+lbrack
+intcon (1)
+period
+period
+intcon (10)
+rbrack
+ofsy
+ident (integer)
+semicolon
+
+ident (i)
+colon
+ident (integer)
+semicolon
+
+beginsy
+forsy
+ident (i)
+becomes
+intcon (1)
+tosy
+ident (MAX)
+dosy
+ident (arr)
+lbrack
+ident (i)
+rbrack
+becomes
+ident (i)
+times
+intcon (2)
+semicolon
+
+endsy
+period

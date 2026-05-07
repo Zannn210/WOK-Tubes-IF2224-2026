@@ -1,0 +1,18 @@
+programsy
+ident (Hello)
+varsy
+ident (a)
+comma
+ident (b)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (a)
+becomes
+intcon (5)
+semicolon
+
+endsy
+period
