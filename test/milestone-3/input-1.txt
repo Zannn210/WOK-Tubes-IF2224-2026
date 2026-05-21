@@ -1,0 +1,10 @@
+program TestBasic;
+var
+  x, y: integer;
+  r: real;
+begin
+  x := 10;
+  y := x + 5;
+  r := x;        { assignment-compatible: real := integer }
+  writeln(y);
+end.

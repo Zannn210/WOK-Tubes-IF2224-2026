@@ -1,0 +1,6 @@
+program TestUndeclared;
+var
+  a: integer;
+begin
+  a := b + 1;    { b tidak pernah dideklarasikan }
+end.

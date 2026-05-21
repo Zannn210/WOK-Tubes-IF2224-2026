@@ -1,0 +1,16 @@
+program TestScope;
+var
+  x: integer;
+
+procedure increment;
+var
+  x: integer;    { x lokal, shadowing x global }
+begin
+  x := x + 1;   { ini merujuk x lokal, bukan global }
+end;
+
+begin
+  x := 0;
+  increment;
+  writeln(x);    { x global, masih 0 }
+end.

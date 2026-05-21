@@ -1,0 +1,9 @@
+program TestSubrange;
+var
+  index: 1..10;
+  count: integer;
+begin
+  count := 5;
+  index := count;      { OK: integer value 5 adalah subset dari [1..10] }
+  index := 11;         { ERROR: 11 di luar range [1..10] }
+end.

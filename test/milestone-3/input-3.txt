@@ -1,0 +1,8 @@
+program TestTypeMismatch;
+var
+  flag: boolean;
+  count: integer;
+begin
+  flag := true;
+  count := flag;    { integer := boolean: incompatible }
+end.

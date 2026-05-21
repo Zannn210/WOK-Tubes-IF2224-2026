@@ -1,0 +1,8 @@
+program TestIfType;
+var
+  n: integer;
+begin
+  n := 5;
+  if n then          { n bertipe integer, bukan boolean }
+    writeln('yes');
+end.

@@ -1,0 +1,9 @@
+program TestArray;
+var
+  nums: array [1..5] of integer;
+  i: integer;
+begin
+  i := 1;
+  nums[i] := 42;
+  writeln(nums[i]);
+end.

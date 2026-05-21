@@ -1,0 +1,7 @@
+program TestRedecl;
+var
+  score: integer;
+  score: real;     { redeclaration di scope yang sama }
+begin
+  score := 100;
+end.
