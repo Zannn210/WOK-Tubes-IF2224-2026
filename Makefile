@@ -19,10 +19,7 @@ $(OUTPUT): $(SOURCES)
 	@echo "Kompilasi berhasil! Gunakan 'make run' untuk melanjutkan."
 
 run: $(OUTPUT)
-	@read -p "Masukkan File input (contoh: test/input2.txt): " filepath; \
-	if [ -z "$$filepath" ]; then echo "Input kosong."; exit 1; fi; \
-	if [ ! -f "$$filepath" ]; then echo "File tidak ditemukan: $$filepath"; exit 1; fi; \
-	./$(OUTPUT) "$$filepath"
+	./$(OUTPUT)
 
 test: $(OUTPUT)
 	@echo "Menjalankan Lexer pada file di folder $(TEST_DIR)..."
@@ -78,7 +75,7 @@ help:
 	@echo "=== Arion Lexer + Parser Makefile ==="
 	@echo "Target yang tersedia:"
 	@echo "  make              - Kompilasi program"
-	@echo "  make run          - Jalankan lexer+parser dan simpan token serta parse tree"
+	@echo "  make run          - Jalankan compiler secara interaktif (pilih milestone & file)"
 	@echo "  make test         - Test semua file input*.txt (output ke output_N.txt)"
 	@echo "  make test-all     - Test semua file .txt (output auto-increment)"
 	@echo "  make clean        - Hapus executable"
