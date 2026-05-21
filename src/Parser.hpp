@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include "AST.hpp"
 
 // Struktur data untuk menyimpan Token dari Lexer
 struct Token {
@@ -25,6 +26,7 @@ private:
     Token lookahead(int offset);
     void advance();
     void printNode(const std::string& nodeName);
+    bool check(const std::string& expectedType);
 
 public:
     Parser(const std::vector<Token>& t, const std::string& outFilename);
@@ -39,7 +41,19 @@ public:
     void parseProgram();
     void parseProgramHeader();
 
-    //di bawah diisi fungsi anggota2 lain
+    // Fungsi parsing yang mengembalikan AST nodes (Syntax-Directed Translation)
+    std::shared_ptr<StatementNode> parseAssignmentStatement();
+    std::shared_ptr<StatementNode> parseStatement();
+    std::shared_ptr<ExprNode> parseExpression();
+    std::shared_ptr<ExprNode> parseSimpleExpression();
+    std::shared_ptr<ExprNode> parseTerm();
+    std::shared_ptr<ExprNode> parseFactor();
+    std::shared_ptr<ExprNode> parseVariable();
+
+    // Fungsi helper untuk pengecekan operator
+    bool isRelationalOp();
+    bool isAdditiveOp();
+    bool isMultiplicativeOp();
 
 };
 
