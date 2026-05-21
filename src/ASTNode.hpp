@@ -5,23 +5,23 @@
 #include <vector>
 
 enum TypeCode {
-    TYPE_VOID       =  0,
-    TYPE_INTEGER    =  1,
-    TYPE_REAL       =  2,
-    TYPE_BOOLEAN    =  3,
-    TYPE_CHAR       =  4,
-    TYPE_STRING     =  5,
-    TYPE_ARRAY      =  6,
-    TYPE_RECORD     =  7,
-    TYPE_SUBRANGE   =  8,
-    TYPE_ENUMERATED =  9,
-    TYPE_UNKNOWN    = -1
+    TYPE_VOID  = 0,
+    TYPE_INTEGER = 1,
+    TYPE_REAL = 2,
+    TYPE_BOOLEAN =  3,
+    TYPE_CHAR = 4,
+    TYPE_STRING =  5,
+    TYPE_ARRAY = 6,
+    TYPE_RECORD= 7,
+    TYPE_SUBRANGE = 8,
+    TYPE_ENUMERATED = 9,
+    TYPE_UNKNOWN = -1
 };
 
 
 struct ASTNode {
     std::string label; 
-    bool        isTerminal; 
+    bool isTerminal; 
     std::string tokenType;  
     std::string tokenValue;  
 

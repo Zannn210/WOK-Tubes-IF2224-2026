@@ -4,11 +4,11 @@
 #include <string>
 
 enum ObjKind {
-    OBJ_CONST   = 0,
-    OBJ_VAR     = 1,
-    OBJ_TYPE    = 2,
-    OBJ_PROC    = 3,
-    OBJ_FUNC    = 4,
+    OBJ_CONST= 0,
+    OBJ_VAR = 1,
+    OBJ_TYPE = 2,
+    OBJ_PROC= 3,
+    OBJ_FUNC = 4,
     OBJ_PROGRAM = 5
 };
 
