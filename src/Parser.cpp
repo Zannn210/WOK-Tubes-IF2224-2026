@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cstdlib>
 
-// ── Token file loader ───────────────────────────────────────────────────────
+// Token file loader 
 
 std::vector<Token> loadTokensFromFile(const std::string& filename) {
     std::vector<Token> tokens;
@@ -21,14 +21,13 @@ std::vector<Token> loadTokensFromFile(const std::string& filename) {
             t.type  = line;
             t.value = "";
         }
-        // Skip comment tokens — they are not part of the parse tree
         if (t.type == "comment") continue;
         tokens.push_back(t);
     }
     return tokens;
 }
 
-// ── Constructor / Destructor ────────────────────────────────────────────────
+// Constructor/ Destructor
 
 Parser::Parser(const std::vector<Token>& t, const std::string& outFilename)
     : tokens(t), currentIndex(0), indentLevel(0) {
@@ -39,7 +38,7 @@ Parser::~Parser() {
     if (outFile.is_open()) outFile.close();
 }
 
-// ── Utility helpers ─────────────────────────────────────────────────────────
+// Utility helpers
 
 Token Parser::currentToken() {
     if (currentIndex < (int)tokens.size()) return tokens[currentIndex];
@@ -71,8 +70,7 @@ void Parser::printNode(const std::string& nodeName) {
 
 bool Parser::isRelationalOp() {
     const std::string& t = currentToken().type;
-    return t == "eql" || t == "neq" || t == "gtr" ||
-           t == "geq" || t == "lss" || t == "leq";
+    return t == "eql" || t == "neq" || t == "gtr" ||  t == "geq" || t == "lss" || t == "leq";
 }
 
 bool Parser::isAdditiveOp() {
@@ -85,7 +83,7 @@ bool Parser::isMultiplicativeOp() {
     return t == "times" || t == "rdiv" || t == "idiv" || t == "imod" || t == "andsy";
 }
 
-// ── match — consumes a token and returns a terminal ASTNode ─────────────────
+// match, consumes a token and returns a terminal ASTNode
 
 ASTNode* Parser::match(const std::string& expectedType) {
     Token t = currentToken();
@@ -97,24 +95,22 @@ ASTNode* Parser::match(const std::string& expectedType) {
         advance();
         return new ASTNode(label, true, t.type, t.value);
     }
-    std::cerr << "\n[SYNTAX ERROR] Unexpected token '" << t.type
-              << "', expected '" << expectedType << "'\n";
+    std::cerr << "\n[SYNTAX ERROR] Unexpected token '" << t.type << "', expected '" << expectedType << "'\n";
     exit(1);
 }
 
-// ── Entry point ─────────────────────────────────────────────────────────────
+// Entry point
 
 ASTNode* Parser::parse() {
     ASTNode* root = parseProgram();
     if (!check("EOF")) {
-        std::cerr << "\n[SYNTAX ERROR] Unexpected token '"
-                  << currentToken().type << "' after program end\n";
+        std::cerr << "\n[SYNTAX ERROR] Unexpected token '" << currentToken().type << "' after program end\n";
         exit(1);
     }
     return root;
 }
 
-// ── Program structure ───────────────────────────────────────────────────────
+// Program structure
 
 ASTNode* Parser::parseProgram() {
     auto* node = new ASTNode("<program>");
@@ -163,7 +159,7 @@ ASTNode* Parser::parseDeclarationPart() {
     return node;
 }
 
-// ── Declarations ────────────────────────────────────────────────────────────
+// Declarations
 
 ASTNode* Parser::parseConstDeclaration() {
     auto* node = new ASTNode("<const-declaration>");
@@ -199,8 +195,7 @@ ASTNode* Parser::parseConstant() {
         else if (check("intcon"))  node->addChild(match("intcon"));
         else if (check("realcon")) node->addChild(match("realcon"));
         else {
-            std::cerr << "[SYNTAX ERROR] Expected constant, got '"
-                      << currentToken().type << "'\n";
+            std::cerr << "[SYNTAX ERROR] Expected constant, got '" << currentToken().type << "'\n";
             exit(1);
         }
     }
@@ -241,15 +236,14 @@ ASTNode* Parser::parseType() {
                check("string")  || check("plus")    || check("minus")) {
         node->addChild(parseRange());
     } else if (check("ident")) {
-        // Disambiguate between plain type name and subrange 'ident..ident'
         if (lookahead(1).type == "period" && lookahead(2).type == "period") {
             node->addChild(parseRange());
-        } else {
+        } 
+        else {
             node->addChild(match("ident"));
         }
     } else {
-        std::cerr << "[SYNTAX ERROR] Expected type, got '"
-                  << currentToken().type << "'\n";
+        std::cerr << "[SYNTAX ERROR] Expected type, got '" << currentToken().type << "'\n";
         exit(1);
     }
 
@@ -265,7 +259,6 @@ ASTNode* Parser::parseArrayType() {
     node->addChild(match("arraysy"));
     node->addChild(match("lbrack"));
 
-    // Index type: either a range or a named type identifier
     if (check("ident") && lookahead(1).type != "period") {
         node->addChild(match("ident"));
     } else {
@@ -385,7 +378,7 @@ ASTNode* Parser::parseIdentifierList() {
     return node;
 }
 
-// ── Subprograms ─────────────────────────────────────────────────────────────
+// Subprograms
 
 ASTNode* Parser::parseSubprogramDeclaration() {
     auto* node = new ASTNode("<subprogram-declaration>");
@@ -424,7 +417,7 @@ ASTNode* Parser::parseFunctionDeclaration() {
     node->addChild(match("ident"));
     if (check("lparent")) node->addChild(parseFormalParameterList());
     node->addChild(match("colon"));
-    node->addChild(match("ident")); // return type
+    node->addChild(match("ident")); 
     node->addChild(match("semicolon"));
     node->addChild(parseBlock());
     node->addChild(match("semicolon"));
@@ -476,7 +469,7 @@ ASTNode* Parser::parseParameterGroup() {
     return node;
 }
 
-// ── Compound statement and statement list ───────────────────────────────────
+// Compound statement and statement list
 
 ASTNode* Parser::parseCompoundStatement() {
     auto* node = new ASTNode("<compound-statement>");
@@ -496,7 +489,6 @@ ASTNode* Parser::parseStatementList() {
     printNode("<statement-list>");
     indentLevel++;
 
-    // The first statement may be absent (empty statement is valid in M3)
     if (!check("endsy") && !check("untilsy")) {
         ASTNode* s = parseStatement();
         if (s) node->addChild(s);
@@ -513,8 +505,7 @@ ASTNode* Parser::parseStatementList() {
     return node;
 }
 
-// parseStatement: dispatches to the appropriate rule.
-// Returns nullptr for an empty statement (no node printed).
+
 ASTNode* Parser::parseStatement() {
     const std::string t = currentToken().type;
 
@@ -525,7 +516,6 @@ ASTNode* Parser::parseStatement() {
         } else if (next == "becomes" || next == "lbrack" || next == "period") {
             return parseAssignmentStatement();
         } else {
-            // Bare identifier followed by end-of-statement marker: empty statement
             if (next == "semicolon" || next == "endsy" ||
                 next == "elsesy"    || next == "untilsy") {
                 return nullptr;
@@ -539,11 +529,10 @@ ASTNode* Parser::parseStatement() {
     else if (t == "forsy")        return parseForStatement();
     else if (t == "beginsy")      return parseCompoundStatement();
 
-    // Empty statement
     return nullptr;
 }
 
-// ── Statements ──────────────────────────────────────────────────────────────
+// Statements
 
 ASTNode* Parser::parseVariable() {
     auto* node = new ASTNode("<variable>");
@@ -592,7 +581,7 @@ ASTNode* Parser::parseIndexList() {
 
     while (check("comma")) {
         node->addChild(match("comma"));
-        node->addChild(parseIndexList()); // recursive for multi-dim
+        node->addChild(parseIndexList());  
     }
 
     indentLevel--;
@@ -604,7 +593,6 @@ ASTNode* Parser::parseAssignmentStatement() {
     printNode("<assignment-statement>");
     indentLevel++;
 
-    // Simple 'ident :=' or complex 'variable :='
     bool simpleLhs = check("ident") && lookahead(1).type == "becomes";
     if (simpleLhs) node->addChild(match("ident"));
     else           node->addChild(parseVariable());
@@ -673,7 +661,6 @@ ASTNode* Parser::parseCaseBlock() {
     return node;
 }
 
-// M3 revision: body must be compound-statement
 ASTNode* Parser::parseWhileStatement() {
     auto* node = new ASTNode("<while-statement>");
     printNode("<while-statement>");
@@ -682,7 +669,7 @@ ASTNode* Parser::parseWhileStatement() {
     node->addChild(match("whilesy"));
     node->addChild(parseExpression());
     node->addChild(match("dosy"));
-    node->addChild(parseCompoundStatement()); // M3: compound-statement required
+    node->addChild(parseCompoundStatement()); 
 
     indentLevel--;
     return node;
@@ -702,7 +689,6 @@ ASTNode* Parser::parseRepeatStatement() {
     return node;
 }
 
-// M3 revision: body must be compound-statement
 ASTNode* Parser::parseForStatement() {
     auto* node = new ASTNode("<for-statement>");
     printNode("<for-statement>");
@@ -723,7 +709,7 @@ ASTNode* Parser::parseForStatement() {
 
     node->addChild(parseExpression());
     node->addChild(match("dosy"));
-    node->addChild(parseCompoundStatement()); // M3: compound-statement required
+    node->addChild(parseCompoundStatement());
 
     indentLevel--;
     return node;
@@ -760,7 +746,7 @@ ASTNode* Parser::parseParameterList() {
     return node;
 }
 
-// ── Expressions ─────────────────────────────────────────────────────────────
+// Expressions
 
 ASTNode* Parser::parseExpression() {
     auto* node = new ASTNode("<expression>");
@@ -839,8 +825,7 @@ ASTNode* Parser::parseFactor() {
             node->addChild(match("ident"));
         }
     } else {
-        std::cerr << "[SYNTAX ERROR] Unexpected token in factor: '"
-                  << currentToken().type << "'\n";
+        std::cerr << "[SYNTAX ERROR] Unexpected token in factor: '" << currentToken().type << "'\n";
         exit(1);
     }
 
