@@ -4,8 +4,9 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include "ASTNode.hpp"
 
-// Struktur data untuk menyimpan Token dari Lexer
+// Token produced by the lexer and consumed by the parser
 struct Token {
     std::string type;
     std::string value;
@@ -20,67 +21,66 @@ private:
     int indentLevel;
     std::ofstream outFile;
 
-    // Fungsi utilitas internal
     Token currentToken();
     Token lookahead(int offset);
-    void advance();
-    void printNode(const std::string& nodeName);
-    bool check(const std::string& type);
-    bool isRelationalOp();
-    bool isAdditiveOp();
-    bool isMultiplecativeOp();
+    void  advance();
+    void  printNode(const std::string& nodeName);
+    bool  check(const std::string& type);
+    bool  isRelationalOp();
+    bool  isAdditiveOp();
+    bool  isMultiplicativeOp();
 
 public:
     Parser(const std::vector<Token>& t, const std::string& outFilename);
     ~Parser();
 
-    // Fungsi utama Error Handling
-    bool match(const std::string& expectedType);
+    // Match expected token; prints it, advances, returns terminal ASTNode
+    ASTNode* match(const std::string& expectedType);
 
-    // Entry point parser
-    void parse();
+    // Entry point — returns the root of the parse tree
+    ASTNode* parse();
 
-    void parseProgram();
-    void parseProgramHeader();
-    void parseDeclarationPart();
-    void parseBlock();
-    void parseConstDeclaration();
-    void parseConstant();
-    void parseTypeDeclaration();
-    void parseType();
-    void parseArrayType();
-    void parseRange();
-    void parseEnumerated();
-    void parseRecordType();
-    void parseFieldList();
-    void parseFieldPart();
-    void parseVarDeclaration();
-    void parseIdentifierList();
-    void parseSubprogramDeclaration();
-    void parseProcedureDeclaration();
-    void parseFunctionDeclaration();
-    void parseFormalParameterList();
-    void parseParameterGroup();
-    void parseCompoundStatement();
-    void parseStatementList();
-    void parseStatement();
-    void parseAssignmentStatement();
-    void parseIfStatement();
-    void parseCaseStatement();
-    void parseCaseBlock();
-    void parseWhileStatement();
-    void parseRepeatStatement();
-    void parseForStatement();
-    void parseProcFuncCall();
-    void parseVariable();
-    void parseComponentVariable();
-    void parseIndexList();
-    void parseParameterList();
-    void parseExpression();
-    void parseSimpleExpression();
-    void parseTerm();
-    void parseFactor();
-
+    // Grammar rules — each returns the corresponding subtree
+    ASTNode* parseProgram();
+    ASTNode* parseProgramHeader();
+    ASTNode* parseDeclarationPart();
+    ASTNode* parseBlock();
+    ASTNode* parseConstDeclaration();
+    ASTNode* parseConstant();
+    ASTNode* parseTypeDeclaration();
+    ASTNode* parseType();
+    ASTNode* parseArrayType();
+    ASTNode* parseRange();
+    ASTNode* parseEnumerated();
+    ASTNode* parseRecordType();
+    ASTNode* parseFieldList();
+    ASTNode* parseFieldPart();
+    ASTNode* parseVarDeclaration();
+    ASTNode* parseIdentifierList();
+    ASTNode* parseSubprogramDeclaration();
+    ASTNode* parseProcedureDeclaration();
+    ASTNode* parseFunctionDeclaration();
+    ASTNode* parseFormalParameterList();
+    ASTNode* parseParameterGroup();
+    ASTNode* parseCompoundStatement();
+    ASTNode* parseStatementList();
+    ASTNode* parseStatement();          // returns nullptr for empty statement
+    ASTNode* parseAssignmentStatement();
+    ASTNode* parseIfStatement();
+    ASTNode* parseCaseStatement();
+    ASTNode* parseCaseBlock();
+    ASTNode* parseWhileStatement();
+    ASTNode* parseRepeatStatement();
+    ASTNode* parseForStatement();
+    ASTNode* parseProcFuncCall();
+    ASTNode* parseVariable();
+    ASTNode* parseComponentVariable();
+    ASTNode* parseIndexList();
+    ASTNode* parseParameterList();
+    ASTNode* parseExpression();
+    ASTNode* parseSimpleExpression();
+    ASTNode* parseTerm();
+    ASTNode* parseFactor();
 };
 
-#endif
+#endif // PARSER_HPP

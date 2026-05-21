@@ -2,32 +2,35 @@
 #include <iostream>
 #include <cstdlib>
 
-//utility dan file loader
+// ── Token file loader ───────────────────────────────────────────────────────
 
 std::vector<Token> loadTokensFromFile(const std::string& filename) {
     std::vector<Token> tokens;
     std::ifstream file(filename);
     std::string line;
-    
+
     while (std::getline(file, line)) {
         if (line.empty()) continue;
-        
+
         Token t;
         size_t pos = line.find(" (");
         if (pos != std::string::npos) {
-            t.type = line.substr(0, pos);
+            t.type  = line.substr(0, pos);
             t.value = line.substr(pos + 2, line.length() - pos - 3);
         } else {
-            t.type = line;
+            t.type  = line;
             t.value = "";
         }
+        // Skip comment tokens — they are not part of the parse tree
         if (t.type == "comment") continue;
         tokens.push_back(t);
     }
     return tokens;
 }
 
-Parser::Parser(const std::vector<Token>& t, const std::string& outFilename) 
+// ── Constructor / Destructor ────────────────────────────────────────────────
+
+Parser::Parser(const std::vector<Token>& t, const std::string& outFilename)
     : tokens(t), currentIndex(0), indentLevel(0) {
     outFile.open(outFilename);
 }
@@ -36,13 +39,16 @@ Parser::~Parser() {
     if (outFile.is_open()) outFile.close();
 }
 
+// ── Utility helpers ─────────────────────────────────────────────────────────
+
 Token Parser::currentToken() {
     if (currentIndex < (int)tokens.size()) return tokens[currentIndex];
-    return {"EOF", ""}; 
+    return {"EOF", ""};
 }
 
 Token Parser::lookahead(int offset) {
-    if (currentIndex + offset < (int)tokens.size()) return tokens[currentIndex + offset];
+    int idx = currentIndex + offset;
+    if (idx < (int)tokens.size()) return tokens[idx];
     return {"EOF", ""};
 }
 
@@ -50,432 +56,534 @@ void Parser::advance() {
     if (currentIndex < (int)tokens.size()) currentIndex++;
 }
 
-bool Parser::check(const std::string& type){
+bool Parser::check(const std::string& type) {
     return currentToken().type == type;
 }
 
-
 void Parser::printNode(const std::string& nodeName) {
-    std::string indent = "";
-    for(int i = 0; i < indentLevel; i++) indent += "|   ";
+    std::string indent;
+    for (int i = 0; i < indentLevel; i++) indent += "|   ";
     if (indentLevel > 0) indent += "|-- ";
 
     std::cout << indent << nodeName << "\n";
-    if (outFile.is_open()) {
-        outFile << indent << nodeName << "\n";
-    }
+    if (outFile.is_open()) outFile << indent << nodeName << "\n";
 }
 
-bool Parser::isRelationalOp(){
-    std::string t = currentToken().type;
-    return t == "eql" || t == "neq" || t == "gtr" || t == "geq" || t == "lss" || t == "leq";
+bool Parser::isRelationalOp() {
+    const std::string& t = currentToken().type;
+    return t == "eql" || t == "neq" || t == "gtr" ||
+           t == "geq" || t == "lss" || t == "leq";
 }
 
-bool Parser::isAdditiveOp(){
-    std::string t = currentToken().type;
+bool Parser::isAdditiveOp() {
+    const std::string& t = currentToken().type;
     return t == "plus" || t == "minus" || t == "orsy";
 }
-bool Parser::isMultiplecativeOp(){
-    std::string t = currentToken().type;
+
+bool Parser::isMultiplicativeOp() {
+    const std::string& t = currentToken().type;
     return t == "times" || t == "rdiv" || t == "idiv" || t == "imod" || t == "andsy";
 }
-bool Parser::match(const std::string& expectedType) {
+
+// ── match — consumes a token and returns a terminal ASTNode ─────────────────
+
+ASTNode* Parser::match(const std::string& expectedType) {
     Token t = currentToken();
     if (t.type == expectedType) {
-        std::string printText = t.type;
-        if (!t.value.empty()) printText += "(" + t.value + ")";
-        
-        printNode(printText);
+        std::string label = t.type;
+        if (!t.value.empty()) label += "(" + t.value + ")";
+
+        printNode(label);
         advance();
-        return true;
-    } else {
-        std::cerr << "\n[SYNTAX ERROR] Unexpected token '" << t.type << "', expected '" << expectedType << "'\n";
-        exit(1); 
+        return new ASTNode(label, true, t.type, t.value);
     }
+    std::cerr << "\n[SYNTAX ERROR] Unexpected token '" << t.type
+              << "', expected '" << expectedType << "'\n";
+    exit(1);
 }
 
-void Parser::parse() {
-    parseProgram();
+// ── Entry point ─────────────────────────────────────────────────────────────
+
+ASTNode* Parser::parse() {
+    ASTNode* root = parseProgram();
     if (!check("EOF")) {
-        std::cerr << "\n[SYNTAX ERROR] Unexpected token '" << currentToken().type
-                  << "' after program end\n";
+        std::cerr << "\n[SYNTAX ERROR] Unexpected token '"
+                  << currentToken().type << "' after program end\n";
         exit(1);
     }
+    return root;
 }
 
-//root program
+// ── Program structure ───────────────────────────────────────────────────────
 
-void Parser::parseProgram() {
+ASTNode* Parser::parseProgram() {
+    auto* node = new ASTNode("<program>");
     printNode("<program>");
     indentLevel++;
-    
-    if (check("programsy")) {
-        parseProgramHeader();
-    }
-    parseDeclarationPart(); 
-    parseCompoundStatement(); 
-    match("period");
-    
+
+    if (check("programsy"))
+        node->addChild(parseProgramHeader());
+
+    node->addChild(parseDeclarationPart());
+    node->addChild(parseCompoundStatement());
+    node->addChild(match("period"));
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseProgramHeader() {
+ASTNode* Parser::parseProgramHeader() {
+    auto* node = new ASTNode("<program-header>");
     printNode("<program-header>");
     indentLevel++;
-    
-    match("programsy");
-    match("ident");
-    match("semicolon");
-    
+
+    node->addChild(match("programsy"));
+    node->addChild(match("ident"));
+    node->addChild(match("semicolon"));
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseDeclarationPart(){
+ASTNode* Parser::parseDeclarationPart() {
+    auto* node = new ASTNode("<declaration-part>");
     printNode("<declaration-part>");
     indentLevel++;
+
     while (check("constsy"))
-    {
-        parseConstDeclaration();
-    }
+        node->addChild(parseConstDeclaration());
     while (check("typesy"))
-    {
-        parseTypeDeclaration();
-    }
+        node->addChild(parseTypeDeclaration());
     while (check("varsy"))
-    {
-        parseVarDeclaration();
-    }
+        node->addChild(parseVarDeclaration());
     while (check("proceduresy") || check("functionsy"))
-    {
-        parseSubprogramDeclaration();
-    }
+        node->addChild(parseSubprogramDeclaration());
+
     indentLevel--;
-    
+    return node;
 }
 
-void Parser::parseConstDeclaration() {
+// ── Declarations ────────────────────────────────────────────────────────────
+
+ASTNode* Parser::parseConstDeclaration() {
+    auto* node = new ASTNode("<const-declaration>");
     printNode("<const-declaration>");
     indentLevel++;
-    match("constsy");
+
+    node->addChild(match("constsy"));
     do {
-        match("ident");
-        match("eql");
-        parseConstant();
-        match("semicolon");
+        node->addChild(match("ident"));
+        node->addChild(match("eql"));
+        node->addChild(parseConstant());
+        node->addChild(match("semicolon"));
     } while (check("ident"));
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseConstant() {
+ASTNode* Parser::parseConstant() {
+    auto* node = new ASTNode("<constant>");
     printNode("<constant>");
     indentLevel++;
-    if (check("charcon")) {
-        match("charcon");
-    } else if (check("string")) {
-        match("string");
-    } else {
-        if (check("plus"))  match("plus");
-        else if (check("minus")) match("minus");
 
-        if (check("ident"))       match("ident");
-        else if (check("intcon")) match("intcon");
-        else if (check("realcon")) match("realcon");
+    if (check("charcon")) {
+        node->addChild(match("charcon"));
+    } else if (check("string")) {
+        node->addChild(match("string"));
+    } else {
+        if (check("plus"))       node->addChild(match("plus"));
+        else if (check("minus")) node->addChild(match("minus"));
+
+        if      (check("ident"))   node->addChild(match("ident"));
+        else if (check("intcon"))  node->addChild(match("intcon"));
+        else if (check("realcon")) node->addChild(match("realcon"));
         else {
             std::cerr << "[SYNTAX ERROR] Expected constant, got '"
                       << currentToken().type << "'\n";
             exit(1);
         }
     }
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseTypeDeclaration() {
+ASTNode* Parser::parseTypeDeclaration() {
+    auto* node = new ASTNode("<type-declaration>");
     printNode("<type-declaration>");
     indentLevel++;
-    match("typesy");
+
+    node->addChild(match("typesy"));
     do {
-        match("ident");
-        match("eql");
-        parseType();
-        match("semicolon");
+        node->addChild(match("ident"));
+        node->addChild(match("eql"));
+        node->addChild(parseType());
+        node->addChild(match("semicolon"));
     } while (check("ident"));
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseType() {
+ASTNode* Parser::parseType() {
+    auto* node = new ASTNode("<type>");
     printNode("<type>");
     indentLevel++;
 
     if (check("arraysy")) {
-        parseArrayType();
+        node->addChild(parseArrayType());
     } else if (check("lparent")) {
-        parseEnumerated();
+        node->addChild(parseEnumerated());
     } else if (check("recordsy")) {
-        parseRecordType();
-    } else if (check("intcon") || check("realcon") || check("charcon") ||
-               check("string") || check("plus")  || check("minus")) {
-        parseRange();
+        node->addChild(parseRecordType());
+    } else if (check("intcon")  || check("realcon") || check("charcon") ||
+               check("string")  || check("plus")    || check("minus")) {
+        node->addChild(parseRange());
     } else if (check("ident")) {
+        // Disambiguate between plain type name and subrange 'ident..ident'
         if (lookahead(1).type == "period" && lookahead(2).type == "period") {
-            parseRange();
+            node->addChild(parseRange());
         } else {
-            match("ident");
+            node->addChild(match("ident"));
         }
     } else {
         std::cerr << "[SYNTAX ERROR] Expected type, got '"
                   << currentToken().type << "'\n";
         exit(1);
     }
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseArrayType() {
+ASTNode* Parser::parseArrayType() {
+    auto* node = new ASTNode("<array-type>");
     printNode("<array-type>");
     indentLevel++;
-    match("arraysy");
-    match("lbrack");
 
+    node->addChild(match("arraysy"));
+    node->addChild(match("lbrack"));
+
+    // Index type: either a range or a named type identifier
     if (check("ident") && lookahead(1).type != "period") {
-        match("ident"); 
+        node->addChild(match("ident"));
     } else {
-        parseRange();
+        node->addChild(parseRange());
     }
 
-    match("rbrack");
-    match("ofsy");
-    parseType();
+    node->addChild(match("rbrack"));
+    node->addChild(match("ofsy"));
+    node->addChild(parseType());
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseRange() {
+ASTNode* Parser::parseRange() {
+    auto* node = new ASTNode("<range>");
     printNode("<range>");
     indentLevel++;
-    parseConstant();
-    match("period");
-    match("period");
-    parseConstant();
+
+    node->addChild(parseConstant());
+    node->addChild(match("period"));
+    node->addChild(match("period"));
+    node->addChild(parseConstant());
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseEnumerated() {
+ASTNode* Parser::parseEnumerated() {
+    auto* node = new ASTNode("<enumerated>");
     printNode("<enumerated>");
     indentLevel++;
-    match("lparent");
-    match("ident");
+
+    node->addChild(match("lparent"));
+    node->addChild(match("ident"));
     while (check("comma")) {
-        match("comma");
-        match("ident");
+        node->addChild(match("comma"));
+        node->addChild(match("ident"));
     }
-    match("rparent");
+    node->addChild(match("rparent"));
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseRecordType() {
+ASTNode* Parser::parseRecordType() {
+    auto* node = new ASTNode("<record-type>");
     printNode("<record-type>");
     indentLevel++;
-    match("recordsy");
-    parseFieldList();
-    match("endsy");
+
+    node->addChild(match("recordsy"));
+    node->addChild(parseFieldList());
+    node->addChild(match("endsy"));
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseFieldList() {
+ASTNode* Parser::parseFieldList() {
+    auto* node = new ASTNode("<field-list>");
     printNode("<field-list>");
     indentLevel++;
-    parseFieldPart();
+
+    node->addChild(parseFieldPart());
     while (check("semicolon")) {
-        match("semicolon");
-        if (check("endsy")) break; 
-        parseFieldPart();
+        node->addChild(match("semicolon"));
+        if (check("endsy")) break;
+        node->addChild(parseFieldPart());
     }
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseFieldPart() {
+ASTNode* Parser::parseFieldPart() {
+    auto* node = new ASTNode("<field-part>");
     printNode("<field-part>");
     indentLevel++;
-    parseIdentifierList();
-    match("colon");
-    parseType();
+
+    node->addChild(parseIdentifierList());
+    node->addChild(match("colon"));
+    node->addChild(parseType());
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseVarDeclaration() {
+ASTNode* Parser::parseVarDeclaration() {
+    auto* node = new ASTNode("<var-declaration>");
     printNode("<var-declaration>");
     indentLevel++;
-    match("varsy");
+
+    node->addChild(match("varsy"));
     do {
-        parseIdentifierList();
-        match("colon");
-        parseType();
-        match("semicolon");
+        node->addChild(parseIdentifierList());
+        node->addChild(match("colon"));
+        node->addChild(parseType());
+        node->addChild(match("semicolon"));
     } while (check("ident"));
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseIdentifierList() {
+ASTNode* Parser::parseIdentifierList() {
+    auto* node = new ASTNode("<identifier-list>");
     printNode("<identifier-list>");
     indentLevel++;
-    match("ident");
+
+    node->addChild(match("ident"));
     while (check("comma")) {
-        match("comma");
-        match("ident");
+        node->addChild(match("comma"));
+        node->addChild(match("ident"));
     }
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseSubprogramDeclaration() {
+// ── Subprograms ─────────────────────────────────────────────────────────────
+
+ASTNode* Parser::parseSubprogramDeclaration() {
+    auto* node = new ASTNode("<subprogram-declaration>");
     printNode("<subprogram-declaration>");
     indentLevel++;
-    if (check("proceduresy")) parseProcedureDeclaration();
-    else                      parseFunctionDeclaration();
+
+    if (check("proceduresy")) node->addChild(parseProcedureDeclaration());
+    else                      node->addChild(parseFunctionDeclaration());
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseProcedureDeclaration() {
+ASTNode* Parser::parseProcedureDeclaration() {
+    auto* node = new ASTNode("<procedure-declaration>");
     printNode("<procedure-declaration>");
     indentLevel++;
-    match("proceduresy");
-    match("ident");
-    if (check("lparent")) parseFormalParameterList();
-    match("semicolon");
-    parseBlock();
-    match("semicolon");
+
+    node->addChild(match("proceduresy"));
+    node->addChild(match("ident"));
+    if (check("lparent")) node->addChild(parseFormalParameterList());
+    node->addChild(match("semicolon"));
+    node->addChild(parseBlock());
+    node->addChild(match("semicolon"));
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseFunctionDeclaration() {
+ASTNode* Parser::parseFunctionDeclaration() {
+    auto* node = new ASTNode("<function-declaration>");
     printNode("<function-declaration>");
     indentLevel++;
-    match("functionsy");
-    match("ident");
-    if (check("lparent")) parseFormalParameterList();
-    match("colon");
-    match("ident"); 
-    match("semicolon");
-    parseBlock();
-    match("semicolon");
+
+    node->addChild(match("functionsy"));
+    node->addChild(match("ident"));
+    if (check("lparent")) node->addChild(parseFormalParameterList());
+    node->addChild(match("colon"));
+    node->addChild(match("ident")); // return type
+    node->addChild(match("semicolon"));
+    node->addChild(parseBlock());
+    node->addChild(match("semicolon"));
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseBlock() {
+ASTNode* Parser::parseBlock() {
+    auto* node = new ASTNode("<block>");
     printNode("<block>");
     indentLevel++;
-    parseDeclarationPart();
-    parseCompoundStatement();
+
+    node->addChild(parseDeclarationPart());
+    node->addChild(parseCompoundStatement());
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseFormalParameterList() {
+ASTNode* Parser::parseFormalParameterList() {
+    auto* node = new ASTNode("<formal-parameter-list>");
     printNode("<formal-parameter-list>");
     indentLevel++;
-    match("lparent");
-    parseParameterGroup();
+
+    node->addChild(match("lparent"));
+    node->addChild(parseParameterGroup());
     while (check("semicolon")) {
-        match("semicolon");
-        parseParameterGroup();
+        node->addChild(match("semicolon"));
+        node->addChild(parseParameterGroup());
     }
-    match("rparent");
+    node->addChild(match("rparent"));
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseParameterGroup() {
+ASTNode* Parser::parseParameterGroup() {
+    auto* node = new ASTNode("<parameter-group>");
     printNode("<parameter-group>");
     indentLevel++;
-    parseIdentifierList();
-    match("colon");
-    if (check("arraysy")) parseArrayType();
-    else                  match("ident");
+
+    node->addChild(parseIdentifierList());
+    node->addChild(match("colon"));
+    if (check("arraysy")) node->addChild(parseArrayType());
+    else                  node->addChild(match("ident"));
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseCompoundStatement() {
+// ── Compound statement and statement list ───────────────────────────────────
+
+ASTNode* Parser::parseCompoundStatement() {
+    auto* node = new ASTNode("<compound-statement>");
     printNode("<compound-statement>");
     indentLevel++;
-    match("beginsy");
-    parseStatementList();
-    match("endsy");
+
+    node->addChild(match("beginsy"));
+    node->addChild(parseStatementList());
+    node->addChild(match("endsy"));
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseStatementList() {
+ASTNode* Parser::parseStatementList() {
+    auto* node = new ASTNode("<statement-list>");
     printNode("<statement-list>");
     indentLevel++;
+
+    // The first statement may be absent (empty statement is valid in M3)
     if (!check("endsy") && !check("untilsy")) {
-        parseStatement();
+        ASTNode* s = parseStatement();
+        if (s) node->addChild(s);
     }
+
     while (check("semicolon")) {
-        match("semicolon");
-        if (check("endsy") || check("untilsy")) {
-            break;
-        }
-        parseStatement();
+        node->addChild(match("semicolon"));
+        if (check("endsy") || check("untilsy")) break;
+        ASTNode* s = parseStatement();
+        if (s) node->addChild(s);
     }
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseStatement() {
-    std::string t = currentToken().type;
+// parseStatement: dispatches to the appropriate rule.
+// Returns nullptr for an empty statement (no node printed).
+ASTNode* Parser::parseStatement() {
+    const std::string t = currentToken().type;
 
     if (t == "ident") {
-        std::string next = lookahead(1).type;
-
+        const std::string next = lookahead(1).type;
         if (next == "lparent") {
-            parseProcFuncCall();
+            return parseProcFuncCall();
         } else if (next == "becomes" || next == "lbrack" || next == "period") {
-            parseAssignmentStatement();
+            return parseAssignmentStatement();
         } else {
-            if (next == "semicolon" || next == "endsy" || next == "elsesy" || next == "untilsy") {
-            } else {
-                parseAssignmentStatement();
+            // Bare identifier followed by end-of-statement marker: empty statement
+            if (next == "semicolon" || next == "endsy" ||
+                next == "elsesy"    || next == "untilsy") {
+                return nullptr;
             }
+            return parseAssignmentStatement();
         }
-    } else if (t == "ifsy") {
-        parseIfStatement();
-    } else if (t == "casesy") {
-        parseCaseStatement();
-    } else if (t == "whilesy") {
-        parseWhileStatement();
-    } else if (t == "repeatsy") {
-        parseRepeatStatement();
-    } else if (t == "forsy") {
-        parseForStatement();
-    } else if (t == "beginsy") {
-        parseCompoundStatement();
-    }
+    } else if (t == "ifsy")       return parseIfStatement();
+    else if (t == "casesy")       return parseCaseStatement();
+    else if (t == "whilesy")      return parseWhileStatement();
+    else if (t == "repeatsy")     return parseRepeatStatement();
+    else if (t == "forsy")        return parseForStatement();
+    else if (t == "beginsy")      return parseCompoundStatement();
+
+    // Empty statement
+    return nullptr;
 }
 
-void Parser::parseVariable() {
+// ── Statements ──────────────────────────────────────────────────────────────
+
+ASTNode* Parser::parseVariable() {
+    auto* node = new ASTNode("<variable>");
     printNode("<variable>");
     indentLevel++;
-    match("ident");
-    while (check("lbrack") || check("period")) {
-        parseComponentVariable();
-    }
+
+    node->addChild(match("ident"));
+    while (check("lbrack") || check("period"))
+        node->addChild(parseComponentVariable());
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseComponentVariable() {
+ASTNode* Parser::parseComponentVariable() {
+    auto* node = new ASTNode("<component-variable>");
     printNode("<component-variable>");
     indentLevel++;
+
     if (check("lbrack")) {
-        match("lbrack");
-        parseIndexList();
-        match("rbrack");
-    } else if (check("period")) {
-        match("period");
-        match("ident");
+        node->addChild(match("lbrack"));
+        node->addChild(parseIndexList());
+        node->addChild(match("rbrack"));
+    } else {
+        node->addChild(match("period"));
+        node->addChild(match("ident"));
     }
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseIndexList() {
+ASTNode* Parser::parseIndexList() {
+    auto* node = new ASTNode("<index-list>");
     printNode("<index-list>");
     indentLevel++;
 
-    if (check("intcon"))       match("intcon");
-    else if (check("charcon")) match("charcon");
-    else if (check("ident"))   match("ident");
+    if      (check("intcon"))  node->addChild(match("intcon"));
+    else if (check("charcon")) node->addChild(match("charcon"));
+    else if (check("ident"))   node->addChild(match("ident"));
     else {
         std::cerr << "[SYNTAX ERROR] Expected index, got '"
                   << currentToken().type << "'\n";
@@ -483,204 +591,259 @@ void Parser::parseIndexList() {
     }
 
     while (check("comma")) {
-        match("comma");
-        parseIndexList();
+        node->addChild(match("comma"));
+        node->addChild(parseIndexList()); // recursive for multi-dim
     }
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseAssignmentStatement() {
+ASTNode* Parser::parseAssignmentStatement() {
+    auto* node = new ASTNode("<assignment-statement>");
     printNode("<assignment-statement>");
     indentLevel++;
 
-    bool isPlainIdent = check("ident") && lookahead(1).type == "becomes";
-    if (isPlainIdent) {
-        match("ident");
-    } else {
-        parseVariable();
-    }
-    match("becomes");
-    parseExpression();
+    // Simple 'ident :=' or complex 'variable :='
+    bool simpleLhs = check("ident") && lookahead(1).type == "becomes";
+    if (simpleLhs) node->addChild(match("ident"));
+    else           node->addChild(parseVariable());
+
+    node->addChild(match("becomes"));
+    node->addChild(parseExpression());
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseIfStatement() {
+ASTNode* Parser::parseIfStatement() {
+    auto* node = new ASTNode("<if-statement>");
     printNode("<if-statement>");
     indentLevel++;
-    match("ifsy");
-    parseExpression();
-    match("thensy");
-    parseStatement();
+
+    node->addChild(match("ifsy"));
+    node->addChild(parseExpression());
+    node->addChild(match("thensy"));
+    node->addChild(parseStatement());
     if (check("elsesy")) {
-        match("elsesy");
-        parseStatement();
+        node->addChild(match("elsesy"));
+        node->addChild(parseStatement());
     }
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseCaseStatement() {
+ASTNode* Parser::parseCaseStatement() {
+    auto* node = new ASTNode("<case-statement>");
     printNode("<case-statement>");
     indentLevel++;
-    match("casesy");
-    parseExpression();
-    match("ofsy");
-    parseCaseBlock();
-    match("endsy");
+
+    node->addChild(match("casesy"));
+    node->addChild(parseExpression());
+    node->addChild(match("ofsy"));
+    node->addChild(parseCaseBlock());
+    node->addChild(match("endsy"));
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseCaseBlock() {
+ASTNode* Parser::parseCaseBlock() {
+    auto* node = new ASTNode("<case-block>");
     printNode("<case-block>");
     indentLevel++;
 
-    parseConstant();
+    node->addChild(parseConstant());
     while (check("comma")) {
-        match("comma");
-        parseConstant();
+        node->addChild(match("comma"));
+        node->addChild(parseConstant());
     }
-    match("colon");
-    parseStatement();
+    node->addChild(match("colon"));
+    ASTNode* s = parseStatement();
+    if (s) node->addChild(s);
 
     while (check("semicolon")) {
-        match("semicolon");
+        node->addChild(match("semicolon"));
         if (check("endsy")) break;
-        parseCaseBlock();
+        node->addChild(parseCaseBlock());
     }
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseWhileStatement() {
+// M3 revision: body must be compound-statement
+ASTNode* Parser::parseWhileStatement() {
+    auto* node = new ASTNode("<while-statement>");
     printNode("<while-statement>");
     indentLevel++;
-    match("whilesy");
-    parseExpression();
-    match("dosy");
-    parseStatement();
+
+    node->addChild(match("whilesy"));
+    node->addChild(parseExpression());
+    node->addChild(match("dosy"));
+    node->addChild(parseCompoundStatement()); // M3: compound-statement required
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseRepeatStatement() {
+ASTNode* Parser::parseRepeatStatement() {
+    auto* node = new ASTNode("<repeat-statement>");
     printNode("<repeat-statement>");
     indentLevel++;
-    match("repeatsy");
-    parseStatementList();
-    match("untilsy");
-    parseExpression();
+
+    node->addChild(match("repeatsy"));
+    node->addChild(parseStatementList());
+    node->addChild(match("untilsy"));
+    node->addChild(parseExpression());
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseForStatement() {
+// M3 revision: body must be compound-statement
+ASTNode* Parser::parseForStatement() {
+    auto* node = new ASTNode("<for-statement>");
     printNode("<for-statement>");
     indentLevel++;
-    match("forsy");
-    match("ident");
-    match("becomes");
-    parseExpression();
-    if (check("tosy"))        match("tosy");
-    else if (check("downtosy")) match("downtosy");
+
+    node->addChild(match("forsy"));
+    node->addChild(match("ident"));
+    node->addChild(match("becomes"));
+    node->addChild(parseExpression());
+
+    if      (check("tosy"))      node->addChild(match("tosy"));
+    else if (check("downtosy"))  node->addChild(match("downtosy"));
     else {
         std::cerr << "[SYNTAX ERROR] Expected 'to' or 'downto', got '"
                   << currentToken().type << "'\n";
         exit(1);
     }
-    parseExpression();
-    match("dosy");
-    parseStatement();
+
+    node->addChild(parseExpression());
+    node->addChild(match("dosy"));
+    node->addChild(parseCompoundStatement()); // M3: compound-statement required
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseProcFuncCall() {
+ASTNode* Parser::parseProcFuncCall() {
+    auto* node = new ASTNode("<procedure/function-call>");
     printNode("<procedure/function-call>");
     indentLevel++;
-    match("ident");
+
+    node->addChild(match("ident"));
     if (check("lparent")) {
-        match("lparent");
-        if (!check("rparent")) {
-            parseParameterList();
-        }
-        match("rparent");
+        node->addChild(match("lparent"));
+        if (!check("rparent")) node->addChild(parseParameterList());
+        node->addChild(match("rparent"));
     }
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseParameterList() {
+ASTNode* Parser::parseParameterList() {
+    auto* node = new ASTNode("<parameter-list>");
     printNode("<parameter-list>");
     indentLevel++;
-    parseExpression();
+
+    node->addChild(parseExpression());
     while (check("comma")) {
-        match("comma");
-        parseExpression();
+        node->addChild(match("comma"));
+        node->addChild(parseExpression());
     }
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseExpression() {
+// ── Expressions ─────────────────────────────────────────────────────────────
+
+ASTNode* Parser::parseExpression() {
+    auto* node = new ASTNode("<expression>");
     printNode("<expression>");
     indentLevel++;
-    parseSimpleExpression();
+
+    node->addChild(parseSimpleExpression());
     if (isRelationalOp()) {
-        match(currentToken().type);
-        parseSimpleExpression();
+        node->addChild(match(currentToken().type));
+        node->addChild(parseSimpleExpression());
     }
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseSimpleExpression() {
+ASTNode* Parser::parseSimpleExpression() {
+    auto* node = new ASTNode("<simple-expression>");
     printNode("<simple-expression>");
     indentLevel++;
-    if (check("plus"))       match("plus");
-    else if (check("minus")) match("minus");
 
-    parseTerm();
+    if      (check("plus"))  node->addChild(match("plus"));
+    else if (check("minus")) node->addChild(match("minus"));
+
+    node->addChild(parseTerm());
     while (isAdditiveOp()) {
-        match(currentToken().type);
-        parseTerm();
+        node->addChild(match(currentToken().type));
+        node->addChild(parseTerm());
     }
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseTerm() {
+ASTNode* Parser::parseTerm() {
+    auto* node = new ASTNode("<term>");
     printNode("<term>");
     indentLevel++;
-    parseFactor();
-    while (isMultiplecativeOp()) {
-        match(currentToken().type);
-        parseFactor();
+
+    node->addChild(parseFactor());
+    while (isMultiplicativeOp()) {
+        node->addChild(match(currentToken().type));
+        node->addChild(parseFactor());
     }
+
     indentLevel--;
+    return node;
 }
 
-void Parser::parseFactor() {
+ASTNode* Parser::parseFactor() {
+    auto* node = new ASTNode("<factor>");
     printNode("<factor>");
     indentLevel++;
 
     if (check("intcon")) {
-        match("intcon");
+        node->addChild(match("intcon"));
     } else if (check("realcon")) {
-        match("realcon");
+        node->addChild(match("realcon"));
     } else if (check("charcon")) {
-        match("charcon");
+        node->addChild(match("charcon"));
     } else if (check("string")) {
-        match("string");
+        node->addChild(match("string"));
     } else if (check("lparent")) {
-        match("lparent");
-        parseExpression();
-        match("rparent");
+        node->addChild(match("lparent"));
+        node->addChild(parseExpression());
+        node->addChild(match("rparent"));
     } else if (check("notsy")) {
-        match("notsy");
-        parseFactor();
+        node->addChild(match("notsy"));
+        node->addChild(parseFactor());
     } else if (check("ident")) {
         if (lookahead(1).type == "lparent") {
-            parseProcFuncCall();
+            node->addChild(parseProcFuncCall());
         } else if (lookahead(1).type == "lbrack" || lookahead(1).type == "period") {
-            parseVariable();
+            node->addChild(parseVariable());
         } else {
-            match("ident");
+            node->addChild(match("ident"));
         }
     } else {
         std::cerr << "[SYNTAX ERROR] Unexpected token in factor: '"
                   << currentToken().type << "'\n";
         exit(1);
     }
+
     indentLevel--;
+    return node;
 }
