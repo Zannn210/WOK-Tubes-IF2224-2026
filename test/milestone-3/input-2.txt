@@ -1,6 +1,13 @@
-program TestUndeclared;
+program Test2;
+
 var
-  a: integer;
+  hasil: Integer;
+  
+function Add(a: Integer; b: Integer): Integer;
 begin
-  a := b + 1;    { b tidak pernah dideklarasikan }
+  Add := a + b;
+end;
+
+begin
+  hasil := Add(2, 3);
 end.

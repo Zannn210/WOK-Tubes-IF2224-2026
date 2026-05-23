@@ -1,4 +1,4 @@
-program Test3;
+program Test10;
 
 type
   Person == record
@@ -10,6 +10,6 @@ var
   p: Person;
 
 begin
-  p.nama := 'Naura';
-  p.umur := 18;
+  p.nama := 'Budi';
+  p.alamat := 'Bandung';
 end.

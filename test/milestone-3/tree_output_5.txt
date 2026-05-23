@@ -1,0 +1,79 @@
+<program>
+|   |-- <program-header>
+|   |   |-- programsy(program)
+|   |   |-- ident(Test5)
+|   |   |-- semicolon(;)
+|   |-- <declaration-part>
+|   |   |-- <var-declaration>
+|   |   |   |-- varsy(var)
+|   |   |   |-- <identifier-list>
+|   |   |   |   |-- ident(nums)
+|   |   |   |-- colon(:)
+|   |   |   |-- <type>
+|   |   |   |   |-- <array-type>
+|   |   |   |   |   |-- arraysy(array)
+|   |   |   |   |   |-- lbrack([)
+|   |   |   |   |   |-- <range>
+|   |   |   |   |   |   |-- <constant>
+|   |   |   |   |   |   |   |-- intcon(1)
+|   |   |   |   |   |   |-- period(.)
+|   |   |   |   |   |   |-- period(.)
+|   |   |   |   |   |   |-- <constant>
+|   |   |   |   |   |   |   |-- intcon(5)
+|   |   |   |   |   |-- rbrack(])
+|   |   |   |   |   |-- ofsy(of)
+|   |   |   |   |   |-- <type>
+|   |   |   |   |   |   |-- ident(integer)
+|   |   |   |-- semicolon(;)
+|   |   |   |-- <identifier-list>
+|   |   |   |   |-- ident(i)
+|   |   |   |-- colon(:)
+|   |   |   |-- <type>
+|   |   |   |   |-- ident(integer)
+|   |   |   |-- semicolon(;)
+|   |-- <compound-statement>
+|   |   |-- beginsy(begin)
+|   |   |-- <statement-list>
+|   |   |   |-- <assignment-statement>
+|   |   |   |   |-- ident(i)
+|   |   |   |   |-- becomes(:=)
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(1)
+|   |   |   |-- semicolon(;)
+|   |   |   |-- <assignment-statement>
+|   |   |   |   |-- <variable>
+|   |   |   |   |   |-- ident(nums)
+|   |   |   |   |   |-- <component-variable>
+|   |   |   |   |   |   |-- lbrack([)
+|   |   |   |   |   |   |-- <index-list>
+|   |   |   |   |   |   |   |-- ident(i)
+|   |   |   |   |   |   |-- rbrack(])
+|   |   |   |   |-- becomes(:=)
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(42)
+|   |   |   |-- semicolon(;)
+|   |   |   |-- <procedure/function-call>
+|   |   |   |   |-- ident(writeln)
+|   |   |   |   |-- lparent(()
+|   |   |   |   |-- <parameter-list>
+|   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- <variable>
+|   |   |   |   |   |   |   |   |   |   |-- ident(nums)
+|   |   |   |   |   |   |   |   |   |   |-- <component-variable>
+|   |   |   |   |   |   |   |   |   |   |   |-- lbrack([)
+|   |   |   |   |   |   |   |   |   |   |   |-- <index-list>
+|   |   |   |   |   |   |   |   |   |   |   |   |-- ident(i)
+|   |   |   |   |   |   |   |   |   |   |   |-- rbrack(])
+|   |   |   |   |-- rparent())
+|   |   |   |-- semicolon(;)
+|   |   |-- endsy(end)
+|   |-- period(.)

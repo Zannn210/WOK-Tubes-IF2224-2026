@@ -1,0 +1,18 @@
+programsy
+ident (Test9)
+semicolon
+
+varsy
+ident (angka)
+colon
+ident (Integer)
+semicolon
+
+beginsy
+ident (angka)
+becomes
+string ('teks')
+semicolon
+
+endsy
+period

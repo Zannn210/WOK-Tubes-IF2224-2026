@@ -1,12 +1,12 @@
-program TestScope;
+program Test4;
 var
   x: integer;
 
 procedure increment;
 var
-  x: integer;    { x lokal, shadowing x global }
+  x: integer;
 begin
-  x := x + 1;   { ini merujuk x lokal, bukan global }
+  x := x + 1;
 end;
 
 begin

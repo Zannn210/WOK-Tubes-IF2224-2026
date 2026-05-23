@@ -1,0 +1,24 @@
+programsy
+ident (Test7)
+semicolon
+
+varsy
+ident (score)
+colon
+ident (integer)
+semicolon
+
+ident (score)
+colon
+ident (real)
+semicolon
+
+comment ( redeclaration di scope yang sama )
+beginsy
+ident (score)
+becomes
+intcon (100)
+semicolon
+
+endsy
+period

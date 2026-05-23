@@ -1,0 +1,28 @@
+programsy
+ident (Test6)
+semicolon
+
+varsy
+ident (n)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (n)
+becomes
+intcon (5)
+semicolon
+
+ifsy
+ident (n)
+thensy
+comment ( n bertipe integer, bukan boolean )
+ident (writeln)
+lparent
+string ('yes')
+rparent
+semicolon
+
+endsy
+period

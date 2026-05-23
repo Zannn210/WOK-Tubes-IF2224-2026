@@ -1,0 +1,44 @@
+programsy
+ident (Test3)
+semicolon
+
+typesy
+ident (Person)
+eql
+recordsy
+ident (nama)
+colon
+ident (String)
+semicolon
+
+ident (umur)
+colon
+ident (Integer)
+semicolon
+
+endsy
+semicolon
+
+varsy
+ident (p)
+colon
+ident (Person)
+semicolon
+
+beginsy
+ident (p)
+period
+ident (nama)
+becomes
+string ('Naura')
+semicolon
+
+ident (p)
+period
+ident (umur)
+becomes
+intcon (18)
+semicolon
+
+endsy
+period

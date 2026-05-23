@@ -1,0 +1,50 @@
+programsy
+ident (Test2)
+semicolon
+
+varsy
+ident (hasil)
+colon
+ident (Integer)
+semicolon
+
+functionsy
+ident (Add)
+lparent
+ident (a)
+colon
+ident (Integer)
+semicolon
+
+ident (b)
+colon
+ident (Integer)
+rparent
+colon
+ident (Integer)
+semicolon
+
+beginsy
+ident (Add)
+becomes
+ident (a)
+plus
+ident (b)
+semicolon
+
+endsy
+semicolon
+
+beginsy
+ident (hasil)
+becomes
+ident (Add)
+lparent
+intcon (2)
+comma
+intcon (3)
+rparent
+semicolon
+
+endsy
+period

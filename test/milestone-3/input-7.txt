@@ -1,4 +1,4 @@
-program TestRedecl;
+program Test7;
 var
   score: integer;
   score: real;     { redeclaration di scope yang sama }

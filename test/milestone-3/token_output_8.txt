@@ -1,0 +1,38 @@
+programsy
+ident (Test8)
+semicolon
+
+varsy
+ident (index)
+colon
+intcon (1)
+period
+period
+intcon (10)
+semicolon
+
+ident (count)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (count)
+becomes
+intcon (5)
+semicolon
+
+ident (index)
+becomes
+ident (count)
+semicolon
+
+comment ( OK: integer value 5 adalah subset dari [1..10] )
+ident (index)
+becomes
+intcon (11)
+semicolon
+
+comment ( ERROR: 11 di luar range [1..10] )
+endsy
+period

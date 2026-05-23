@@ -1,0 +1,74 @@
+[SEMANTIC ERROR] Line 6: If condition must be Boolean, got integer
+
+DECORATED AST:
+----------------------------------------
+ProgramNode(name: 'Test6', tab_index: 37)
+  Declarations:
+    VarDecl(name: 'n', type: integer, tab_index: 38, level: 0)
+  Block(block_index: 1, lev: 1)
+    Assign('n' := 5, type: void)
+      Target:
+        Var(name: 'n', tab_index: 38, type: integer)
+      Value:
+        Number(int: 5, type: integer)
+    If(type: void)
+      Condition:
+        Var(name: 'n', tab_index: 38, type: integer)
+      Then:
+        ProcCall(name: 'writeln', tab_index: 35, type: void)
+          Arguments:
+            String(value: "yes")
+----------------------------------------
+
+=== TAB (Identifier Table) ===
+  Idx  Identifier        Link   Obj        Type      Ref  Nrm  Lev  Adr
+  -------------------------------------------------------------------------
+    0                       0  TYPE      NOTYP        0    1    0    0
+    1  and                  0  RESERVED  NOTYP        0    1    0    0
+    2  array                1  RESERVED  NOTYP        0    1    0    0
+    3  begin                2  RESERVED  NOTYP        0    1    0    0
+    4  case                 3  RESERVED  NOTYP        0    1    0    0
+    5  const                4  RESERVED  NOTYP        0    1    0    0
+    6  div                  5  RESERVED  NOTYP        0    1    0    0
+    7  downto               6  RESERVED  NOTYP        0    1    0    0
+    8  do                   7  RESERVED  NOTYP        0    1    0    0
+    9  else                 8  RESERVED  NOTYP        0    1    0    0
+   10  end                  9  RESERVED  NOTYP        0    1    0    0
+   11  for                 10  RESERVED  NOTYP        0    1    0    0
+   12  function            11  RESERVED  NOTYP        0    1    0    0
+   13  if                  12  RESERVED  NOTYP        0    1    0    0
+   14  mod                 13  RESERVED  NOTYP        0    1    0    0
+   15  not                 14  RESERVED  NOTYP        0    1    0    0
+   16  of                  15  RESERVED  NOTYP        0    1    0    0
+   17  or                  16  RESERVED  NOTYP        0    1    0    0
+   18  procedure           17  RESERVED  NOTYP        0    1    0    0
+   19  program             18  RESERVED  NOTYP        0    1    0    0
+   20  record              19  RESERVED  NOTYP        0    1    0    0
+   21  repeat              20  RESERVED  NOTYP        0    1    0    0
+   22  integer             21  TYPE      INT          0    1    0    0
+   23  real                22  TYPE      REAL         0    1    0    0
+   24  boolean             23  TYPE      BOOL         0    1    0    0
+   25  char                24  TYPE      CHAR         0    1    0    0
+   26  string              25  TYPE      STR          0    1    0    0
+   27  then                26  RESERVED  NOTYP        0    1    0    0
+   28  to                  27  RESERVED  NOTYP        0    1    0    0
+   29  type                28  RESERVED  NOTYP        0    1    0    0
+   30  until               29  RESERVED  NOTYP        0    1    0    0
+   31  var                 30  RESERVED  NOTYP        0    1    0    0
+   32  while               31  RESERVED  NOTYP        0    1    0    0
+   33  true                32  CONST     BOOL         0    1    0    1
+   34  false               33  CONST     BOOL         0    1    0    0
+   35  writeln             34  PROC      NOTYP        0    1    0    0
+   36  readln              35  PROC      NOTYP        0    1    0    0
+   37  Test6               36  PROGRAM   NOTYP        0    1    0    0
+   38  n                   37  VAR       INT          0    1    0    0
+  -------------------------------------------------------------------------
+
+=== BTAB (Block Table) ===
+  Idx  Last  Lpar  Psze  Vsze
+  ----------------------------------------
+    0     38     0     0 1
+    1      0     0     0 0
+  ----------------------------------------
+
+[Semantic analysis completed with ERRORS]

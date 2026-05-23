@@ -1,4 +1,4 @@
-program TestIfType;
+program Test6;
 var
   n: integer;
 begin

@@ -1,0 +1,44 @@
+programsy
+ident (Test1)
+semicolon
+
+varsy
+ident (x)
+comma
+ident (y)
+colon
+ident (integer)
+semicolon
+
+ident (r)
+colon
+ident (real)
+semicolon
+
+beginsy
+ident (x)
+becomes
+intcon (10)
+semicolon
+
+ident (y)
+becomes
+ident (x)
+plus
+intcon (5)
+semicolon
+
+ident (r)
+becomes
+ident (x)
+semicolon
+
+comment ( assignment-compatible: real := integer )
+ident (writeln)
+lparent
+ident (y)
+rparent
+semicolon
+
+endsy
+period
