@@ -51,6 +51,7 @@ private:
     void doVarDecl(ASTNode* n, int d, bool isParam = false);
     void doConstDecl(ASTNode* n, int d);
     void doTypeDecl(ASTNode* n, int d);
+    void doRecordFields(int blockIdx, int d);
     void doSubprog(ASTNode* n, int d);
     void doProcDecl(ASTNode* n, int d);
     void doFuncDecl(ASTNode* n, int d);

@@ -376,15 +376,19 @@ int SemanticAnalyzer::visitConstant(ASTNode* node) {
 void SemanticAnalyzer::visitTypeDeclaration(ASTNode* node) {
     int ci = 1;
     while (ci < (int)node->children.size()) {
-        if (!node->children[ci]->isTerminal || node->children[ci]->tokenType != "ident") break;
-        std::string name = node->children[ci]->tokenValue; ci++;
+        ASTNode* identNode = node->children[ci];
+        if (!identNode->isTerminal || identNode->tokenType != "ident") break;
+        std::string name = identNode->tokenValue; ci++;
         ci++; 
         int ref = 0, typeCode = TYPE_UNKNOWN;
         if (ci < (int)node->children.size() && node->children[ci]->label == "<type>") {
             typeCode = visitType(node->children[ci], ref); ci++;
         }
         ci++; 
-        addIdentifier(name, OBJ_TYPE, typeCode, ref, 1, 0);
+        int idx = addIdentifier(name, OBJ_TYPE, typeCode, ref, 1, 0);
+        identNode->tabIdx = idx;
+        identNode->semType = typeCode;
+        identNode->lexLevel = currentLevel;
     }
     node->semType = TYPE_VOID;
 }
@@ -522,6 +526,8 @@ int SemanticAnalyzer::visitEnumerated(ASTNode* node, int& outRef) {
 int SemanticAnalyzer::visitRecordType(ASTNode* node, int& outRef) {
     int blockIdx = enterBlock();
     outRef = blockIdx;
+    node->tabIdx = blockIdx;
+    node->lexLevel = currentLevel;
 
     for (auto* c : node->children) {
         if (!c->isTerminal && c->label == "<field-list>"){
@@ -556,7 +562,10 @@ void SemanticAnalyzer::visitFieldPart(ASTNode* node) {
         if (c->isTerminal && c->tokenType == "ident") {
             int adr = btab[display[currentLevel]].vsze;
             btab[display[currentLevel]].vsze += getTypeSize(typeCode, ref);
-            addIdentifier(c->tokenValue, OBJ_VAR, typeCode, ref, 1, adr);
+            int idx = addIdentifier(c->tokenValue, OBJ_VAR, typeCode, ref, 1, adr);
+            c->tabIdx = idx;
+            c->semType = typeCode;
+            c->lexLevel = currentLevel;
         }
     }
 }

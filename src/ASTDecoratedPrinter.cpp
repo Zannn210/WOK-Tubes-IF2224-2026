@@ -250,8 +250,38 @@ void ASTDecoratedPrinter::doTypeDecl(ASTNode* n, int d) {
 
         std::string kind = typeN ? typeFull(typeN->semType) : "unknown";
         std::string line = ind(d) + "TypeDecl(name: '" + name + "'";
-        line += ", kind: " + kind;
+        line += ", type: " + kind;
         if (tabIdx >= 0) line += ", tab_index: " + std::to_string(tabIdx);
+        int blockIdx = (tabIdx >= 0 && tabIdx < (int)_tab.size()) ? _tab[tabIdx].ref : 0;
+        if (kind == "record" && blockIdx > 0) {
+            line += ", block_index: " + std::to_string(blockIdx);
+        }
+        line += ")";
+        emit(line);
+
+        if (kind == "record" && blockIdx > 0) {
+            emit(ind(d+1) + "RecordType(type: record, block_index: " + std::to_string(blockIdx) + ")");
+            doRecordFields(blockIdx, d+2);
+        }
+    }
+}
+
+void ASTDecoratedPrinter::doRecordFields(int blockIdx, int d) {
+    if (blockIdx <= 0 || blockIdx >= (int)_btab.size()) return;
+
+    std::vector<int> fields;
+    int i = _btab[blockIdx].last;
+    while (i > 0 && i < (int)_tab.size() && _tab[i].lev > 0) {
+        if (_tab[i].obj == OBJ_VAR) fields.push_back(i);
+        i = _tab[i].link;
+    }
+
+    for (auto it = fields.rbegin(); it != fields.rend(); ++it) {
+        const TabEntry& e = _tab[*it];
+        std::string line = ind(d) + "VarDecl(name: '" + e.id + "'";
+        line += ", type: " + typeFull(e.type);
+        line += ", tab_index: " + std::to_string(*it);
+        line += ", level: " + std::to_string(e.lev);
         line += ")";
         emit(line);
     }
