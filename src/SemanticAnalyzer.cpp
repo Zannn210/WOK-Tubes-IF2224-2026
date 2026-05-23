@@ -1,4 +1,5 @@
 #include "SemanticAnalyzer.hpp"
+#include "ASTDecoratedPrinter.hpp"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -123,8 +124,8 @@ void SemanticAnalyzer::initPredefined() {
     for (int i = 0; i < 32; i++) {
         TabEntry e;
         e.id   = rwords[i].name;
-        e.link = i;  
-        e.obj  = OBJ_TYPE;
+        e.link = i;
+        e.obj  = (rwords[i].typeCode != TYPE_VOID) ? OBJ_TYPE : OBJ_RESERVED;
         e.type = rwords[i].typeCode;
         e.ref  = 0;
         e.nrm  = 1;
@@ -268,10 +269,11 @@ void SemanticAnalyzer::analyze(ASTNode* root, const std::string& outFilename) {
 
     visitProgram(root);
 
-    emit("\n=== Decorated AST ===\n");
-    printAnnotatedTree(root, 0);
+    ASTDecoratedPrinter printer(tab, btab, atab, outFile);
+    printer.printAll(root);
 
-    printSymbolTables();
+    emit(hasError ? "\n[Semantic analysis completed with ERRORS]"
+                  : "\n[Semantic analysis completed successfully]");
 }
 
 
@@ -1155,87 +1157,5 @@ void SemanticAnalyzer::visitIndexList(ASTNode* node) {
 }
 
 
-void SemanticAnalyzer::printAnnotatedTree(ASTNode* node, int depth) {
-    if (!node) return;
-
-    std::string indent;
-    for (int i = 0; i < depth; i++) indent += "|   ";
-    if (depth > 0) indent += "|-- ";
-
-    std::string ann;
-    bool hasType = (node->semType != TYPE_VOID && node->semType != TYPE_UNKNOWN);
-    bool hasTab  = (node->tabIdx >= 0);
-    bool hasLev  = (node->lexLevel > 0 && !node->isTerminal);
-
-    if (hasType || hasTab) {
-        ann = "  [";
-        if (hasType) ann += "type:" + typeCodeName(node->semType);
-        if (hasTab) {
-            if (hasType) ann += ", ";
-            ann += "tab:" + std::to_string(node->tabIdx);
-        }
-        if (hasLev) ann += ", lev:" + std::to_string(node->lexLevel);
-        ann += "]";
-    }
-
-    emit(indent + node->label + ann);
-    for (auto* c : node->children) printAnnotatedTree(c, depth + 1);
-}
-
-
-void SemanticAnalyzer::printSymbolTables() {
-    emit("\n=== Symbol Table (tab) ===");
-    emit("  idx  identifier        obj    type       ref  nrm  lev  adr  link");
-    emit("  -------------------------------------------------------------------");
-
-    for (int i = 0; i < (int)tab.size(); i++) {
-        bool isKw = (i >= 1 && i <= 32 && tab[i].type == TYPE_VOID);
-        if (isKw) continue;
-
-        std::ostringstream oss;
-        oss << "  " << std::setw(3) << i << "  "
-            << std::left << std::setw(17) << tab[i].id
-            << std::setw(7) << objKindName(tab[i].obj)
-            << std::setw(11) << typeCodeName(tab[i].type)
-            << std::setw(5)  << tab[i].ref
-            << std::setw(5)  << tab[i].nrm
-            << std::setw(5)  << tab[i].lev
-            << std::setw(5)  << tab[i].adr
-            << tab[i].link;
-        emit(oss.str());
-    }
-
-    emit("\n=== Block Table (btab) ===");
-    emit("  idx  last  lpar  psze  vsze");
-    emit("  ---------------------------");
-    for (int i = 0; i < (int)btab.size(); i++) {
-        std::ostringstream oss;
-        oss << "  " << std::setw(3) << i << "  "
-            << std::setw(5) << btab[i].last << " "
-            << std::setw(5) << btab[i].lpar << " "
-            << std::setw(5) << btab[i].psze << " "
-            << btab[i].vsze;
-        emit(oss.str());
-    }
-
-    if (!atab.empty()) {
-        emit("\n=== Array Table (atab) ===");
-        emit("  idx  xtyp      etyp      eref  low   high  elsz  size");
-        emit("  --------------------------------------------------------");
-        for (int i = 0; i < (int)atab.size(); i++) {
-            std::ostringstream oss;
-            oss << "  " << std::setw(3) << (i+1) << "  "
-                << std::setw(10) << typeCodeName(atab[i].xtyp)
-                << std::setw(10) << typeCodeName(atab[i].etyp)
-                << std::setw(6)  << atab[i].eref
-                << std::setw(6)  << atab[i].low
-                << std::setw(6)  << atab[i].high
-                << std::setw(6)  << atab[i].elsz
-                << "  " << atab[i].size;
-            emit(oss.str());
-        }
-    }
-
-    emit(hasError ? "\n[Semantic analysis completed with ERRORS]"
-                  : "\n[Semantic analysis completed successfully]");
-}
+// printAnnotatedTree and printSymbolTables have been moved to ASTDecoratedPrinter.
+// SemanticAnalyzer::analyze() uses ASTDecoratedPrinter::printAll() instead.

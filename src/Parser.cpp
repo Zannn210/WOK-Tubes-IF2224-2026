@@ -1,6 +1,7 @@
 #include "Parser.hpp"
 #include <iostream>
 #include <cstdlib>
+#include <unordered_map>
 
 // Token file loader 
 
@@ -83,19 +84,49 @@ bool Parser::isMultiplicativeOp() {
     return t == "times" || t == "rdiv" || t == "idiv" || t == "imod" || t == "andsy";
 }
 
-// match, consumes a token and returns a terminal ASTNode
+
+static const std::string& tokenDisplayValue(const std::string& type) {
+    static const std::unordered_map<std::string, std::string> kMap = {
+        // punctuation
+        {"semicolon", ";"}, {"colon", ":"}, {"comma", ","}, {"period", "."},
+        {"lparent",  "("}, {"rparent",  ")"}, {"lbrack", "["}, {"rbrack", "]"},
+        // operators
+        {"becomes", ":="}, {"eql", "=="}, {"neq", "<>"},
+        {"lss", "<"}, {"leq", "<="}, {"gtr", ">"}, {"geq", ">="},
+        {"plus", "+"}, {"minus", "-"}, {"times", "*"}, {"rdiv", "/"},
+        {"idiv", "div"}, {"imod", "mod"}, {"andsy", "and"}, {"orsy", "or"},
+        {"notsy", "not"},
+        // keywords
+        {"programsy",   "program"},   {"beginsy", "begin"},   {"endsy",  "end"},
+        {"varsy",       "var"},       {"constsy", "const"},   {"typesy", "type"},
+        {"ifsy",        "if"},        {"thensy",  "then"},    {"elsesy", "else"},
+        {"whilesy",     "while"},     {"dosy",    "do"},
+        {"forsy",       "for"},       {"tosy",    "to"},      {"downtosy", "downto"},
+        {"repeatsy",    "repeat"},    {"untilsy", "until"},
+        {"proceduresy", "procedure"}, {"functionsy", "function"},
+        {"recordsy",    "record"},    {"arraysy",    "array"}, {"ofsy", "of"},
+        {"casesy",      "case"},
+    };
+    static const std::string kEmpty;
+    auto it = kMap.find(type);
+    return (it != kMap.end()) ? it->second : kEmpty;
+}
+
 
 ASTNode* Parser::match(const std::string& expectedType) {
     Token t = currentToken();
     if (t.type == expectedType) {
+        std::string displayVal = t.value.empty() ? tokenDisplayValue(t.type) : t.value;
         std::string label = t.type;
-        if (!t.value.empty()) label += "(" + t.value + ")";
+        if (!displayVal.empty()) label += "(" + displayVal + ")";
 
         printNode(label);
         advance();
-        return new ASTNode(label, true, t.type, t.value);
+
+        return new ASTNode(label, true, t.type, displayVal);
     }
-    std::cerr << "\n[SYNTAX ERROR] Unexpected token '" << t.type << "', expected '" << expectedType << "'\n";
+    std::cerr << "\n[SYNTAX ERROR] Unexpected token '" << t.type
+              << "', expected '" << expectedType << "'\n";
     exit(1);
 }
 
@@ -516,9 +547,11 @@ ASTNode* Parser::parseStatement() {
         } else if (next == "becomes" || next == "lbrack" || next == "period") {
             return parseAssignmentStatement();
         } else {
+            // A bare identifier followed by a statement-closing token is a
+            // no-argument procedure call (e.g.  "increment;"  or  "reset").
             if (next == "semicolon" || next == "endsy" ||
                 next == "elsesy"    || next == "untilsy") {
-                return nullptr;
+                return parseProcFuncCall();
             }
             return parseAssignmentStatement();
         }

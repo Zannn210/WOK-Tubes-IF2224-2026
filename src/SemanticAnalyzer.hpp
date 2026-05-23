@@ -34,9 +34,8 @@ private:
     void leaveBlock();
     int addIdentifier(const std::string& name, int obj, int type, int ref, int nrm, int adr);
     int lookupIdent(const std::string& name, bool errorIfMissing = true);
-    int resolveTypeName(const std::string& name);  
+    int resolveTypeName(const std::string& name);
     int getTypeSize(int typeCode, int ref) const;
-    bool isDuplicate(const std::string& name) const;
 
     // Visitor functions
     void visitProgram(ASTNode* node);
@@ -83,10 +82,7 @@ private:
     bool isRelOp(const std::string& tokenType) const;
     bool isNumeric(int typeCode) const;
 
-    // Output helpers 
     void emit(const std::string& s);
-    void printAnnotatedTree(ASTNode* node, int depth);
-    void printSymbolTables();
 
     std::string typeCodeName(int t) const;
     std::string objKindName(int o)  const;
