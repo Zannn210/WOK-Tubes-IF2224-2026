@@ -88,6 +88,39 @@ std::string ASTDecoratedPrinter::opSym(const std::string& tok) const {
     return tok;
 }
 
+std::string ASTDecoratedPrinter::inlineExpr(ASTNode* n) const {
+    if (!n) return "?";
+    if (n->isTerminal) {
+        if (n->tokenType == "intcon"  || n->tokenType == "realcon" ||
+            n->tokenType == "charcon" || n->tokenType == "string"  ||
+            n->tokenType == "ident")
+            return n->tokenValue;
+        return opSym(n->tokenType);
+    }
+    const std::string& lbl = n->label;
+    if (lbl == "<factor>") {
+        bool hasNot = false, hasMinus = false;
+        for (auto* c : n->children) {
+            if (c->isTerminal && c->tokenType == "notsy")  hasNot   = true;
+            if (c->isTerminal && c->tokenType == "minus")  hasMinus = true;
+        }
+        for (auto* c : n->children) {
+            if (c->isTerminal && (c->tokenType == "notsy" || c->tokenType == "minus")) continue;
+            std::string inner = inlineExpr(c);
+            if (hasNot)   return "not " + inner;
+            if (hasMinus) return "-"    + inner;
+            return inner;
+        }
+        return "?";
+    }
+    std::string result;
+    for (auto* c : n->children) {
+        if (!c->isTerminal) result += inlineExpr(c);
+        else                result += opSym(c->tokenType);
+    }
+    return result.empty() ? "?" : result;
+}
+
 bool ASTDecoratedPrinter::isRelOp(const std::string& tok) const {
     return tok=="eql"||tok=="neq"||tok=="lss"||tok=="leq"||tok=="gtr"||tok=="geq";
 }
@@ -162,12 +195,11 @@ void ASTDecoratedPrinter::doProg(ASTNode* n, int d) {
         doDecls(declPart, d+2);
     }
     if (compStmt) {
-        emit(ind(d+1) + "Body:");
-        doCompound(compStmt, d+2);
+        doCompound(compStmt, d+1);
     }
 }
 
-// Declarations 
+// Declarations
 
 void ASTDecoratedPrinter::doDecls(ASTNode* n, int d) {
     for (auto* c : n->children) {
@@ -370,17 +402,21 @@ void ASTDecoratedPrinter::doBlock(ASTNode* n, int d) {
         doDecls(declPart, d+2);
     }
     if (compStmt) {
-        emit(ind(d+1) + "Body:");
-        doCompound(compStmt, d+2);
+        doCompound(compStmt, d+1);
     }
 }
 
 // Compound statement & statement list
 
 void ASTDecoratedPrinter::doCompound(ASTNode* n, int d) {
-    emit(ind(d) + "CompoundStatement");
     ASTNode* sl = childNT(n, "<statement-list>");
-    if (sl) doStmtList(sl, d+1);
+    if (n->tabIdx >= 0) {
+        emit(ind(d) + "Block(block_index: " + std::to_string(n->tabIdx) +
+             ", lev: " + std::to_string(n->lexLevel) + ")");
+        if (sl) doStmtList(sl, d+1);
+    } else {
+        if (sl) doStmtList(sl, d);
+    }
 }
 
 void ASTDecoratedPrinter::doStmtList(ASTNode* n, int d) {
@@ -404,8 +440,6 @@ void ASTDecoratedPrinter::doStmt(ASTNode* n, int d) {
 // Statements
 
 void ASTDecoratedPrinter::doAssign(ASTNode* n, int d) {
-    emit(ind(d) + "Assign");
-
     ASTNode* lhs    = nullptr;
     ASTNode* rhs    = nullptr;
     bool seenBecomes = false;
@@ -415,6 +449,10 @@ void ASTDecoratedPrinter::doAssign(ASTNode* n, int d) {
         if (!seenBecomes) lhs = c;
         else if (!rhs)    rhs = c;
     }
+
+    std::string lhsName = (lhs && lhs->isTerminal) ? lhs->tokenValue : "?";
+    std::string rhsStr  = rhs ? inlineExpr(rhs) : "?";
+    emit(ind(d) + "Assign('" + lhsName + "' := " + rhsStr + ", type: void)");
 
     // Print Target
     emit(ind(d+1) + "Target:");
@@ -437,7 +475,7 @@ void ASTDecoratedPrinter::doAssign(ASTNode* n, int d) {
 }
 
 void ASTDecoratedPrinter::doIf(ASTNode* n, int d) {
-    emit(ind(d) + "If");
+    emit(ind(d) + "If(type: void)");
     ASTNode* cond     = nullptr;
     ASTNode* thenStmt = nullptr;
     ASTNode* elseStmt = nullptr;
@@ -458,7 +496,7 @@ void ASTDecoratedPrinter::doIf(ASTNode* n, int d) {
 }
 
 void ASTDecoratedPrinter::doWhile(ASTNode* n, int d) {
-    emit(ind(d) + "While");
+    emit(ind(d) + "While(type: void)");
     ASTNode* cond = childNT(n, "<expression>");
     ASTNode* body = childNT(n, "<compound-statement>");
     if (cond) { emit(ind(d+1) + "Condition:"); doExpr(cond, d+2); }
@@ -479,14 +517,14 @@ void ASTDecoratedPrinter::doFor(ASTNode* n, int d) {
     }
 
     emit(ind(d) + "For(variable: '" + loopVar + "', direction: " +
-         (isDownto ? "downto" : "to") + ")");
+         (isDownto ? "downto" : "to") + ", type: void)");
     if (exprs.size() >= 1) { emit(ind(d+1) + "Start:"); doExpr(exprs[0], d+2); }
     if (exprs.size() >= 2) { emit(ind(d+1) + "End:");   doExpr(exprs[1], d+2); }
     if (body)              { emit(ind(d+1) + "Body:");  doCompound(body, d+2); }
 }
 
 void ASTDecoratedPrinter::doRepeat(ASTNode* n, int d) {
-    emit(ind(d) + "Repeat");
+    emit(ind(d) + "Repeat(type: void)");
     ASTNode* sl   = childNT(n, "<statement-list>");
     ASTNode* cond = nullptr;
     bool seenUntil = false;
@@ -499,7 +537,7 @@ void ASTDecoratedPrinter::doRepeat(ASTNode* n, int d) {
 }
 
 void ASTDecoratedPrinter::doCase(ASTNode* n, int d) {
-    emit(ind(d) + "Case");
+    emit(ind(d) + "Case(type: void)");
     ASTNode* expr = childNT(n, "<expression>");
     if (expr) { emit(ind(d+1) + "Expression:"); doExpr(expr, d+2); }
     emit(ind(d+1) + "Cases:");
@@ -544,7 +582,7 @@ void ASTDecoratedPrinter::doProcCall(ASTNode* n, int d) {
 
     std::string line = ind(d) + "ProcCall(name: '" + name + "'";
     if (tabIdx >= 0) line += ", tab_index: " + std::to_string(tabIdx);
-    line += ")";
+    line += ", type: void)";
     emit(line);
 
     if (paramList) {

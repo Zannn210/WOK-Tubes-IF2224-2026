@@ -321,8 +321,12 @@ void SemanticAnalyzer::visitProgram(ASTNode* node) {
     node->tabIdx = progIdx;
 
     if (declPart) visitDeclarationPart(declPart);
-    ensureMainBlock();
-    if (compStmt) visitCompoundStatement(compStmt);
+    int mainBlk = ensureMainBlock();
+    if (compStmt) {
+        compStmt->tabIdx   = mainBlk;
+        compStmt->lexLevel = 1;
+        visitCompoundStatement(compStmt);
+    }
 }
 
 
@@ -710,11 +714,17 @@ void SemanticAnalyzer::visitParameterGroup(ASTNode* node) {
 }
 
 void SemanticAnalyzer::visitBlock(ASTNode* node) {
+    ASTNode* compStmt = nullptr;
     for (auto* c : node->children) {
         if (!c->isTerminal) {
             if      (c->label == "<declaration-part>")   visitDeclarationPart(c);
-            else if (c->label == "<compound-statement>") visitCompoundStatement(c);
+            else if (c->label == "<compound-statement>") compStmt = c;
         }
+    }
+    if (compStmt) {
+        compStmt->tabIdx   = display[currentLevel];
+        compStmt->lexLevel = currentLevel;
+        visitCompoundStatement(compStmt);
     }
     node->semType = TYPE_VOID;
 }

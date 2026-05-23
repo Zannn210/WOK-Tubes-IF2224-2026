@@ -34,7 +34,7 @@ private:
     std::string typeShort(int t) const;  
     std::string objClass(int o)  const;   
     std::string opSym(const std::string& tok) const; 
-
+    std::string inlineExpr(ASTNode* n) const;
     bool isRelOp(const std::string& tok) const;
     bool isAddOp(const std::string& tok) const;
     bool isMulOp(const std::string& tok) const;
@@ -45,7 +45,7 @@ private:
     std::string progName(ASTNode* programNode) const;
     std::string stripQuotes(const std::string& s) const;
 
-    // ── Decorated AST printers ────────────────────────────────────────────────
+    // Decorated AST printers 
     void doProg(ASTNode* n, int d);
     void doDecls(ASTNode* n, int d);
     void doVarDecl(ASTNode* n, int d, bool isParam = false);
@@ -55,7 +55,7 @@ private:
     void doSubprog(ASTNode* n, int d);
     void doProcDecl(ASTNode* n, int d);
     void doFuncDecl(ASTNode* n, int d);
-    void doBlock(ASTNode* n, int d);     // <block> node
+    void doBlock(ASTNode* n, int d);  
     void doCompound(ASTNode* n, int d);
     void doStmtList(ASTNode* n, int d);
     void doStmt(ASTNode* n, int d);
@@ -68,22 +68,21 @@ private:
     void doCaseBlock(ASTNode* n, int d);
     void doProcCall(ASTNode* n, int d);
 
-    // Expression printer (handles all levels: expression / simple-expression /
-    // term / factor / constant)
+
     void doExpr(ASTNode* n, int d);
     void doFactor(ASTNode* n, int d);
-    void doVarRef(ASTNode* n, int d);       // <variable> or ident terminal
-    void doConstantNode(ASTNode* n, int d); // <constant> node
-    void doBinChain(                        // left-fold binary-op chain
+    void doVarRef(ASTNode* n, int d);   
+    void doConstantNode(ASTNode* n, int d); 
+    void doBinChain(  
         const std::vector<ASTNode*>& operands,
         const std::vector<std::string>& opToks,
         int resultType,
         int d);
 
-    // ── Symbol-table printers ─────────────────────────────────────────────────
+    // Symbol-table printers 
     void doTab();
     void doBtab();
     void doAtab();
 };
 
-#endif // ASTDECORATEDPRINTER_HPP
+#endif 
