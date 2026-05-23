@@ -4,39 +4,40 @@
 #include <string>
 
 enum ObjKind {
-    OBJ_CONST= 0,
-    OBJ_VAR = 1,
-    OBJ_TYPE = 2,
-    OBJ_PROC= 3,
-    OBJ_FUNC = 4,
-    OBJ_PROGRAM = 5
+    OBJ_CONST    = 0,   
+    OBJ_VAR      = 1,   
+    OBJ_TYPE     = 2,   
+    OBJ_PROC     = 3,   
+    OBJ_FUNC     = 4,   
+    OBJ_PROGRAM  = 5,   
+    OBJ_RESERVED = 6    
 };
 
 struct TabEntry {
-    std::string id; 
-    int link; 
+    std::string id;   
+    int link;
     int obj; 
-    int type;
+    int type;   
     int ref; 
     int nrm; 
-    int lev; 
-    int adr;
+    int lev;
+    int adr; 
 };
 
 struct BtabEntry {
-    int last; 
-    int lpar; 
+    int last;  
+    int lpar;  
     int psze;  
     int vsze;  
 };
 
 struct AtabEntry {
-    int xtyp;  
-    int etyp;
+    int xtyp;
+    int etyp; 
     int eref; 
     int low;  
-    int high;
-    int elsz;  
+    int high; 
+    int elsz; 
     int size; 
 };
 

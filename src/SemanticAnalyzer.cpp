@@ -1,4 +1,5 @@
 #include "SemanticAnalyzer.hpp"
+#include "ASTDecoratedPrinter.hpp"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -9,7 +10,7 @@
 // Constructor / Destructor
 
 SemanticAnalyzer::SemanticAnalyzer()
-    : currentLevel(0), hasError(false) {
+    : currentLevel(0), mainBlockIndex(-1), hasError(false) {
     initPredefined();
 }
 
@@ -123,8 +124,8 @@ void SemanticAnalyzer::initPredefined() {
     for (int i = 0; i < 32; i++) {
         TabEntry e;
         e.id   = rwords[i].name;
-        e.link = i;  
-        e.obj  = OBJ_TYPE;
+        e.link = i;
+        e.obj  = (rwords[i].typeCode != TYPE_VOID) ? OBJ_TYPE : OBJ_RESERVED;
         e.type = rwords[i].typeCode;
         e.ref  = 0;
         e.nrm  = 1;
@@ -155,6 +156,19 @@ void SemanticAnalyzer::initPredefined() {
 }
 
 // Block management
+
+int SemanticAnalyzer::ensureMainBlock() {
+    if (mainBlockIndex >= 0) return mainBlockIndex;
+
+    BtabEntry b;
+    b.last = 0;
+    b.lpar = 0;
+    b.psze = 0;
+    b.vsze = 0;
+    btab.push_back(b);
+    mainBlockIndex = (int)btab.size() - 1;
+    return mainBlockIndex;
+}
 
 int SemanticAnalyzer::enterBlock() {
     BtabEntry b;
@@ -268,10 +282,11 @@ void SemanticAnalyzer::analyze(ASTNode* root, const std::string& outFilename) {
 
     visitProgram(root);
 
-    emit("\n=== Decorated AST ===\n");
-    printAnnotatedTree(root, 0);
+    ASTDecoratedPrinter printer(tab, btab, atab, outFile);
+    printer.printAll(root);
 
-    printSymbolTables();
+    emit(hasError ? "\n[Semantic analysis completed with ERRORS]"
+                  : "\n[Semantic analysis completed successfully]");
 }
 
 
@@ -306,7 +321,12 @@ void SemanticAnalyzer::visitProgram(ASTNode* node) {
     node->tabIdx = progIdx;
 
     if (declPart) visitDeclarationPart(declPart);
-    if (compStmt) visitCompoundStatement(compStmt);
+    int mainBlk = ensureMainBlock();
+    if (compStmt) {
+        compStmt->tabIdx   = mainBlk;
+        compStmt->lexLevel = 1;
+        visitCompoundStatement(compStmt);
+    }
 }
 
 
@@ -360,15 +380,19 @@ int SemanticAnalyzer::visitConstant(ASTNode* node) {
 void SemanticAnalyzer::visitTypeDeclaration(ASTNode* node) {
     int ci = 1;
     while (ci < (int)node->children.size()) {
-        if (!node->children[ci]->isTerminal || node->children[ci]->tokenType != "ident") break;
-        std::string name = node->children[ci]->tokenValue; ci++;
+        ASTNode* identNode = node->children[ci];
+        if (!identNode->isTerminal || identNode->tokenType != "ident") break;
+        std::string name = identNode->tokenValue; ci++;
         ci++; 
         int ref = 0, typeCode = TYPE_UNKNOWN;
         if (ci < (int)node->children.size() && node->children[ci]->label == "<type>") {
             typeCode = visitType(node->children[ci], ref); ci++;
         }
         ci++; 
-        addIdentifier(name, OBJ_TYPE, typeCode, ref, 1, 0);
+        int idx = addIdentifier(name, OBJ_TYPE, typeCode, ref, 1, 0);
+        identNode->tabIdx = idx;
+        identNode->semType = typeCode;
+        identNode->lexLevel = currentLevel;
     }
     node->semType = TYPE_VOID;
 }
@@ -506,6 +530,8 @@ int SemanticAnalyzer::visitEnumerated(ASTNode* node, int& outRef) {
 int SemanticAnalyzer::visitRecordType(ASTNode* node, int& outRef) {
     int blockIdx = enterBlock();
     outRef = blockIdx;
+    node->tabIdx = blockIdx;
+    node->lexLevel = currentLevel;
 
     for (auto* c : node->children) {
         if (!c->isTerminal && c->label == "<field-list>"){
@@ -540,7 +566,10 @@ void SemanticAnalyzer::visitFieldPart(ASTNode* node) {
         if (c->isTerminal && c->tokenType == "ident") {
             int adr = btab[display[currentLevel]].vsze;
             btab[display[currentLevel]].vsze += getTypeSize(typeCode, ref);
-            addIdentifier(c->tokenValue, OBJ_VAR, typeCode, ref, 1, adr);
+            int idx = addIdentifier(c->tokenValue, OBJ_VAR, typeCode, ref, 1, adr);
+            c->tabIdx = idx;
+            c->semType = typeCode;
+            c->lexLevel = currentLevel;
         }
     }
 }
@@ -685,11 +714,17 @@ void SemanticAnalyzer::visitParameterGroup(ASTNode* node) {
 }
 
 void SemanticAnalyzer::visitBlock(ASTNode* node) {
+    ASTNode* compStmt = nullptr;
     for (auto* c : node->children) {
         if (!c->isTerminal) {
             if      (c->label == "<declaration-part>")   visitDeclarationPart(c);
-            else if (c->label == "<compound-statement>") visitCompoundStatement(c);
+            else if (c->label == "<compound-statement>") compStmt = c;
         }
+    }
+    if (compStmt) {
+        compStmt->tabIdx   = display[currentLevel];
+        compStmt->lexLevel = currentLevel;
+        visitCompoundStatement(compStmt);
     }
     node->semType = TYPE_VOID;
 }
@@ -813,7 +848,13 @@ void SemanticAnalyzer::visitWhileStatement(ASTNode* node) {
         if (t != TYPE_BOOLEAN && t != TYPE_UNKNOWN)
             semanticError("While condition must be Boolean, got " + typeCodeName(t));
     }
-    if (body) visitCompoundStatement(body);
+    if (body) {
+        int blk = enterBlock();
+        body->tabIdx   = blk;
+        body->lexLevel = currentLevel;
+        visitCompoundStatement(body);
+        leaveBlock();
+    }
     node->semType = TYPE_VOID;
 }
 
@@ -865,7 +906,13 @@ void SemanticAnalyzer::visitForStatement(ASTNode* node) {
         }
     }
     for (auto* e : exprs) visitExpression(e);
-    if (body) visitCompoundStatement(body);
+    if (body) {
+        int blk = enterBlock();
+        body->tabIdx   = blk;
+        body->lexLevel = currentLevel;
+        visitCompoundStatement(body);
+        leaveBlock();
+    }
     node->semType = TYPE_VOID;
 }
 
@@ -1155,87 +1202,5 @@ void SemanticAnalyzer::visitIndexList(ASTNode* node) {
 }
 
 
-void SemanticAnalyzer::printAnnotatedTree(ASTNode* node, int depth) {
-    if (!node) return;
-
-    std::string indent;
-    for (int i = 0; i < depth; i++) indent += "|   ";
-    if (depth > 0) indent += "|-- ";
-
-    std::string ann;
-    bool hasType = (node->semType != TYPE_VOID && node->semType != TYPE_UNKNOWN);
-    bool hasTab  = (node->tabIdx >= 0);
-    bool hasLev  = (node->lexLevel > 0 && !node->isTerminal);
-
-    if (hasType || hasTab) {
-        ann = "  [";
-        if (hasType) ann += "type:" + typeCodeName(node->semType);
-        if (hasTab) {
-            if (hasType) ann += ", ";
-            ann += "tab:" + std::to_string(node->tabIdx);
-        }
-        if (hasLev) ann += ", lev:" + std::to_string(node->lexLevel);
-        ann += "]";
-    }
-
-    emit(indent + node->label + ann);
-    for (auto* c : node->children) printAnnotatedTree(c, depth + 1);
-}
-
-
-void SemanticAnalyzer::printSymbolTables() {
-    emit("\n=== Symbol Table (tab) ===");
-    emit("  idx  identifier        obj    type       ref  nrm  lev  adr  link");
-    emit("  -------------------------------------------------------------------");
-
-    for (int i = 0; i < (int)tab.size(); i++) {
-        bool isKw = (i >= 1 && i <= 32 && tab[i].type == TYPE_VOID);
-        if (isKw) continue;
-
-        std::ostringstream oss;
-        oss << "  " << std::setw(3) << i << "  "
-            << std::left << std::setw(17) << tab[i].id
-            << std::setw(7) << objKindName(tab[i].obj)
-            << std::setw(11) << typeCodeName(tab[i].type)
-            << std::setw(5)  << tab[i].ref
-            << std::setw(5)  << tab[i].nrm
-            << std::setw(5)  << tab[i].lev
-            << std::setw(5)  << tab[i].adr
-            << tab[i].link;
-        emit(oss.str());
-    }
-
-    emit("\n=== Block Table (btab) ===");
-    emit("  idx  last  lpar  psze  vsze");
-    emit("  ---------------------------");
-    for (int i = 0; i < (int)btab.size(); i++) {
-        std::ostringstream oss;
-        oss << "  " << std::setw(3) << i << "  "
-            << std::setw(5) << btab[i].last << " "
-            << std::setw(5) << btab[i].lpar << " "
-            << std::setw(5) << btab[i].psze << " "
-            << btab[i].vsze;
-        emit(oss.str());
-    }
-
-    if (!atab.empty()) {
-        emit("\n=== Array Table (atab) ===");
-        emit("  idx  xtyp      etyp      eref  low   high  elsz  size");
-        emit("  --------------------------------------------------------");
-        for (int i = 0; i < (int)atab.size(); i++) {
-            std::ostringstream oss;
-            oss << "  " << std::setw(3) << (i+1) << "  "
-                << std::setw(10) << typeCodeName(atab[i].xtyp)
-                << std::setw(10) << typeCodeName(atab[i].etyp)
-                << std::setw(6)  << atab[i].eref
-                << std::setw(6)  << atab[i].low
-                << std::setw(6)  << atab[i].high
-                << std::setw(6)  << atab[i].elsz
-                << "  " << atab[i].size;
-            emit(oss.str());
-        }
-    }
-
-    emit(hasError ? "\n[Semantic analysis completed with ERRORS]"
-                  : "\n[Semantic analysis completed successfully]");
-}
+// printAnnotatedTree and printSymbolTables have been moved to ASTDecoratedPrinter.
+// SemanticAnalyzer::analyze() uses ASTDecoratedPrinter::printAll() instead.
