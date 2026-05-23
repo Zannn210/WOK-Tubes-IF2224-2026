@@ -848,7 +848,13 @@ void SemanticAnalyzer::visitWhileStatement(ASTNode* node) {
         if (t != TYPE_BOOLEAN && t != TYPE_UNKNOWN)
             semanticError("While condition must be Boolean, got " + typeCodeName(t));
     }
-    if (body) visitCompoundStatement(body);
+    if (body) {
+        int blk = enterBlock();
+        body->tabIdx   = blk;
+        body->lexLevel = currentLevel;
+        visitCompoundStatement(body);
+        leaveBlock();
+    }
     node->semType = TYPE_VOID;
 }
 
@@ -900,7 +906,13 @@ void SemanticAnalyzer::visitForStatement(ASTNode* node) {
         }
     }
     for (auto* e : exprs) visitExpression(e);
-    if (body) visitCompoundStatement(body);
+    if (body) {
+        int blk = enterBlock();
+        body->tabIdx   = blk;
+        body->lexLevel = currentLevel;
+        visitCompoundStatement(body);
+        leaveBlock();
+    }
     node->semType = TYPE_VOID;
 }
 

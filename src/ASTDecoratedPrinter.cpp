@@ -500,7 +500,7 @@ void ASTDecoratedPrinter::doWhile(ASTNode* n, int d) {
     ASTNode* cond = childNT(n, "<expression>");
     ASTNode* body = childNT(n, "<compound-statement>");
     if (cond) { emit(ind(d+1) + "Condition:"); doExpr(cond, d+2); }
-    if (body) { emit(ind(d+1) + "Body:");      doCompound(body, d+2); }
+    if (body) { doCompound(body, d+1); }
 }
 
 void ASTDecoratedPrinter::doFor(ASTNode* n, int d) {
@@ -520,7 +520,7 @@ void ASTDecoratedPrinter::doFor(ASTNode* n, int d) {
          (isDownto ? "downto" : "to") + ", type: void)");
     if (exprs.size() >= 1) { emit(ind(d+1) + "Start:"); doExpr(exprs[0], d+2); }
     if (exprs.size() >= 2) { emit(ind(d+1) + "End:");   doExpr(exprs[1], d+2); }
-    if (body)              { emit(ind(d+1) + "Body:");  doCompound(body, d+2); }
+    if (body)              { doCompound(body, d+1); }
 }
 
 void ASTDecoratedPrinter::doRepeat(ASTNode* n, int d) {
