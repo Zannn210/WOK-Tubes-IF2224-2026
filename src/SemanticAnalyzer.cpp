@@ -10,7 +10,7 @@
 // Constructor / Destructor
 
 SemanticAnalyzer::SemanticAnalyzer()
-    : currentLevel(0), mainBlockIndex(-1), hasError(false) {
+    : currentLevel(0), mainBlockIndex(-1), currentLine(0), hasError(false) {
     initPredefined();
 }
 
@@ -70,13 +70,41 @@ void SemanticAnalyzer::emit(const std::string& s) {
 }
 
 void SemanticAnalyzer::semanticError(const std::string& msg) {
-    std::cerr << "[SEMANTIC ERROR] " << msg << "\n";
-    if (outFile.is_open()) outFile << "[SEMANTIC ERROR] " << msg << "\n";
+    std::string prefix = "[SEMANTIC ERROR]";
+    if (currentLine > 0) prefix += " Line " + std::to_string(currentLine) + ":";
+    std::cerr << prefix << " " << msg << "\n";
+    if (outFile.is_open()) outFile << prefix << " " << msg << "\n";
     hasError = true;
 }
 
 void SemanticAnalyzer::semanticWarning(const std::string& msg) {
     std::cerr << "[SEMANTIC WARNING] " << msg << "\n";
+}
+
+int SemanticAnalyzer::getNodeLine(ASTNode* node) const {
+    if (!node) return 0;
+    if (node->line > 0) return node->line;
+    for (auto* c : node->children) {
+        int l = getNodeLine(c);
+        if (l > 0) return l;
+    }
+    return 0;
+}
+
+bool SemanticAnalyzer::tryGetConstInt(ASTNode* node, int& val) const {
+    if (!node) return false;
+    if (node->isTerminal && node->tokenType == "intcon") {
+        val = std::stoi(node->tokenValue);
+        return true;
+    }
+    if (node->isTerminal) return false;
+    if (node->children.size() == 1)
+        return tryGetConstInt(node->children[0], val);
+    if (node->children.size() == 2 &&
+        node->children[0]->isTerminal && node->children[0]->tokenType == "minus") {
+        if (tryGetConstInt(node->children[1], val)) { val = -val; return true; }
+    }
+    return false;
 }
 
 
@@ -270,8 +298,9 @@ bool SemanticAnalyzer::assignCompatible(int targetType, int valueType) const {
     if (targetType == valueType) return true;
     // Real := Integer is allowed
     if (targetType == TYPE_REAL && valueType == TYPE_INTEGER) return true;
-    // UNKNOWN on either side — don't double-report
-    if (targetType == TYPE_UNKNOWN || valueType == TYPE_UNKNOWN) return true;
+    if (targetType == TYPE_SUBRANGE && valueType == TYPE_INTEGER) return true;
+    if (targetType == TYPE_SUBRANGE && valueType == TYPE_SUBRANGE) return true;
+    if (valueType == TYPE_UNKNOWN) return true;
     return false;
 }
 
@@ -507,11 +536,21 @@ int SemanticAnalyzer::visitRange(ASTNode* node, int& outRef,int* low, int* high)
         return 0;
     };
 
-    if (low)  *low  = extractInt(node->children[0]);
-    if (high) *high = extractInt(node->children[3]);
+    int lo = extractInt(node->children[0]);
+    int hi = extractInt(node->children[3]);
 
-    node->semType = lowType;
-    return lowType;
+    if (low)  *low  = lo;
+    if (high) *high = hi;
+
+    RangeEntry re;
+    re.low      = lo;
+    re.high     = hi;
+    re.baseType = (lowType != TYPE_UNKNOWN) ? lowType : TYPE_INTEGER;
+    rtab.push_back(re);
+    outRef = (int)rtab.size();  // 1-based
+
+    node->semType = TYPE_SUBRANGE;
+    return TYPE_SUBRANGE;
 }
 
 int SemanticAnalyzer::visitEnumerated(ASTNode* node, int& outRef) {
@@ -758,7 +797,10 @@ void SemanticAnalyzer::visitStatement(ASTNode* node) {
 }
 
 void SemanticAnalyzer::visitAssignmentStatement(ASTNode* node) {
+    currentLine = getNodeLine(node);
     int targetType = TYPE_UNKNOWN;
+    int targetRef  = 0;
+    std::string targetName;
     ASTNode* exprNode = nullptr;
     bool seenBecomes = false;
 
@@ -769,6 +811,8 @@ void SemanticAnalyzer::visitAssignmentStatement(ASTNode* node) {
                 int idx = lookupIdent(c->tokenValue);
                 if (idx >= 0) {
                     targetType  = tab[idx].type;
+                    targetRef   = tab[idx].ref;
+                    targetName  = tab[idx].id;
                     c->semType  = targetType;
                     c->tabIdx   = idx;
                     c->lexLevel = tab[idx].lev;
@@ -785,14 +829,28 @@ void SemanticAnalyzer::visitAssignmentStatement(ASTNode* node) {
     if (exprNode) exprType = visitExpression(exprNode);
 
     if (!assignCompatible(targetType, exprType)) {
-        semanticError("Assignment type mismatch: cannot assign " +
+        semanticError("Type mismatch in assignment: cannot assign " +
                       typeCodeName(exprType) + " to " + typeCodeName(targetType));
+    }
+
+    if (targetType == TYPE_SUBRANGE && targetRef > 0 &&
+        targetRef <= (int)rtab.size() && exprNode) {
+        int constVal = 0;
+        if (tryGetConstInt(exprNode, constVal)) {
+            auto& range = rtab[targetRef - 1];
+            if (constVal < range.low || constVal > range.high) {
+                semanticError("Assignment-incompatible. Value " + std::to_string(constVal) +
+                              " is out of range [" + std::to_string(range.low) + ".." +
+                              std::to_string(range.high) + "] for variable '" + targetName + "'");
+            }
+        }
     }
 
     node->semType = TYPE_VOID;
 }
 
 void SemanticAnalyzer::visitIfStatement(ASTNode* node) {
+    currentLine = getNodeLine(node);
     ASTNode* cond = nullptr;
     bool seenThen = false;
     std::vector<ASTNode*> stmts;
@@ -836,6 +894,7 @@ void SemanticAnalyzer::visitCaseBlock(ASTNode* node) {
 }
 
 void SemanticAnalyzer::visitWhileStatement(ASTNode* node) {
+    currentLine = getNodeLine(node);
     ASTNode* cond = nullptr;
     ASTNode* body = nullptr;
     for (auto* c : node->children) {
@@ -878,6 +937,7 @@ void SemanticAnalyzer::visitRepeatStatement(ASTNode* node) {
 }
 
 void SemanticAnalyzer::visitForStatement(ASTNode* node) {
+    currentLine = getNodeLine(node);
     std::string loopVar;
     std::vector<ASTNode*> exprs;
     ASTNode* body = nullptr;
@@ -917,6 +977,7 @@ void SemanticAnalyzer::visitForStatement(ASTNode* node) {
 }
 
 void SemanticAnalyzer::visitProcFuncCall(ASTNode* node) {
+    currentLine = getNodeLine(node);
     std::string funcName;
     ASTNode* paramList = nullptr;
 
@@ -1162,6 +1223,9 @@ int SemanticAnalyzer::visitComponentVariable(ASTNode* node,
                 newRef = arr.eref;
                 return arr.etyp;
             }
+            if (parentType != TYPE_ARRAY && parentType != TYPE_UNKNOWN)
+                semanticError("Cannot use index notation on non-array type '" +
+                              typeCodeName(parentType) + "'");
             return TYPE_UNKNOWN;
         }
         if (c->isTerminal && c->tokenType == "period") {
@@ -1182,8 +1246,11 @@ int SemanticAnalyzer::visitComponentVariable(ASTNode* node,
                         }
                         i = tab[i].link;
                     }
-                    semanticError("Field '" + fieldNode->tokenValue + "' not found in record");
+                    semanticError("Undefined record field: " + fieldNode->tokenValue);
                 }
+            } else if (parentType != TYPE_RECORD && parentType != TYPE_UNKNOWN) {
+                semanticError("Cannot use field access on non-record type '" +
+                              typeCodeName(parentType) + "'");
             }
             return TYPE_UNKNOWN;
         }

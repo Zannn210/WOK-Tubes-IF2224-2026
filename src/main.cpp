@@ -51,6 +51,7 @@ int runAll(const std::string& inputPath, const std::string& milestoneDir, int mi
     std::cout << "\n";
 
     // Phase 1: Lexer
+    std::vector<int> tokenLines;
     {
         ArionLexer lexer(inputPath, tokenPath);
         if (!lexer.isOpen()) {
@@ -58,6 +59,7 @@ int runAll(const std::string& inputPath, const std::string& milestoneDir, int mi
             return 1;
         }
         lexer.analyze();
+        tokenLines = lexer.getTokenLines();
     }
     std::cout << "=== Lexical Analysis Done ===\n\n";
     if (milestoneNum < 2) return 0;
@@ -65,7 +67,7 @@ int runAll(const std::string& inputPath, const std::string& milestoneDir, int mi
     // Phase 2: Parser
     ASTNode* parseTree = nullptr;
     try {
-        std::vector<Token> tokenList = loadTokensFromFile(tokenPath);
+        std::vector<Token> tokenList = loadTokensFromFile(tokenPath, tokenLines);
         Parser parser(tokenList, treePath);
         std::cout << "=== Parse Tree ===\n";
         parseTree = parser.parse();

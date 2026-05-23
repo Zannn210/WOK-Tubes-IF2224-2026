@@ -9,9 +9,11 @@
 struct Token {
     std::string type;
     std::string value;
+    int line = 0;
 };
 
-std::vector<Token> loadTokensFromFile(const std::string& filename);
+std::vector<Token> loadTokensFromFile(const std::string& filename,
+                                      const std::vector<int>& lineNums = {});
 
 class Parser {
 private:

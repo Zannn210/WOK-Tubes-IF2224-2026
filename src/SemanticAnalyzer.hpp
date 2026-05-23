@@ -19,10 +19,12 @@ private:
     std::vector<TabEntry> tab;
     std::vector<BtabEntry> btab;
     std::vector<AtabEntry> atab;
+    std::vector<RangeEntry> rtab;
 
     std::vector<int> display;
-    int currentLevel; 
+    int currentLevel;
     int mainBlockIndex;
+    int currentLine;
 
     std::ofstream outFile;
     bool hasError;
@@ -78,11 +80,15 @@ private:
     int visitComponentVariable(ASTNode* node,  int parentType, int parentRef, int& newRef);
     void visitIndexList(ASTNode* node);
 
-    // Type helpers 
+    // Type helpers
     bool typesCompatible(int t1, int t2) const;
     bool assignCompatible(int targetType, int valueType) const;
     bool isRelOp(const std::string& tokenType) const;
     bool isNumeric(int typeCode) const;
+
+    // Line and constant helpers
+    int  getNodeLine(ASTNode* node) const;
+    bool tryGetConstInt(ASTNode* node, int& val) const;
 
     void emit(const std::string& s);
 
@@ -90,7 +96,7 @@ private:
     std::string objKindName(int o)  const;
     std::string toLower(const std::string& s) const;
 
-    // Error 
+    // Error
     void semanticError(const std::string& msg);
     void semanticWarning(const std::string& msg);
 };

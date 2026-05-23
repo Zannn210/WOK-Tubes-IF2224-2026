@@ -27,12 +27,13 @@ struct ASTNode {
 
     std::vector<ASTNode*> children;
 
-    int semType; 
-    int tabIdx; 
-    int lexLevel; 
+    int semType;
+    int tabIdx;
+    int lexLevel;
+    int line;
 
     ASTNode(const std::string& lbl,bool term = false,const std::string& tt = "", const std::string& tv = "")
-        : label(lbl), isTerminal(term),tokenType(tt), tokenValue(tv), semType(TYPE_VOID), tabIdx(-1), lexLevel(0) {}
+        : label(lbl), isTerminal(term),tokenType(tt), tokenValue(tv), semType(TYPE_VOID), tabIdx(-1), lexLevel(0), line(0) {}
 
     ~ASTNode() {
         for (auto* c : children) delete c;

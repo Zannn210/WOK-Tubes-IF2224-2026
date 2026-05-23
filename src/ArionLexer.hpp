@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "KeywordIdentifierLexer.hpp"
 #include "TipeDataKomentar.hpp"
@@ -22,14 +23,16 @@ private:
     CommentHandler         comHandler;
     OperatorDelimiterLexer opLexer;
 
+    int              currentLine;
+    std::vector<int> tokenLines;
+
     bool isDigit(char c);
     bool isLetter(char c);
     char toLower(char c);
 
     std::string mapKeyword(const std::string& lowerWord);
 
-    void emit(const std::string& raw);
-
+    void emit(const std::string& raw, int line);
 
 public:
     ArionLexer(const std::string& inputPath, const std::string& outputPath);
@@ -38,6 +41,8 @@ public:
     bool isOpen() const;
 
     void analyze();
+
+    const std::vector<int>& getTokenLines() const { return tokenLines; }
 };
 
 #endif

@@ -5,15 +5,20 @@
 
 // Token file loader 
 
-std::vector<Token> loadTokensFromFile(const std::string& filename) {
+std::vector<Token> loadTokensFromFile(const std::string& filename,
+                                      const std::vector<int>& lineNums) {
     std::vector<Token> tokens;
     std::ifstream file(filename);
     std::string line;
+    int tokenIdx = 0;
 
     while (std::getline(file, line)) {
         if (line.empty()) continue;
 
         Token t;
+        t.line = (tokenIdx < (int)lineNums.size()) ? lineNums[tokenIdx] : 0;
+        tokenIdx++;
+
         size_t pos = line.find(" (");
         if (pos != std::string::npos) {
             t.type  = line.substr(0, pos);
@@ -123,7 +128,9 @@ ASTNode* Parser::match(const std::string& expectedType) {
         printNode(label);
         advance();
 
-        return new ASTNode(label, true, t.type, displayVal);
+        auto* node = new ASTNode(label, true, t.type, displayVal);
+        node->line = t.line;
+        return node;
     }
     std::cerr << "\n[SYNTAX ERROR] Unexpected token '" << t.type
               << "', expected '" << expectedType << "'\n";

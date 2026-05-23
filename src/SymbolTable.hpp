@@ -33,12 +33,18 @@ struct BtabEntry {
 
 struct AtabEntry {
     int xtyp;
-    int etyp; 
-    int eref; 
-    int low;  
-    int high; 
-    int elsz; 
-    int size; 
+    int etyp;
+    int eref;
+    int low;
+    int high;
+    int elsz;
+    int size;
+};
+
+struct RangeEntry {
+    int low;
+    int high;
+    int baseType;
 };
 
 #endif 

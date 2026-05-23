@@ -99,19 +99,18 @@ std::string ArionLexer::mapKeyword(const std::string& w) {
     return "";
 }
 
-void ArionLexer::emit(const std::string& raw) {
-    std::string cleaned;
-    for (char ch : raw)
-    if (ch != '\r') cleaned += ch;
+void ArionLexer::emit(const std::string& raw, int line) {
     std::string result = normalizeToken(raw);
     if (result.empty()) return;
     std::cout << result << "\n";
     if (hasOutputFile) outputFile << result << "\n";
+    tokenLines.push_back(line);
 }
 
 //constructor
 ArionLexer::ArionLexer(const std::string& inputPath,
-                       const std::string& outputPath) {
+                       const std::string& outputPath)
+    : currentLine(1) {
     inputFile.open(inputPath);
     hasOutputFile = !outputPath.empty();
     if (hasOutputFile) outputFile.open(outputPath);
@@ -142,14 +141,11 @@ void ArionLexer::analyze() {
 
         char c = inBuf.get();
 
-        if (c== '\r')
-        {
-            continue;
-        }
-        
+        if (c == '\r') { continue; }
+        if (c == '\n') { currentLine++; }
+
         switch (state) {
 
- 
         case STATE_START: {
 
             if (std::isspace((unsigned char)c)) {
@@ -159,6 +155,7 @@ void ArionLexer::analyze() {
 
             if (isLetter(c)) {
                 state = STATE_IDENT_KW;
+                int tokenLine = currentLine;
 
                 kwLexer.reset();
                 kwLexer.processChar(c);
@@ -183,9 +180,9 @@ void ArionLexer::analyze() {
 
                 std::string kwResult = mapKeyword(lw);
                 if (!kwResult.empty()) {
-                    emit(kwResult);
+                    emit(kwResult, tokenLine);
                 } else {
-                    emit("ident (" + word + ")");
+                    emit("ident (" + word + ")", tokenLine);
                 }
                 state = STATE_START;
                 break;
@@ -193,21 +190,23 @@ void ArionLexer::analyze() {
 
             if (isDigit(c)) {
                 state = STATE_NUMBER;
-                emit(numHandler.process(inBuf, c));
+                emit(numHandler.process(inBuf, c), currentLine);
                 state = STATE_START;
                 break;
             }
 
             if (c == '\'') {
                 state = STATE_STRING;
-                emit(strHandler.process(inBuf, c));
+                emit(strHandler.process(inBuf, c), currentLine);
                 state = STATE_START;
                 break;
             }
 
             if (c == '{') {
                 state = STATE_COMMENT_CU;
-                emit(comHandler.process(inBuf, c));
+                std::string tok = comHandler.process(inBuf, c);
+                for (char ch : tok) if (ch == '\n') currentLine++;
+                emit(tok, currentLine);
                 state = STATE_START;
                 break;
             }
@@ -215,16 +214,18 @@ void ArionLexer::analyze() {
             if (c == '(') {
                 state = STATE_PAREN;
                 if (!inBuf.hasBuffer && inputFile.eof()) {
-                    emit("lparentsy");
+                    emit("lparentsy", currentLine);
                 } else {
                     char next = inBuf.get();
                     if (next == '*') {
                         inBuf.put(next);
                         state = STATE_COMMENT_ST;
-                        emit(comHandler.process(inBuf, c));
+                        std::string tok = comHandler.process(inBuf, c);
+                        for (char ch : tok) if (ch == '\n') currentLine++;
+                        emit(tok, currentLine);
                     } else {
                         inBuf.put(next);
-                        emit("lparentsy");
+                        emit("lparentsy", currentLine);
                     }
                 }
                 state = STATE_START;
@@ -233,6 +234,7 @@ void ArionLexer::analyze() {
 
             if (opLexer.canStart(c)) {
                 state = STATE_OPERATOR;
+                int tokenLine = currentLine;
                 opLexer.reset();
                 opLexer.processChar(c);
 
@@ -246,12 +248,13 @@ void ArionLexer::analyze() {
 
                 std::string token = opLexer.getToken();
                 if (!token.empty()) {
-                    emit(token);
+                    emit(token, tokenLine);
                 } else {
                     std::cerr << "[LEXICAL ERROR] Token tidak valid: '" << c << "'\n";
                     std::string unk = "unknown (" + std::string(1, c) + ")";
                     std::cout << unk << "\n";
                     if (hasOutputFile) outputFile << unk << "\n";
+                    tokenLines.push_back(tokenLine);
                 }
                 state = STATE_START;
                 break;
