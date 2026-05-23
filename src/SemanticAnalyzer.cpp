@@ -10,7 +10,7 @@
 // Constructor / Destructor
 
 SemanticAnalyzer::SemanticAnalyzer()
-    : currentLevel(0), hasError(false) {
+    : currentLevel(0), mainBlockIndex(-1), hasError(false) {
     initPredefined();
 }
 
@@ -156,6 +156,19 @@ void SemanticAnalyzer::initPredefined() {
 }
 
 // Block management
+
+int SemanticAnalyzer::ensureMainBlock() {
+    if (mainBlockIndex >= 0) return mainBlockIndex;
+
+    BtabEntry b;
+    b.last = 0;
+    b.lpar = 0;
+    b.psze = 0;
+    b.vsze = 0;
+    btab.push_back(b);
+    mainBlockIndex = (int)btab.size() - 1;
+    return mainBlockIndex;
+}
 
 int SemanticAnalyzer::enterBlock() {
     BtabEntry b;
@@ -308,6 +321,7 @@ void SemanticAnalyzer::visitProgram(ASTNode* node) {
     node->tabIdx = progIdx;
 
     if (declPart) visitDeclarationPart(declPart);
+    ensureMainBlock();
     if (compStmt) visitCompoundStatement(compStmt);
 }
 

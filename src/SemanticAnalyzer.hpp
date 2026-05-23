@@ -22,6 +22,7 @@ private:
 
     std::vector<int> display;
     int currentLevel; 
+    int mainBlockIndex;
 
     std::ofstream outFile;
     bool hasError;
@@ -30,6 +31,7 @@ private:
     void initPredefined();
 
     // Scope / symbol management
+    int ensureMainBlock();
     int enterBlock(); 
     void leaveBlock();
     int addIdentifier(const std::string& name, int obj, int type, int ref, int nrm, int adr);
