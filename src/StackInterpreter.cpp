@@ -9,11 +9,11 @@ namespace {
 // Basis pengkodean alamat: blockId * ADDR_BASE + offset
 constexpr long long ADDR_BASE = 1000000LL;
 
-// Cek apakah nilai runtime adalah tipe numerik (integer, real, boolean, char)
-bool isNumeric(const RuntimeValue& v) {
-    return v.kind == RuntimeValue::INTEGER || v.kind == RuntimeValue::REAL ||
-           v.kind == RuntimeValue::BOOLEAN || v.kind == RuntimeValue::CHAR;
-}
+// // Cek apakah nilai runtime adalah tipe numerik (integer, real, boolean, char)
+// bool isNumeric(const RuntimeValue& v) {
+//     return v.kind == RuntimeValue::INTEGER || v.kind == RuntimeValue::REAL ||
+//            v.kind == RuntimeValue::BOOLEAN || v.kind == RuntimeValue::CHAR;
+// }
 
 // Konversi nilai runtime ke double (untuk operasi aritmatika)
 double asReal(const RuntimeValue& v) {
