@@ -85,6 +85,12 @@ private:
     int visitComponentVariable(ASTNode* node,  int parentType, int parentRef, int& newRef);
     void visitIndexList(ASTNode* node);
 
+    // Helper semantic untuk validasi pemanggilan subprogram dan index array.
+    std::vector<int> getFormalParameterIndices(int calleeIdx) const;
+    std::vector<ASTNode*> collectActualArguments(ASTNode* paramList) const;
+    std::vector<ASTNode*> collectIndexNodes(ASTNode* indexList) const;
+    int inferIndexNodeType(ASTNode* node);
+
     // Type helpers
     bool typesCompatible(int t1, int t2) const;
     bool assignCompatible(int targetType, int valueType) const;

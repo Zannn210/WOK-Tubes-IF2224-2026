@@ -976,6 +976,83 @@ void SemanticAnalyzer::visitForStatement(ASTNode* node) {
     node->semType = TYPE_VOID;
 }
 
+
+std::vector<int> SemanticAnalyzer::getFormalParameterIndices(int calleeIdx) const {
+    std::vector<int> params;
+    if (calleeIdx < 0 || calleeIdx >= static_cast<int>(tab.size())) return params;
+
+    int blockIdx = tab[calleeIdx].ref;
+    if (blockIdx <= 0 || blockIdx >= static_cast<int>(btab.size())) return params;
+
+    // lpar menunjuk parameter terakhir yang dideklarasikan. Chain-nya dibalik
+    // dari urutan source, jadi nanti di-sort pakai adr supaya balik ke urutan asli
+    int paramLevel = tab[calleeIdx].lev + 1;
+    int i = btab[blockIdx].lpar;
+    while (i > 0 && i < static_cast<int>(tab.size()) && tab[i].lev == paramLevel) {
+        if (tab[i].obj == OBJ_VAR) params.push_back(i);
+        i = tab[i].link;
+    }
+
+    std::sort(params.begin(), params.end(), [this](int a, int b) {
+        return tab[a].adr < tab[b].adr;
+    });
+    return params;
+}
+
+std::vector<ASTNode*> SemanticAnalyzer::collectActualArguments(ASTNode* paramList) const {
+    std::vector<ASTNode*> args;
+    if (!paramList) return args;
+    for (auto* c : paramList->children) {
+        if (c && !c->isTerminal && c->label == "<expression>") args.push_back(c);
+    }
+    return args;
+}
+
+std::vector<ASTNode*> SemanticAnalyzer::collectIndexNodes(ASTNode* indexList) const {
+    std::vector<ASTNode*> result;
+    if (!indexList) return result;
+
+    for (auto* c : indexList->children) {
+        if (!c) continue;
+        if (c->isTerminal && (c->tokenType == "intcon" || c->tokenType == "charcon" || c->tokenType == "ident")) {
+            result.push_back(c);
+        } else if (!c->isTerminal && c->label == "<index-list>") {
+            auto nested = collectIndexNodes(c);
+            result.insert(result.end(), nested.begin(), nested.end());
+        }
+    }
+    return result;
+}
+
+int SemanticAnalyzer::inferIndexNodeType(ASTNode* node) {
+    if (!node) return TYPE_UNKNOWN;
+
+    if (node->isTerminal) {
+        if (node->tokenType == "intcon") {
+            node->semType = TYPE_INTEGER;
+            return TYPE_INTEGER;
+        }
+        if (node->tokenType == "charcon") {
+            node->semType = TYPE_CHAR;
+            return TYPE_CHAR;
+        }
+        if (node->tokenType == "ident") {
+            int idx = lookupIdent(node->tokenValue, false);
+            if (idx < 0) {
+                semanticError("Identifier '" + node->tokenValue + "' is not declared");
+                node->semType = TYPE_UNKNOWN;
+                return TYPE_UNKNOWN;
+            }
+            node->tabIdx = idx;
+            node->lexLevel = tab[idx].lev;
+            node->semType = tab[idx].type;
+            return tab[idx].type;
+        }
+    }
+    node->semType = TYPE_UNKNOWN;
+    return TYPE_UNKNOWN;
+}
+
 void SemanticAnalyzer::visitProcFuncCall(ASTNode* node) {
     currentLine = getNodeLine(node);
     std::string funcName;
@@ -986,25 +1063,76 @@ void SemanticAnalyzer::visitProcFuncCall(ASTNode* node) {
         if (!c->isTerminal && c->label == "<parameter-list>") paramList = c;
     }
 
+    std::vector<ASTNode*> args = collectActualArguments(paramList);
+    std::vector<int> actualTypes;
+    actualTypes.reserve(args.size());
+    for (auto* arg : args) actualTypes.push_back(visitExpression(arg));
+    if (paramList) paramList->semType = TYPE_VOID;
+
+    const std::string lname = toLower(funcName);
+
+    // Built-in I/O sengaja fleksibel: writeln/write boleh menerima berbagai tipe,
+    // sedangkan readln minimal dicek targetnya berupa variabel oleh tahap lain/IC
+    if (lname == "writeln" || lname == "write" || lname == "readln") {
+        int idx = lookupIdent(funcName, false);
+        if (idx >= 0) {
+            node->tabIdx = idx;
+            node->semType = TYPE_VOID;
+            for (auto* c : node->children) {
+                if (c->isTerminal && c->tokenType == "ident") {
+                    c->tabIdx = idx;
+                    c->semType = TYPE_VOID;
+                }
+            }
+        } else if (lname == "write") {
+            // write belum selalu didaftarkan sebagai predefined di versi awal,
+            // tapi IC generator sudah mendukungnya sebagai built-in
+            node->semType = TYPE_VOID;
+        } else {
+            semanticError("Undefined procedure/function: '" + funcName + "'");
+            node->semType = TYPE_VOID;
+        }
+        return;
+    }
+
     int idx = lookupIdent(funcName, false);
     if (idx < 0) {
         semanticError("Undefined procedure/function: '" + funcName + "'");
         node->semType = TYPE_VOID;
-    } else {
-        node->semType = (tab[idx].obj == OBJ_FUNC) ? tab[idx].type : TYPE_VOID;
-        node->tabIdx  = idx;
-        for (auto* c : node->children) {
-            if (c->isTerminal && c->tokenType == "ident") {
-                c->tabIdx  = idx;
-                c->semType = tab[idx].type;
-            }
+        return;
+    }
+
+    if (tab[idx].obj != OBJ_PROC && tab[idx].obj != OBJ_FUNC) {
+        semanticError("'" + funcName + "' is not a procedure/function");
+        node->semType = TYPE_UNKNOWN;
+        return;
+    }
+
+    node->semType = (tab[idx].obj == OBJ_FUNC) ? tab[idx].type : TYPE_VOID;
+    node->tabIdx  = idx;
+    for (auto* c : node->children) {
+        if (c->isTerminal && c->tokenType == "ident") {
+            c->tabIdx  = idx;
+            c->semType = node->semType;
         }
     }
 
-    if (paramList) {
-        for (auto* c : paramList->children)
-            if (!c->isTerminal && c->label == "<expression>") visitExpression(c);
-        paramList->semType = TYPE_VOID;
+    // Validasi jumlah dan tipe argumen
+    std::vector<int> formals = getFormalParameterIndices(idx);
+    if (actualTypes.size() != formals.size()) {
+        semanticError("Argument count mismatch in call to '" + funcName + "': expected " +
+                      std::to_string(formals.size()) + ", got " + std::to_string(actualTypes.size()));
+        return;
+    }
+
+    for (std::size_t i = 0; i < formals.size(); ++i) {
+        int formalType = tab[formals[i]].type;
+        int actualType = actualTypes[i];
+        if (!assignCompatible(formalType, actualType)) {
+            semanticError("Argument " + std::to_string(i + 1) + " of '" + funcName +
+                          "' expects " + typeCodeName(formalType) +
+                          ", got " + typeCodeName(actualType));
+        }
     }
 }
 
@@ -1213,13 +1341,39 @@ int SemanticAnalyzer::visitComponentVariable(ASTNode* node,
     newRef = 0;
     for (auto* c : node->children) {
         if (c->isTerminal && c->tokenType == "lbrack") {
-            for (auto* sub : node->children)
-                if (!sub->isTerminal && sub->label == "<index-list>")
-                    visitIndexList(sub);
+            ASTNode* indexList = nullptr;
+            for (auto* sub : node->children) {
+                if (!sub->isTerminal && sub->label == "<index-list>") {
+                    indexList = sub;
+                    break;
+                }
+            }
 
             if (parentType == TYPE_ARRAY && parentRef > 0 &&
                 parentRef <= (int)atab.size()) {
                 auto& arr = atab[parentRef - 1];
+                auto indexNodes = collectIndexNodes(indexList);
+
+                // Saat array memakai subrange 1..3, index aktual harus integer
+                // Kalau char dipakai, jangan tunggu sampai runtime jadi ASCII 120
+                if (indexNodes.empty()) {
+                    semanticError("Array index is missing");
+                }
+                for (auto* idxNode : indexNodes) {
+                    int actualType = inferIndexNodeType(idxNode);
+                    bool ok = false;
+                    if (arr.xtyp == TYPE_SUBRANGE) {
+                        ok = (actualType == TYPE_INTEGER || actualType == TYPE_SUBRANGE || actualType == TYPE_UNKNOWN);
+                    } else {
+                        ok = typesCompatible(arr.xtyp, actualType) || actualType == TYPE_UNKNOWN;
+                    }
+                    if (!ok) {
+                        semanticError("Array index type mismatch: expected " +
+                                      typeCodeName(arr.xtyp == TYPE_SUBRANGE ? TYPE_INTEGER : arr.xtyp) +
+                                      ", got " + typeCodeName(actualType));
+                    }
+                }
+
                 newRef = arr.eref;
                 return arr.etyp;
             }
