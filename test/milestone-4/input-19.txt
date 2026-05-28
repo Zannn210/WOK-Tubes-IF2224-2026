@@ -1,0 +1,7 @@
+program DivMod;
+var a, b: integer;
+begin
+a := 17 div 5;
+b := 17 mod 5;
+writeln(a, ' ', b);
+end.

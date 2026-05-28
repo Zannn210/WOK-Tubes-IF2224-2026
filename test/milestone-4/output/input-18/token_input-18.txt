@@ -1,0 +1,50 @@
+programsy
+ident (BooleanNot)
+semicolon
+
+varsy
+ident (x)
+comma
+ident (y)
+comma
+ident (ok)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (x)
+becomes
+intcon (4)
+semicolon
+
+ident (y)
+becomes
+intcon (9)
+semicolon
+
+ifsy
+notsy
+lparent
+ident (x)
+eql
+ident (y)
+rparent
+thensy
+ident (ok)
+becomes
+intcon (1)
+elsesy
+ident (ok)
+becomes
+intcon (0)
+semicolon
+
+ident (writeln)
+lparent
+ident (ok)
+rparent
+semicolon
+
+endsy
+period

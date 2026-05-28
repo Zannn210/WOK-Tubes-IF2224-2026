@@ -1,0 +1,29 @@
+0 INT 0 4 ; allocate global memory
+1 JMP 0 2 ; jump over subprogram bodies
+2 LDA 0 3 ; address of i
+3 LIT 0 4 ; literal
+4 STI 0 0 ; store assignment target
+5 LDA 0 0 ; address of a
+6 LDA 0 3 ; address of i
+7 LDI 0 0 ; load indirect
+8 CHK 1 3 ; array bounds check
+9 LIT 0 1 ; array low bound
+10 OPR 0 3 ; index - low
+11 LIT 0 1 ; element size
+12 OPR 0 4 ; array offset
+13 OPR 0 2 ; array element address
+14 LIT 0 10 ; literal
+15 STI 0 0 ; store assignment target
+16 LDA 0 0 ; address of a
+17 LDA 0 3 ; address of i
+18 LDI 0 0 ; load indirect
+19 CHK 1 3 ; array bounds check
+20 LIT 0 1 ; array low bound
+21 OPR 0 3 ; index - low
+22 LIT 0 1 ; element size
+23 OPR 0 4 ; array offset
+24 OPR 0 2 ; array element address
+25 LDI 0 0 ; load indirect
+26 OPR 0 14 ; writeln arg
+27 OPR 0 18 ; writeln newline
+28 RET 0 0 ; end program

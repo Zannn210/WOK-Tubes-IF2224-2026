@@ -1,0 +1,10 @@
+0 INT 0 0 ; allocate global memory
+1 JMP 0 2 ; jump over subprogram bodies
+2 LIT 0 "Hello" ; literal
+3 OPR 0 14 ; writeln arg
+4 LIT 0 ' ' ; literal
+5 OPR 0 14 ; writeln arg
+6 LIT 0 'A' ; literal
+7 OPR 0 14 ; writeln arg
+8 OPR 0 18 ; writeln newline
+9 RET 0 0 ; end program

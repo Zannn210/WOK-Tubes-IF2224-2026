@@ -1,0 +1,34 @@
+<program>
+|   |-- <program-header>
+|   |   |-- programsy(program)
+|   |   |-- ident(PrintStringChar)
+|   |   |-- semicolon(;)
+|   |-- <declaration-part>
+|   |-- <compound-statement>
+|   |   |-- beginsy(begin)
+|   |   |-- <statement-list>
+|   |   |   |-- <procedure/function-call>
+|   |   |   |   |-- ident(writeln)
+|   |   |   |   |-- lparent(()
+|   |   |   |   |-- <parameter-list>
+|   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- string('Hello')
+|   |   |   |   |   |-- comma(,)
+|   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- charcon(' ')
+|   |   |   |   |   |-- comma(,)
+|   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- charcon('A')
+|   |   |   |   |-- rparent())
+|   |   |   |-- semicolon(;)
+|   |   |-- endsy(end)
+|   |-- period(.)

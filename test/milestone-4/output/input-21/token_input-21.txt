@@ -1,0 +1,27 @@
+programsy
+ident (UnaryMinus)
+semicolon
+
+varsy
+ident (x)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (x)
+becomes
+minus
+intcon (5)
+plus
+intcon (12)
+semicolon
+
+ident (writeln)
+lparent
+ident (x)
+rparent
+semicolon
+
+endsy
+period

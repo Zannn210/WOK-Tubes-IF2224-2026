@@ -1,0 +1,24 @@
+programsy
+ident (ErrorTypeMismatch)
+semicolon
+
+varsy
+ident (x)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (x)
+becomes
+string ('abc')
+semicolon
+
+ident (writeln)
+lparent
+ident (x)
+rparent
+semicolon
+
+endsy
+period

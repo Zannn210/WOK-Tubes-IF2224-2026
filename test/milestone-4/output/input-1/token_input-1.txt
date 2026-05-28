@@ -1,0 +1,33 @@
+programsy
+ident (BasicAssign)
+semicolon
+
+varsy
+ident (x)
+comma
+ident (y)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (x)
+becomes
+intcon (4)
+semicolon
+
+ident (y)
+becomes
+ident (x)
+plus
+intcon (6)
+semicolon
+
+ident (writeln)
+lparent
+ident (y)
+rparent
+semicolon
+
+endsy
+period

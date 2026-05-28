@@ -1,0 +1,40 @@
+0 INT 0 3 ; allocate global memory
+1 JMP 0 2 ; jump over subprogram bodies
+2 LDA 0 0 ; address of choice
+3 LIT 0 2 ; literal
+4 STI 0 0 ; store assignment target
+5 LDA 0 1 ; address of ans
+6 LIT 0 0 ; literal
+7 STI 0 0 ; store assignment target
+8 LDA 0 0 ; address of choice
+9 LDI 0 0 ; load indirect
+10 STO 0 2 ; save case selector
+11 LOD 0 2 ; load case selector
+12 LIT 0 1 ; constant
+13 OPR 0 7 ; case equality test
+14 JPC 0 19 ; case next branch
+15 LDA 0 1 ; address of ans
+16 LIT 0 100 ; literal
+17 STI 0 0 ; store assignment target
+18 JMP 0 35 ; case end
+19 LOD 0 2 ; load case selector
+20 LIT 0 2 ; constant
+21 OPR 0 7 ; case equality test
+22 JPC 0 27 ; case next branch
+23 LDA 0 1 ; address of ans
+24 LIT 0 200 ; literal
+25 STI 0 0 ; store assignment target
+26 JMP 0 35 ; case end
+27 LOD 0 2 ; load case selector
+28 LIT 0 3 ; constant
+29 OPR 0 7 ; case equality test
+30 JPC 0 35 ; case next branch
+31 LDA 0 1 ; address of ans
+32 LIT 0 300 ; literal
+33 STI 0 0 ; store assignment target
+34 JMP 0 35 ; case end
+35 LDA 0 1 ; address of ans
+36 LDI 0 0 ; load indirect
+37 OPR 0 14 ; writeln arg
+38 OPR 0 18 ; writeln newline
+39 RET 0 0 ; end program

@@ -1,0 +1,40 @@
+programsy
+ident (WhileZeroIteration)
+semicolon
+
+varsy
+ident (x)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (x)
+becomes
+intcon (5)
+semicolon
+
+whilesy
+ident (x)
+lss
+intcon (3)
+dosy
+beginsy
+ident (x)
+becomes
+ident (x)
+plus
+intcon (1)
+semicolon
+
+endsy
+semicolon
+
+ident (writeln)
+lparent
+ident (x)
+rparent
+semicolon
+
+endsy
+period

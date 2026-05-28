@@ -1,0 +1,56 @@
+programsy
+ident (ProcedureCalls)
+semicolon
+
+varsy
+ident (total)
+colon
+ident (integer)
+semicolon
+
+proceduresy
+ident (add)
+lparent
+ident (v)
+colon
+ident (integer)
+rparent
+semicolon
+
+beginsy
+ident (total)
+becomes
+ident (total)
+plus
+ident (v)
+semicolon
+
+endsy
+semicolon
+
+beginsy
+ident (total)
+becomes
+intcon (0)
+semicolon
+
+ident (add)
+lparent
+intcon (5)
+rparent
+semicolon
+
+ident (add)
+lparent
+intcon (7)
+rparent
+semicolon
+
+ident (writeln)
+lparent
+ident (total)
+rparent
+semicolon
+
+endsy
+period

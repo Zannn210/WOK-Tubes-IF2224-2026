@@ -1,0 +1,10 @@
+program ArithmeticPrecedence;
+var a, b, c, d, z: integer;
+begin
+a := 2;
+b := 3;
+c := 4;
+d := 8;
+z := (a + b) * c - d div 2;
+writeln(z);
+end.

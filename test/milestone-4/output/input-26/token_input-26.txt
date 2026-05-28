@@ -1,0 +1,36 @@
+programsy
+ident (ErrorIfConditionType)
+semicolon
+
+varsy
+ident (x)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (x)
+becomes
+intcon (1)
+semicolon
+
+ifsy
+ident (x)
+thensy
+ident (x)
+becomes
+intcon (2)
+elsesy
+ident (x)
+becomes
+intcon (3)
+semicolon
+
+ident (writeln)
+lparent
+ident (x)
+rparent
+semicolon
+
+endsy
+period

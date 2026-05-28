@@ -1,0 +1,38 @@
+programsy
+ident (ErrorRecordField)
+semicolon
+
+typesy
+ident (Rec)
+eql
+recordsy
+ident (a)
+colon
+ident (integer)
+endsy
+semicolon
+
+varsy
+ident (r)
+colon
+ident (Rec)
+semicolon
+
+beginsy
+ident (r)
+period
+ident (b)
+becomes
+intcon (1)
+semicolon
+
+ident (writeln)
+lparent
+ident (r)
+period
+ident (b)
+rparent
+semicolon
+
+endsy
+period

@@ -1,0 +1,86 @@
+<program>
+|   |-- <program-header>
+|   |   |-- programsy(program)
+|   |   |-- ident(CaseNoMatch)
+|   |   |-- semicolon(;)
+|   |-- <declaration-part>
+|   |   |-- <var-declaration>
+|   |   |   |-- varsy(var)
+|   |   |   |-- <identifier-list>
+|   |   |   |   |-- ident(choice)
+|   |   |   |   |-- comma(,)
+|   |   |   |   |-- ident(ans)
+|   |   |   |-- colon(:)
+|   |   |   |-- <type>
+|   |   |   |   |-- ident(integer)
+|   |   |   |-- semicolon(;)
+|   |-- <compound-statement>
+|   |   |-- beginsy(begin)
+|   |   |-- <statement-list>
+|   |   |   |-- <assignment-statement>
+|   |   |   |   |-- ident(choice)
+|   |   |   |   |-- becomes(:=)
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(5)
+|   |   |   |-- semicolon(;)
+|   |   |   |-- <assignment-statement>
+|   |   |   |   |-- ident(ans)
+|   |   |   |   |-- becomes(:=)
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(99)
+|   |   |   |-- semicolon(;)
+|   |   |   |-- <case-statement>
+|   |   |   |   |-- casesy(case)
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- ident(choice)
+|   |   |   |   |-- ofsy(of)
+|   |   |   |   |-- <case-block>
+|   |   |   |   |   |-- <constant>
+|   |   |   |   |   |   |-- intcon(1)
+|   |   |   |   |   |-- colon(:)
+|   |   |   |   |   |-- <assignment-statement>
+|   |   |   |   |   |   |-- ident(ans)
+|   |   |   |   |   |   |-- becomes(:=)
+|   |   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |   |-- intcon(100)
+|   |   |   |   |   |-- semicolon(;)
+|   |   |   |   |   |-- <case-block>
+|   |   |   |   |   |   |-- <constant>
+|   |   |   |   |   |   |   |-- intcon(2)
+|   |   |   |   |   |   |-- colon(:)
+|   |   |   |   |   |   |-- <assignment-statement>
+|   |   |   |   |   |   |   |-- ident(ans)
+|   |   |   |   |   |   |   |-- becomes(:=)
+|   |   |   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |   |   |-- intcon(200)
+|   |   |   |   |   |   |-- semicolon(;)
+|   |   |   |   |-- endsy(end)
+|   |   |   |-- semicolon(;)
+|   |   |   |-- <procedure/function-call>
+|   |   |   |   |-- ident(writeln)
+|   |   |   |   |-- lparent(()
+|   |   |   |   |-- <parameter-list>
+|   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- ident(ans)
+|   |   |   |   |-- rparent())
+|   |   |   |-- semicolon(;)
+|   |   |-- endsy(end)
+|   |-- period(.)

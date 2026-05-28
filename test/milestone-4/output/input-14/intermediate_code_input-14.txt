@@ -1,0 +1,23 @@
+0 INT 0 1 ; allocate global memory
+1 JMP 0 11 ; jump over subprogram bodies
+2 INT 1 1 ; activate frame for add
+3 LDA 0 0 ; address of total
+4 LDA 0 0 ; address of total
+5 LDI 0 0 ; load indirect
+6 LDA 1 0 ; address of v
+7 LDI 0 0 ; load indirect
+8 OPR 0 2 ; simple-expression op
+9 STI 0 0 ; store assignment target
+10 RET 0 0 ; return from add
+11 LDA 0 0 ; address of total
+12 LIT 0 0 ; literal
+13 STI 0 0 ; store assignment target
+14 LIT 0 5 ; literal
+15 CAL 1 2 ; call add
+16 LIT 0 7 ; literal
+17 CAL 1 2 ; call add
+18 LDA 0 0 ; address of total
+19 LDI 0 0 ; load indirect
+20 OPR 0 14 ; writeln arg
+21 OPR 0 18 ; writeln newline
+22 RET 0 0 ; end program

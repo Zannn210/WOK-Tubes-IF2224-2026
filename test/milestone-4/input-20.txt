@@ -1,0 +1,4 @@
+program PrintStringChar;
+begin
+writeln('Hello', ' ', 'A');
+end.

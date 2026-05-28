@@ -1,0 +1,47 @@
+programsy
+ident (ErrorParamCount)
+semicolon
+
+varsy
+ident (x)
+colon
+ident (integer)
+semicolon
+
+proceduresy
+ident (setpair)
+lparent
+ident (a)
+comma
+ident (b)
+colon
+ident (integer)
+rparent
+semicolon
+
+beginsy
+ident (x)
+becomes
+ident (a)
+plus
+ident (b)
+semicolon
+
+endsy
+semicolon
+
+beginsy
+ident (setpair)
+lparent
+intcon (1)
+rparent
+semicolon
+
+ident (writeln)
+lparent
+ident (x)
+rparent
+semicolon
+
+endsy
+period

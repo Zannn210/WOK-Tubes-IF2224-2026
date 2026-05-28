@@ -1,0 +1,20 @@
+0 INT 0 1 ; allocate global memory
+1 JMP 0 11 ; jump over subprogram bodies
+2 INT 1 2 ; activate frame for square
+3 LDA 1 0 ; address of square
+4 LDA 1 1 ; address of v
+5 LDI 0 0 ; load indirect
+6 LDA 1 1 ; address of v
+7 LDI 0 0 ; load indirect
+8 OPR 0 4 ; term op
+9 STI 0 0 ; store assignment target
+10 RET 0 0 ; return from square
+11 LDA 0 0 ; address of x
+12 LIT 0 6 ; literal
+13 CAL 1 2 ; call square
+14 STI 0 0 ; store assignment target
+15 LDA 0 0 ; address of x
+16 LDI 0 0 ; load indirect
+17 OPR 0 14 ; writeln arg
+18 OPR 0 18 ; writeln newline
+19 RET 0 0 ; end program

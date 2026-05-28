@@ -1,0 +1,63 @@
+<program>
+|   |-- <program-header>
+|   |   |-- programsy(program)
+|   |   |-- ident(ErrorRecordField)
+|   |   |-- semicolon(;)
+|   |-- <declaration-part>
+|   |   |-- <type-declaration>
+|   |   |   |-- typesy(type)
+|   |   |   |-- ident(Rec)
+|   |   |   |-- eql(==)
+|   |   |   |-- <type>
+|   |   |   |   |-- <record-type>
+|   |   |   |   |   |-- recordsy(record)
+|   |   |   |   |   |-- <field-list>
+|   |   |   |   |   |   |-- <field-part>
+|   |   |   |   |   |   |   |-- <identifier-list>
+|   |   |   |   |   |   |   |   |-- ident(a)
+|   |   |   |   |   |   |   |-- colon(:)
+|   |   |   |   |   |   |   |-- <type>
+|   |   |   |   |   |   |   |   |-- ident(integer)
+|   |   |   |   |   |-- endsy(end)
+|   |   |   |-- semicolon(;)
+|   |   |-- <var-declaration>
+|   |   |   |-- varsy(var)
+|   |   |   |-- <identifier-list>
+|   |   |   |   |-- ident(r)
+|   |   |   |-- colon(:)
+|   |   |   |-- <type>
+|   |   |   |   |-- ident(Rec)
+|   |   |   |-- semicolon(;)
+|   |-- <compound-statement>
+|   |   |-- beginsy(begin)
+|   |   |-- <statement-list>
+|   |   |   |-- <assignment-statement>
+|   |   |   |   |-- <variable>
+|   |   |   |   |   |-- ident(r)
+|   |   |   |   |   |-- <component-variable>
+|   |   |   |   |   |   |-- period(.)
+|   |   |   |   |   |   |-- ident(b)
+|   |   |   |   |-- becomes(:=)
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(1)
+|   |   |   |-- semicolon(;)
+|   |   |   |-- <procedure/function-call>
+|   |   |   |   |-- ident(writeln)
+|   |   |   |   |-- lparent(()
+|   |   |   |   |-- <parameter-list>
+|   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- <variable>
+|   |   |   |   |   |   |   |   |   |   |-- ident(r)
+|   |   |   |   |   |   |   |   |   |   |-- <component-variable>
+|   |   |   |   |   |   |   |   |   |   |   |-- period(.)
+|   |   |   |   |   |   |   |   |   |   |   |-- ident(b)
+|   |   |   |   |-- rparent())
+|   |   |   |-- semicolon(;)
+|   |   |-- endsy(end)
+|   |-- period(.)

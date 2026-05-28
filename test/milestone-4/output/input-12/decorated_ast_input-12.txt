@@ -1,0 +1,114 @@
+
+DECORATED AST:
+----------------------------------------
+ProgramNode(name: 'ArrayValidIndex', tab_index: 37)
+  Declarations:
+    TypeDecl(name: 'Arr', type: array, tab_index: 38)
+    VarDecl(name: 'a', type: array, tab_index: 39, level: 0)
+    VarDecl(name: 'i', type: integer, tab_index: 40, level: 0)
+    VarDecl(name: 'sum', type: integer, tab_index: 41, level: 0)
+  Block(block_index: 1, lev: 1)
+    Assign('a[1]' := 7, type: void)
+      Target:
+        Var(name: 'a', tab_index: 39, type: integer)
+          [Index]
+      Value:
+        Number(int: 7, type: integer)
+    Assign('i' := 2, type: void)
+      Target:
+        Var(name: 'i', tab_index: 40, type: integer)
+      Value:
+        Number(int: 2, type: integer)
+    Assign('a[i]' := 8, type: void)
+      Target:
+        Var(name: 'a', tab_index: 39, type: integer)
+          [Index]
+      Value:
+        Number(int: 8, type: integer)
+    Assign('a[3]' := 9, type: void)
+      Target:
+        Var(name: 'a', tab_index: 39, type: integer)
+          [Index]
+      Value:
+        Number(int: 9, type: integer)
+    Assign('sum' := a[1]+a[2]+a[3], type: void)
+      Target:
+        Var(name: 'sum', tab_index: 41, type: integer)
+      Value:
+        BinOp(op: '+', type: integer)
+          Left:
+            BinOp(op: '+', type: integer)
+              Left:
+                Var(name: 'a', tab_index: 39, type: integer)
+                  [Index]
+              Right:
+                Var(name: 'a', tab_index: 39, type: integer)
+                  [Index]
+          Right:
+            Var(name: 'a', tab_index: 39, type: integer)
+              [Index]
+    ProcCall(name: 'writeln', tab_index: 35, type: void)
+      Arguments:
+        Var(name: 'sum', tab_index: 41, type: integer)
+----------------------------------------
+
+=== TAB (Identifier Table) ===
+  Idx  Identifier        Link   Obj        Type      Ref  Nrm  Lev  Adr
+  -------------------------------------------------------------------------
+    0                       0  TYPE      NOTYP        0    1    0    0
+    1  and                  0  RESERVED  NOTYP        0    1    0    0
+    2  array                1  RESERVED  NOTYP        0    1    0    0
+    3  begin                2  RESERVED  NOTYP        0    1    0    0
+    4  case                 3  RESERVED  NOTYP        0    1    0    0
+    5  const                4  RESERVED  NOTYP        0    1    0    0
+    6  div                  5  RESERVED  NOTYP        0    1    0    0
+    7  downto               6  RESERVED  NOTYP        0    1    0    0
+    8  do                   7  RESERVED  NOTYP        0    1    0    0
+    9  else                 8  RESERVED  NOTYP        0    1    0    0
+   10  end                  9  RESERVED  NOTYP        0    1    0    0
+   11  for                 10  RESERVED  NOTYP        0    1    0    0
+   12  function            11  RESERVED  NOTYP        0    1    0    0
+   13  if                  12  RESERVED  NOTYP        0    1    0    0
+   14  mod                 13  RESERVED  NOTYP        0    1    0    0
+   15  not                 14  RESERVED  NOTYP        0    1    0    0
+   16  of                  15  RESERVED  NOTYP        0    1    0    0
+   17  or                  16  RESERVED  NOTYP        0    1    0    0
+   18  procedure           17  RESERVED  NOTYP        0    1    0    0
+   19  program             18  RESERVED  NOTYP        0    1    0    0
+   20  record              19  RESERVED  NOTYP        0    1    0    0
+   21  repeat              20  RESERVED  NOTYP        0    1    0    0
+   22  integer             21  TYPE      INT          0    1    0    0
+   23  real                22  TYPE      REAL         0    1    0    0
+   24  boolean             23  TYPE      BOOL         0    1    0    0
+   25  char                24  TYPE      CHAR         0    1    0    0
+   26  string              25  TYPE      STR          0    1    0    0
+   27  then                26  RESERVED  NOTYP        0    1    0    0
+   28  to                  27  RESERVED  NOTYP        0    1    0    0
+   29  type                28  RESERVED  NOTYP        0    1    0    0
+   30  until               29  RESERVED  NOTYP        0    1    0    0
+   31  var                 30  RESERVED  NOTYP        0    1    0    0
+   32  while               31  RESERVED  NOTYP        0    1    0    0
+   33  true                32  CONST     BOOL         0    1    0    1
+   34  false               33  CONST     BOOL         0    1    0    0
+   35  writeln             34  PROC      NOTYP        0    1    0    0
+   36  readln              35  PROC      NOTYP        0    1    0    0
+   37  ArrayValidIndex     36  PROGRAM   NOTYP        0    1    0    0
+   38  Arr                 37  TYPE      ARRAY        1    1    0    0
+   39  a                   38  VAR       ARRAY        1    1    0    0
+   40  i                   39  VAR       INT          0    1    0    3
+   41  sum                 40  VAR       INT          0    1    0    4
+  -------------------------------------------------------------------------
+
+=== BTAB (Block Table) ===
+  Idx  Last  Lpar  Psze  Vsze
+  ----------------------------------------
+    0    41     0     0     5
+    1     0     0     0     0
+  ----------------------------------------
+
+=== ATAB (Array Table) ===
+  Idx  XTyp      ETyp      Eref  Low   High  Elsz  Size
+  ---------------------------------------------------------
+    1  SUBRANGE  INT           0     1     3     1  3
+
+[Semantic analysis completed successfully]

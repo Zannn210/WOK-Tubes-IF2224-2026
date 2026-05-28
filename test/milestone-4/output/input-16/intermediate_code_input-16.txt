@@ -1,0 +1,72 @@
+0 INT 0 4 ; allocate global memory
+1 JMP 0 19 ; jump over subprogram bodies
+2 INT 1 1 ; activate frame for inc
+3 LDA 0 2 ; address of x
+4 LDA 0 2 ; address of x
+5 LDI 0 0 ; load indirect
+6 LDA 1 0 ; address of v
+7 LDI 0 0 ; load indirect
+8 OPR 0 2 ; simple-expression op
+9 STI 0 0 ; store assignment target
+10 RET 0 0 ; return from inc
+11 INT 2 2 ; activate frame for double
+12 LDA 2 0 ; address of double
+13 LDA 2 1 ; address of v
+14 LDI 0 0 ; load indirect
+15 LIT 0 2 ; literal
+16 OPR 0 4 ; term op
+17 STI 0 0 ; store assignment target
+18 RET 0 0 ; return from double
+19 LDA 0 2 ; address of x
+20 LIT 0 5 ; literal
+21 STI 0 0 ; store assignment target
+22 LDA 0 0 ; address of a
+23 LIT 0 1 ; array index
+24 CHK 1 2 ; array bounds check
+25 LIT 0 1 ; array low bound
+26 OPR 0 3 ; index - low
+27 LIT 0 1 ; element size
+28 OPR 0 4 ; array offset
+29 OPR 0 2 ; array element address
+30 LIT 0 10 ; literal
+31 STI 0 0 ; store assignment target
+32 LDA 0 0 ; address of a
+33 LIT 0 2 ; array index
+34 CHK 1 2 ; array bounds check
+35 LIT 0 1 ; array low bound
+36 OPR 0 3 ; index - low
+37 LIT 0 1 ; element size
+38 OPR 0 4 ; array offset
+39 OPR 0 2 ; array element address
+40 LIT 0 15 ; literal
+41 STI 0 0 ; store assignment target
+42 LDA 0 0 ; address of a
+43 LIT 0 1 ; array index
+44 CHK 1 2 ; array bounds check
+45 LIT 0 1 ; array low bound
+46 OPR 0 3 ; index - low
+47 LIT 0 1 ; element size
+48 OPR 0 4 ; array offset
+49 OPR 0 2 ; array element address
+50 LDI 0 0 ; load indirect
+51 CAL 1 2 ; call inc
+52 LDA 0 3 ; address of y
+53 LDA 0 0 ; address of a
+54 LIT 0 2 ; array index
+55 CHK 1 2 ; array bounds check
+56 LIT 0 1 ; array low bound
+57 OPR 0 3 ; index - low
+58 LIT 0 1 ; element size
+59 OPR 0 4 ; array offset
+60 OPR 0 2 ; array element address
+61 LDI 0 0 ; load indirect
+62 CAL 2 11 ; call double
+63 LDA 0 2 ; address of x
+64 LDI 0 0 ; load indirect
+65 OPR 0 2 ; simple-expression op
+66 STI 0 0 ; store assignment target
+67 LDA 0 3 ; address of y
+68 LDI 0 0 ; load indirect
+69 OPR 0 14 ; writeln arg
+70 OPR 0 18 ; writeln newline
+71 RET 0 0 ; end program

@@ -1,0 +1,11 @@
+program ErrorRecordField;
+type
+Rec == record
+  a: integer
+end;
+var
+r: Rec;
+begin
+r.b := 1;
+writeln(r.b);
+end.

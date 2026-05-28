@@ -1,0 +1,2 @@
+[SYNTAX ERROR] Program tidak dijalankan karena syntax analysis gagal.
+[PARSE ERROR] Unexpected token 'ident', expected 'endsy'

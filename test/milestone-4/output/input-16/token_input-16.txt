@@ -1,0 +1,125 @@
+programsy
+ident (ProcFuncArray)
+semicolon
+
+typesy
+ident (Arr)
+eql
+arraysy
+lbrack
+intcon (1)
+period
+period
+intcon (2)
+rbrack
+ofsy
+ident (integer)
+semicolon
+
+varsy
+ident (a)
+colon
+ident (Arr)
+semicolon
+
+ident (x)
+comma
+ident (y)
+colon
+ident (integer)
+semicolon
+
+proceduresy
+ident (inc)
+lparent
+ident (v)
+colon
+ident (integer)
+rparent
+semicolon
+
+beginsy
+ident (x)
+becomes
+ident (x)
+plus
+ident (v)
+semicolon
+
+endsy
+semicolon
+
+functionsy
+ident (double)
+lparent
+ident (v)
+colon
+ident (integer)
+rparent
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (double)
+becomes
+ident (v)
+times
+intcon (2)
+semicolon
+
+endsy
+semicolon
+
+beginsy
+ident (x)
+becomes
+intcon (5)
+semicolon
+
+ident (a)
+lbrack
+intcon (1)
+rbrack
+becomes
+intcon (10)
+semicolon
+
+ident (a)
+lbrack
+intcon (2)
+rbrack
+becomes
+intcon (15)
+semicolon
+
+ident (inc)
+lparent
+ident (a)
+lbrack
+intcon (1)
+rbrack
+rparent
+semicolon
+
+ident (y)
+becomes
+ident (double)
+lparent
+ident (a)
+lbrack
+intcon (2)
+rbrack
+rparent
+plus
+ident (x)
+semicolon
+
+ident (writeln)
+lparent
+ident (y)
+rparent
+semicolon
+
+endsy
+period

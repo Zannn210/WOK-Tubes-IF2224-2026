@@ -1,0 +1,7 @@
+program IfElseFalse;
+var x, y: integer;
+begin
+x := 3;
+if x > 5 then y := 1 else y := 2;
+writeln(y);
+end.

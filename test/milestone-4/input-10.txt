@@ -1,0 +1,12 @@
+program CaseSecondBranch;
+var choice, ans: integer;
+begin
+choice := 2;
+ans := 0;
+case choice of
+  1: ans := 100;
+  2: ans := 200;
+  3: ans := 300;
+end;
+writeln(ans);
+end.

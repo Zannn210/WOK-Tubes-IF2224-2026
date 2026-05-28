@@ -1,0 +1,12 @@
+program ErrorParamCount;
+var x: integer;
+
+procedure setpair(a, b: integer);
+begin
+  x := a + b;
+end;
+
+begin
+setpair(1);
+writeln(x);
+end.

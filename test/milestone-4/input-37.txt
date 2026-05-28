@@ -1,0 +1,12 @@
+program ErrorFunctionReturnType;
+var x: integer;
+
+function bad(v: integer): integer;
+begin
+  bad := 'abc';
+end;
+
+begin
+x := bad(1);
+writeln(x);
+end.

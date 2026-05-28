@@ -1,0 +1,44 @@
+programsy
+ident (ForToSum)
+semicolon
+
+varsy
+ident (i)
+comma
+ident (sum)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (sum)
+becomes
+intcon (0)
+semicolon
+
+forsy
+ident (i)
+becomes
+intcon (1)
+tosy
+intcon (5)
+dosy
+beginsy
+ident (sum)
+becomes
+ident (sum)
+plus
+ident (i)
+semicolon
+
+endsy
+semicolon
+
+ident (writeln)
+lparent
+ident (sum)
+rparent
+semicolon
+
+endsy
+period

@@ -1,0 +1,38 @@
+programsy
+ident (RepeatOnce)
+semicolon
+
+varsy
+ident (x)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (x)
+becomes
+intcon (10)
+semicolon
+
+repeatsy
+ident (x)
+becomes
+ident (x)
+plus
+intcon (1)
+semicolon
+
+untilsy
+ident (x)
+gtr
+intcon (10)
+semicolon
+
+ident (writeln)
+lparent
+ident (x)
+rparent
+semicolon
+
+endsy
+period

@@ -1,0 +1,49 @@
+programsy
+ident (FunctionSquare)
+semicolon
+
+varsy
+ident (x)
+colon
+ident (integer)
+semicolon
+
+functionsy
+ident (square)
+lparent
+ident (v)
+colon
+ident (integer)
+rparent
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (square)
+becomes
+ident (v)
+times
+ident (v)
+semicolon
+
+endsy
+semicolon
+
+beginsy
+ident (x)
+becomes
+ident (square)
+lparent
+intcon (6)
+rparent
+semicolon
+
+ident (writeln)
+lparent
+ident (x)
+rparent
+semicolon
+
+endsy
+period

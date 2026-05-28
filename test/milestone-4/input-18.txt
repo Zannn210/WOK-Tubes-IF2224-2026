@@ -1,0 +1,8 @@
+program BooleanNot;
+var x, y, ok: integer;
+begin
+x := 4;
+y := 9;
+if not (x == y) then ok := 1 else ok := 0;
+writeln(ok);
+end.

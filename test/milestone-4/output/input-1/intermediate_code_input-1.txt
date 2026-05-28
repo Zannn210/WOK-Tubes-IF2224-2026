@@ -1,0 +1,16 @@
+0 INT 0 2 ; allocate global memory
+1 JMP 0 2 ; jump over subprogram bodies
+2 LDA 0 0 ; address of x
+3 LIT 0 4 ; literal
+4 STI 0 0 ; store assignment target
+5 LDA 0 1 ; address of y
+6 LDA 0 0 ; address of x
+7 LDI 0 0 ; load indirect
+8 LIT 0 6 ; literal
+9 OPR 0 2 ; simple-expression op
+10 STI 0 0 ; store assignment target
+11 LDA 0 1 ; address of y
+12 LDI 0 0 ; load indirect
+13 OPR 0 14 ; writeln arg
+14 OPR 0 18 ; writeln newline
+15 RET 0 0 ; end program

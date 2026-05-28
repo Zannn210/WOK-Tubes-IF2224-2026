@@ -1,0 +1,7 @@
+program RealDivision;
+var x, y: real;
+begin
+x := 1.5;
+y := x / 0.5;
+writeln(y);
+end.

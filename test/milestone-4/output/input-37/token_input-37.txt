@@ -1,0 +1,47 @@
+programsy
+ident (ErrorFunctionReturnType)
+semicolon
+
+varsy
+ident (x)
+colon
+ident (integer)
+semicolon
+
+functionsy
+ident (bad)
+lparent
+ident (v)
+colon
+ident (integer)
+rparent
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (bad)
+becomes
+string ('abc')
+semicolon
+
+endsy
+semicolon
+
+beginsy
+ident (x)
+becomes
+ident (bad)
+lparent
+intcon (1)
+rparent
+semicolon
+
+ident (writeln)
+lparent
+ident (x)
+rparent
+semicolon
+
+endsy
+period

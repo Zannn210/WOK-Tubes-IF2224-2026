@@ -1,0 +1,25 @@
+program ProcFuncArray;
+type
+Arr == array[1..2] of integer;
+var
+a: Arr;
+x, y: integer;
+
+procedure inc(v: integer);
+begin
+  x := x + v;
+end;
+
+function double(v: integer): integer;
+begin
+  double := v * 2;
+end;
+
+begin
+x := 5;
+a[1] := 10;
+a[2] := 15;
+inc(a[1]);
+y := double(a[2]) + x;
+writeln(y);
+end.

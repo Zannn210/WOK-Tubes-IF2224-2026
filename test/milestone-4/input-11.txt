@@ -1,0 +1,11 @@
+program CaseNoMatch;
+var choice, ans: integer;
+begin
+choice := 5;
+ans := 99;
+case choice of
+  1: ans := 100;
+  2: ans := 200;
+end;
+writeln(ans);
+end.

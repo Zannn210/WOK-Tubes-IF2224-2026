@@ -1,0 +1,12 @@
+program ErrorParamType;
+var x: integer;
+
+procedure setx(v: integer);
+begin
+  x := v;
+end;
+
+begin
+setx('abc');
+writeln(x);
+end.

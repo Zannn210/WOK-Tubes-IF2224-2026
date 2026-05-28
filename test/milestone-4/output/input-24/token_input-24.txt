@@ -1,0 +1,26 @@
+programsy
+ident (ErrorUndeclared)
+semicolon
+
+varsy
+ident (x)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (x)
+becomes
+ident (y)
+plus
+intcon (1)
+semicolon
+
+ident (writeln)
+lparent
+ident (x)
+rparent
+semicolon
+
+endsy
+period

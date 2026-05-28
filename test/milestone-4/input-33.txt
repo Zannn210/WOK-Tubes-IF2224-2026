@@ -1,0 +1,6 @@
+program ErrorModZero;
+var x: integer;
+begin
+x := 10 mod 0;
+writeln(x);
+end.

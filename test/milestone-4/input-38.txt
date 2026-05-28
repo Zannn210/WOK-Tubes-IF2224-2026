@@ -1,0 +1,12 @@
+program ErrorProcedureAsExpression;
+var x: integer;
+
+procedure p(v: integer);
+begin
+  x := v;
+end;
+
+begin
+x := p(1);
+writeln(x);
+end.

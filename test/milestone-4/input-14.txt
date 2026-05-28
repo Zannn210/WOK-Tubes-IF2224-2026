@@ -1,0 +1,14 @@
+program ProcedureCalls;
+var total: integer;
+
+procedure add(v: integer);
+begin
+  total := total + v;
+end;
+
+begin
+total := 0;
+add(5);
+add(7);
+writeln(total);
+end.

@@ -1,0 +1,29 @@
+programsy
+ident (ErrorSyntaxMissingSemicolon)
+semicolon
+
+varsy
+ident (x)
+comma
+ident (y)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (x)
+becomes
+intcon (1)
+ident (y)
+becomes
+intcon (2)
+semicolon
+
+ident (writeln)
+lparent
+ident (x)
+rparent
+semicolon
+
+endsy
+period

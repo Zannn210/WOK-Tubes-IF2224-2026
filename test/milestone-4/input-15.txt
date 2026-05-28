@@ -1,0 +1,12 @@
+program FunctionSquare;
+var x: integer;
+
+function square(v: integer): integer;
+begin
+  square := v * v;
+end;
+
+begin
+x := square(6);
+writeln(x);
+end.

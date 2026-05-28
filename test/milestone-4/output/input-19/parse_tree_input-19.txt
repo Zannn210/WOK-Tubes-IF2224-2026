@@ -1,0 +1,68 @@
+<program>
+|   |-- <program-header>
+|   |   |-- programsy(program)
+|   |   |-- ident(DivMod)
+|   |   |-- semicolon(;)
+|   |-- <declaration-part>
+|   |   |-- <var-declaration>
+|   |   |   |-- varsy(var)
+|   |   |   |-- <identifier-list>
+|   |   |   |   |-- ident(a)
+|   |   |   |   |-- comma(,)
+|   |   |   |   |-- ident(b)
+|   |   |   |-- colon(:)
+|   |   |   |-- <type>
+|   |   |   |   |-- ident(integer)
+|   |   |   |-- semicolon(;)
+|   |-- <compound-statement>
+|   |   |-- beginsy(begin)
+|   |   |-- <statement-list>
+|   |   |   |-- <assignment-statement>
+|   |   |   |   |-- ident(a)
+|   |   |   |   |-- becomes(:=)
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(17)
+|   |   |   |   |   |   |   |-- idiv(div)
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(5)
+|   |   |   |-- semicolon(;)
+|   |   |   |-- <assignment-statement>
+|   |   |   |   |-- ident(b)
+|   |   |   |   |-- becomes(:=)
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(17)
+|   |   |   |   |   |   |   |-- imod(mod)
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(5)
+|   |   |   |-- semicolon(;)
+|   |   |   |-- <procedure/function-call>
+|   |   |   |   |-- ident(writeln)
+|   |   |   |   |-- lparent(()
+|   |   |   |   |-- <parameter-list>
+|   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- ident(a)
+|   |   |   |   |   |-- comma(,)
+|   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- charcon(' ')
+|   |   |   |   |   |-- comma(,)
+|   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- ident(b)
+|   |   |   |   |-- rparent())
+|   |   |   |-- semicolon(;)
+|   |   |-- endsy(end)
+|   |-- period(.)

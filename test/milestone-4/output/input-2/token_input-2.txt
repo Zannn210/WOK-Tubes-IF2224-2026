@@ -1,0 +1,62 @@
+programsy
+ident (ArithmeticPrecedence)
+semicolon
+
+varsy
+ident (a)
+comma
+ident (b)
+comma
+ident (c)
+comma
+ident (d)
+comma
+ident (z)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (a)
+becomes
+intcon (2)
+semicolon
+
+ident (b)
+becomes
+intcon (3)
+semicolon
+
+ident (c)
+becomes
+intcon (4)
+semicolon
+
+ident (d)
+becomes
+intcon (8)
+semicolon
+
+ident (z)
+becomes
+lparent
+ident (a)
+plus
+ident (b)
+rparent
+times
+ident (c)
+minus
+ident (d)
+idiv
+intcon (2)
+semicolon
+
+ident (writeln)
+lparent
+ident (z)
+rparent
+semicolon
+
+endsy
+period

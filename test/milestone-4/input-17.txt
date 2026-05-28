@@ -1,0 +1,8 @@
+program BooleanAndOr;
+var x, y, ok: integer;
+begin
+x := 4;
+y := 9;
+if (x > 0) and (y > 0) then ok := 1 else ok := 0;
+writeln(ok);
+end.

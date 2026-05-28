@@ -1,0 +1,2 @@
+[SKIPPED] Intermediate code tidak dibuat karena syntax analysis gagal.
+[PARSE ERROR] Unexpected token 'ident', expected 'endsy'

@@ -1,0 +1,14 @@
+program ArrayValidIndex;
+type
+Arr == array[1..3] of integer;
+var
+a: Arr;
+i, sum: integer;
+begin
+a[1] := 7;
+i := 2;
+a[i] := 8;
+a[3] := 9;
+sum := a[1] + a[2] + a[3];
+writeln(sum);
+end.

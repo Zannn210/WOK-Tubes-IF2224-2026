@@ -1,0 +1,54 @@
+programsy
+ident (ErrorArrayHigh)
+semicolon
+
+typesy
+ident (Arr)
+eql
+arraysy
+lbrack
+intcon (1)
+period
+period
+intcon (3)
+rbrack
+ofsy
+ident (integer)
+semicolon
+
+varsy
+ident (a)
+colon
+ident (Arr)
+semicolon
+
+ident (i)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (i)
+becomes
+intcon (4)
+semicolon
+
+ident (a)
+lbrack
+ident (i)
+rbrack
+becomes
+intcon (10)
+semicolon
+
+ident (writeln)
+lparent
+ident (a)
+lbrack
+ident (i)
+rbrack
+rparent
+semicolon
+
+endsy
+period

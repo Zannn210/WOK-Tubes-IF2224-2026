@@ -1,0 +1,56 @@
+programsy
+ident (RecordFields)
+semicolon
+
+typesy
+ident (Point)
+eql
+recordsy
+ident (x)
+colon
+ident (integer)
+semicolon
+
+ident (y)
+colon
+ident (integer)
+endsy
+semicolon
+
+varsy
+ident (p)
+colon
+ident (Point)
+semicolon
+
+beginsy
+ident (p)
+period
+ident (x)
+becomes
+intcon (3)
+semicolon
+
+ident (p)
+period
+ident (y)
+becomes
+intcon (4)
+semicolon
+
+ident (writeln)
+lparent
+ident (p)
+period
+ident (x)
+comma
+charcon (' ')
+comma
+ident (p)
+period
+ident (y)
+rparent
+semicolon
+
+endsy
+period

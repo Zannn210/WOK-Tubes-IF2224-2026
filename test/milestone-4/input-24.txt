@@ -1,0 +1,6 @@
+program ErrorUndeclared;
+var x: integer;
+begin
+x := y + 1;
+writeln(x);
+end.

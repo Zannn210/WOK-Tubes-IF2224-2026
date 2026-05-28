@@ -1,0 +1,58 @@
+programsy
+ident (CaseSecondBranch)
+semicolon
+
+varsy
+ident (choice)
+comma
+ident (ans)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (choice)
+becomes
+intcon (2)
+semicolon
+
+ident (ans)
+becomes
+intcon (0)
+semicolon
+
+casesy
+ident (choice)
+ofsy
+intcon (1)
+colon
+ident (ans)
+becomes
+intcon (100)
+semicolon
+
+intcon (2)
+colon
+ident (ans)
+becomes
+intcon (200)
+semicolon
+
+intcon (3)
+colon
+ident (ans)
+becomes
+intcon (300)
+semicolon
+
+endsy
+semicolon
+
+ident (writeln)
+lparent
+ident (ans)
+rparent
+semicolon
+
+endsy
+period

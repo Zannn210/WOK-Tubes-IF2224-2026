@@ -1,0 +1,26 @@
+0 INT 0 2 ; allocate global memory
+1 JMP 0 2 ; jump over subprogram bodies
+2 LDA 0 0 ; address of p
+3 LIT 0 0 ; record field offset
+4 OPR 0 2 ; record field address
+5 LIT 0 3 ; literal
+6 STI 0 0 ; store assignment target
+7 LDA 0 0 ; address of p
+8 LIT 0 1 ; record field offset
+9 OPR 0 2 ; record field address
+10 LIT 0 4 ; literal
+11 STI 0 0 ; store assignment target
+12 LDA 0 0 ; address of p
+13 LIT 0 0 ; record field offset
+14 OPR 0 2 ; record field address
+15 LDI 0 0 ; load indirect
+16 OPR 0 14 ; writeln arg
+17 LIT 0 ' ' ; literal
+18 OPR 0 14 ; writeln arg
+19 LDA 0 0 ; address of p
+20 LIT 0 1 ; record field offset
+21 OPR 0 2 ; record field address
+22 LDI 0 0 ; load indirect
+23 OPR 0 14 ; writeln arg
+24 OPR 0 18 ; writeln newline
+25 RET 0 0 ; end program

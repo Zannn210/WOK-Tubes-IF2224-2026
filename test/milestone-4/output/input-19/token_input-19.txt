@@ -1,0 +1,39 @@
+programsy
+ident (DivMod)
+semicolon
+
+varsy
+ident (a)
+comma
+ident (b)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (a)
+becomes
+intcon (17)
+idiv
+intcon (5)
+semicolon
+
+ident (b)
+becomes
+intcon (17)
+imod
+intcon (5)
+semicolon
+
+ident (writeln)
+lparent
+ident (a)
+comma
+charcon (' ')
+comma
+ident (b)
+rparent
+semicolon
+
+endsy
+period

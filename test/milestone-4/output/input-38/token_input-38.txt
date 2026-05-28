@@ -1,0 +1,45 @@
+programsy
+ident (ErrorProcedureAsExpression)
+semicolon
+
+varsy
+ident (x)
+colon
+ident (integer)
+semicolon
+
+proceduresy
+ident (p)
+lparent
+ident (v)
+colon
+ident (integer)
+rparent
+semicolon
+
+beginsy
+ident (x)
+becomes
+ident (v)
+semicolon
+
+endsy
+semicolon
+
+beginsy
+ident (x)
+becomes
+ident (p)
+lparent
+intcon (1)
+rparent
+semicolon
+
+ident (writeln)
+lparent
+ident (x)
+rparent
+semicolon
+
+endsy
+period

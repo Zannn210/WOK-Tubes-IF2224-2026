@@ -1,0 +1,103 @@
+<program>
+|   |-- <program-header>
+|   |   |-- programsy(program)
+|   |   |-- ident(ArithmeticPrecedence)
+|   |   |-- semicolon(;)
+|   |-- <declaration-part>
+|   |   |-- <var-declaration>
+|   |   |   |-- varsy(var)
+|   |   |   |-- <identifier-list>
+|   |   |   |   |-- ident(a)
+|   |   |   |   |-- comma(,)
+|   |   |   |   |-- ident(b)
+|   |   |   |   |-- comma(,)
+|   |   |   |   |-- ident(c)
+|   |   |   |   |-- comma(,)
+|   |   |   |   |-- ident(d)
+|   |   |   |   |-- comma(,)
+|   |   |   |   |-- ident(z)
+|   |   |   |-- colon(:)
+|   |   |   |-- <type>
+|   |   |   |   |-- ident(integer)
+|   |   |   |-- semicolon(;)
+|   |-- <compound-statement>
+|   |   |-- beginsy(begin)
+|   |   |-- <statement-list>
+|   |   |   |-- <assignment-statement>
+|   |   |   |   |-- ident(a)
+|   |   |   |   |-- becomes(:=)
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(2)
+|   |   |   |-- semicolon(;)
+|   |   |   |-- <assignment-statement>
+|   |   |   |   |-- ident(b)
+|   |   |   |   |-- becomes(:=)
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(3)
+|   |   |   |-- semicolon(;)
+|   |   |   |-- <assignment-statement>
+|   |   |   |   |-- ident(c)
+|   |   |   |   |-- becomes(:=)
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(4)
+|   |   |   |-- semicolon(;)
+|   |   |   |-- <assignment-statement>
+|   |   |   |   |-- ident(d)
+|   |   |   |   |-- becomes(:=)
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(8)
+|   |   |   |-- semicolon(;)
+|   |   |   |-- <assignment-statement>
+|   |   |   |   |-- ident(z)
+|   |   |   |   |-- becomes(:=)
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- lparent(()
+|   |   |   |   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |   |   |   |-- ident(a)
+|   |   |   |   |   |   |   |   |   |   |-- plus(+)
+|   |   |   |   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |   |   |   |-- ident(b)
+|   |   |   |   |   |   |   |   |-- rparent())
+|   |   |   |   |   |   |   |-- times(*)
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- ident(c)
+|   |   |   |   |   |   |-- minus(-)
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- ident(d)
+|   |   |   |   |   |   |   |-- idiv(div)
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- intcon(2)
+|   |   |   |-- semicolon(;)
+|   |   |   |-- <procedure/function-call>
+|   |   |   |   |-- ident(writeln)
+|   |   |   |   |-- lparent(()
+|   |   |   |   |-- <parameter-list>
+|   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- ident(z)
+|   |   |   |   |-- rparent())
+|   |   |   |-- semicolon(;)
+|   |   |-- endsy(end)
+|   |-- period(.)

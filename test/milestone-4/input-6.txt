@@ -1,0 +1,9 @@
+program RepeatOnce;
+var x: integer;
+begin
+x := 10;
+repeat
+  x := x + 1;
+until x > 10;
+writeln(x);
+end.

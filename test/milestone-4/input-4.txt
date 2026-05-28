@@ -1,0 +1,10 @@
+program WhileZeroIteration;
+var x: integer;
+begin
+x := 5;
+while x < 3 do
+begin
+  x := x + 1;
+end;
+writeln(x);
+end.

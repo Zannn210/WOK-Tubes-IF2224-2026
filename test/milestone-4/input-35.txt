@@ -1,0 +1,9 @@
+program ErrorArrayIndexType;
+type
+Arr == array[1..3] of integer;
+var
+a: Arr;
+begin
+a['x'] := 1;
+writeln(a['x']);
+end.

@@ -1,0 +1,43 @@
+programsy
+ident (ErrorParamType)
+semicolon
+
+varsy
+ident (x)
+colon
+ident (integer)
+semicolon
+
+proceduresy
+ident (setx)
+lparent
+ident (v)
+colon
+ident (integer)
+rparent
+semicolon
+
+beginsy
+ident (x)
+becomes
+ident (v)
+semicolon
+
+endsy
+semicolon
+
+beginsy
+ident (setx)
+lparent
+string ('abc')
+rparent
+semicolon
+
+ident (writeln)
+lparent
+ident (x)
+rparent
+semicolon
+
+endsy
+period

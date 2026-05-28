@@ -1,0 +1,77 @@
+<program>
+|   |-- <program-header>
+|   |   |-- programsy(program)
+|   |   |-- ident(ErrorProcedureAsExpression)
+|   |   |-- semicolon(;)
+|   |-- <declaration-part>
+|   |   |-- <var-declaration>
+|   |   |   |-- varsy(var)
+|   |   |   |-- <identifier-list>
+|   |   |   |   |-- ident(x)
+|   |   |   |-- colon(:)
+|   |   |   |-- <type>
+|   |   |   |   |-- ident(integer)
+|   |   |   |-- semicolon(;)
+|   |   |-- <subprogram-declaration>
+|   |   |   |-- <procedure-declaration>
+|   |   |   |   |-- proceduresy(procedure)
+|   |   |   |   |-- ident(p)
+|   |   |   |   |-- <formal-parameter-list>
+|   |   |   |   |   |-- lparent(()
+|   |   |   |   |   |-- <parameter-group>
+|   |   |   |   |   |   |-- <identifier-list>
+|   |   |   |   |   |   |   |-- ident(v)
+|   |   |   |   |   |   |-- colon(:)
+|   |   |   |   |   |   |-- ident(integer)
+|   |   |   |   |   |-- rparent())
+|   |   |   |   |-- semicolon(;)
+|   |   |   |   |-- <block>
+|   |   |   |   |   |-- <declaration-part>
+|   |   |   |   |   |-- <compound-statement>
+|   |   |   |   |   |   |-- beginsy(begin)
+|   |   |   |   |   |   |-- <statement-list>
+|   |   |   |   |   |   |   |-- <assignment-statement>
+|   |   |   |   |   |   |   |   |-- ident(x)
+|   |   |   |   |   |   |   |   |-- becomes(:=)
+|   |   |   |   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |   |   |   |-- ident(v)
+|   |   |   |   |   |   |   |-- semicolon(;)
+|   |   |   |   |   |   |-- endsy(end)
+|   |   |   |   |-- semicolon(;)
+|   |-- <compound-statement>
+|   |   |-- beginsy(begin)
+|   |   |-- <statement-list>
+|   |   |   |-- <assignment-statement>
+|   |   |   |   |-- ident(x)
+|   |   |   |   |-- becomes(:=)
+|   |   |   |   |-- <expression>
+|   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |-- <procedure/function-call>
+|   |   |   |   |   |   |   |   |   |-- ident(p)
+|   |   |   |   |   |   |   |   |   |-- lparent(()
+|   |   |   |   |   |   |   |   |   |-- <parameter-list>
+|   |   |   |   |   |   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |   |   |   |   |   |-- intcon(1)
+|   |   |   |   |   |   |   |   |   |-- rparent())
+|   |   |   |-- semicolon(;)
+|   |   |   |-- <procedure/function-call>
+|   |   |   |   |-- ident(writeln)
+|   |   |   |   |-- lparent(()
+|   |   |   |   |-- <parameter-list>
+|   |   |   |   |   |-- <expression>
+|   |   |   |   |   |   |-- <simple-expression>
+|   |   |   |   |   |   |   |-- <term>
+|   |   |   |   |   |   |   |   |-- <factor>
+|   |   |   |   |   |   |   |   |   |-- ident(x)
+|   |   |   |   |-- rparent())
+|   |   |   |-- semicolon(;)
+|   |   |-- endsy(end)
+|   |-- period(.)

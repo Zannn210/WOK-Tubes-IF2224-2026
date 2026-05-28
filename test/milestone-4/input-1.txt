@@ -1,0 +1,7 @@
+program BasicAssign;
+var x, y: integer;
+begin
+x := 4;
+y := x + 6;
+writeln(y);
+end.

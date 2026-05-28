@@ -1,0 +1,87 @@
+programsy
+ident (ArrayValidIndex)
+semicolon
+
+typesy
+ident (Arr)
+eql
+arraysy
+lbrack
+intcon (1)
+period
+period
+intcon (3)
+rbrack
+ofsy
+ident (integer)
+semicolon
+
+varsy
+ident (a)
+colon
+ident (Arr)
+semicolon
+
+ident (i)
+comma
+ident (sum)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (a)
+lbrack
+intcon (1)
+rbrack
+becomes
+intcon (7)
+semicolon
+
+ident (i)
+becomes
+intcon (2)
+semicolon
+
+ident (a)
+lbrack
+ident (i)
+rbrack
+becomes
+intcon (8)
+semicolon
+
+ident (a)
+lbrack
+intcon (3)
+rbrack
+becomes
+intcon (9)
+semicolon
+
+ident (sum)
+becomes
+ident (a)
+lbrack
+intcon (1)
+rbrack
+plus
+ident (a)
+lbrack
+intcon (2)
+rbrack
+plus
+ident (a)
+lbrack
+intcon (3)
+rbrack
+semicolon
+
+ident (writeln)
+lparent
+ident (sum)
+rparent
+semicolon
+
+endsy
+period

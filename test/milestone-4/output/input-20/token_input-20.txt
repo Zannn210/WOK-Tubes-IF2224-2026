@@ -1,0 +1,17 @@
+programsy
+ident (PrintStringChar)
+semicolon
+
+beginsy
+ident (writeln)
+lparent
+string ('Hello')
+comma
+charcon (' ')
+comma
+charcon ('A')
+rparent
+semicolon
+
+endsy
+period

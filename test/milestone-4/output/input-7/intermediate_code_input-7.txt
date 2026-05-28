@@ -1,0 +1,34 @@
+0 INT 0 3 ; allocate global memory
+1 JMP 0 2 ; jump over subprogram bodies
+2 LDA 0 1 ; address of sum
+3 LIT 0 0 ; literal
+4 STI 0 0 ; store assignment target
+5 LDA 0 0 ; address of i
+6 LIT 0 1 ; literal
+7 STI 0 0 ; for initial value
+8 LIT 0 5 ; literal
+9 STO 0 2 ; for final value
+10 LDA 0 0 ; address of i
+11 LDI 0 0 ; load indirect
+12 LOD 0 2 ; for bound
+13 OPR 0 10 ; for condition
+14 JPC 0 29 ; for done
+15 LDA 0 1 ; address of sum
+16 LDA 0 1 ; address of sum
+17 LDI 0 0 ; load indirect
+18 LDA 0 0 ; address of i
+19 LDI 0 0 ; load indirect
+20 OPR 0 2 ; simple-expression op
+21 STI 0 0 ; store assignment target
+22 LDA 0 0 ; address of i
+23 LDA 0 0 ; address of i
+24 LDI 0 0 ; load indirect
+25 LIT 0 1 ; for step 1
+26 OPR 0 2 ; for increment/decrement
+27 STI 0 0 ; update for variable
+28 JMP 0 10 ; for repeat
+29 LDA 0 1 ; address of sum
+30 LDI 0 0 ; load indirect
+31 OPR 0 14 ; writeln arg
+32 OPR 0 18 ; writeln newline
+33 RET 0 0 ; end program

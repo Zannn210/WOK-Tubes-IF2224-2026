@@ -1,0 +1,6 @@
+program ErrorTypeMismatch;
+var x: integer;
+begin
+x := 'abc';
+writeln(x);
+end.

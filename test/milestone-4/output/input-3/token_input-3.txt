@@ -1,0 +1,40 @@
+programsy
+ident (IfElseFalse)
+semicolon
+
+varsy
+ident (x)
+comma
+ident (y)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (x)
+becomes
+intcon (3)
+semicolon
+
+ifsy
+ident (x)
+gtr
+intcon (5)
+thensy
+ident (y)
+becomes
+intcon (1)
+elsesy
+ident (y)
+becomes
+intcon (2)
+semicolon
+
+ident (writeln)
+lparent
+ident (y)
+rparent
+semicolon
+
+endsy
+period

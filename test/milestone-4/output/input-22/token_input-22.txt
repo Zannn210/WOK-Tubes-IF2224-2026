@@ -1,0 +1,33 @@
+programsy
+ident (RealDivision)
+semicolon
+
+varsy
+ident (x)
+comma
+ident (y)
+colon
+ident (real)
+semicolon
+
+beginsy
+ident (x)
+becomes
+realcon (1.5)
+semicolon
+
+ident (y)
+becomes
+ident (x)
+rdiv
+realcon (0.5)
+semicolon
+
+ident (writeln)
+lparent
+ident (y)
+rparent
+semicolon
+
+endsy
+period
