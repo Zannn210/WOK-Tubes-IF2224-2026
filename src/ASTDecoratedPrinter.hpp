@@ -35,6 +35,9 @@ private:
     std::string objClass(int o)  const;   
     std::string opSym(const std::string& tok) const; 
     std::string inlineExpr(ASTNode* n) const;
+    std::string inlineVarRef(ASTNode* n) const;
+    std::string inlineProcCall(ASTNode* n) const;
+    int findSymbol(const std::string& name, int objKind = -1) const;
     bool isRelOp(const std::string& tok) const;
     bool isAddOp(const std::string& tok) const;
     bool isMulOp(const std::string& tok) const;

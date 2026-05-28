@@ -88,6 +88,91 @@ std::string ASTDecoratedPrinter::opSym(const std::string& tok) const {
     return tok;
 }
 
+int ASTDecoratedPrinter::findSymbol(const std::string& name, int objKind) const {
+    // Cari dari belakang supaya kalau ada shadowing, yang paling baru yang kepakai
+    for (int i = static_cast<int>(_tab.size()) - 1; i >= 0; --i) {
+        if (_tab[i].id != name) continue;
+        if (objKind != -1 && _tab[i].obj != objKind) continue;
+        return i;
+    }
+    return -1;
+}
+
+std::string ASTDecoratedPrinter::inlineVarRef(ASTNode* n) const {
+    // Bikin nama variabel lebih manusiawi buat output AST: a[1], r.a, matrix[i][j], dst
+    if (!n) return "?";
+    if (n->isTerminal) return n->tokenValue.empty() ? "?" : n->tokenValue;
+
+    std::string result;
+    for (auto* c : n->children) {
+        if (c->isTerminal && c->tokenType == "ident" && result.empty()) {
+            result = c->tokenValue;
+            continue;
+        }
+
+        if (c->isTerminal || c->label != "<component-variable>") continue;
+
+        bool isIndex = false;
+        bool isField = false;
+        for (auto* cc : c->children) {
+            if (cc->isTerminal && cc->tokenType == "lbrack") isIndex = true;
+            if (cc->isTerminal && cc->tokenType == "period") isField = true;
+        }
+
+        if (isIndex) {
+            std::vector<std::string> idxParts;
+            ASTNode* idxList = childNT(c, "<index-list>");
+            if (idxList) {
+                for (auto* idx : idxList->children) {
+                    if (idx->isTerminal && idx->tokenType != "comma") {
+                        idxParts.push_back(idx->tokenValue);
+                    } else if (!idx->isTerminal) {
+                        idxParts.push_back(inlineExpr(idx));
+                    }
+                }
+            }
+            result += "[";
+            for (size_t i = 0; i < idxParts.size(); ++i) {
+                if (i) result += ", ";
+                result += idxParts[i];
+            }
+            result += "]";
+        } else if (isField) {
+            ASTNode* fld = childTerm(c, "ident");
+            if (fld) result += "." + fld->tokenValue;
+        }
+    }
+
+    return result.empty() ? "?" : result;
+}
+
+std::string ASTDecoratedPrinter::inlineProcCall(ASTNode* n) const {
+    if (!n) return "?";
+    std::string name;
+    std::vector<std::string> args;
+
+    for (auto* c : n->children) {
+        if (c->isTerminal && c->tokenType == "ident" && name.empty()) {
+            name = c->tokenValue;
+        } else if (!c->isTerminal && c->label == "<parameter-list>") {
+            for (auto* arg : c->children) {
+                if (!arg->isTerminal && arg->label == "<expression>") {
+                    args.push_back(inlineExpr(arg));
+                }
+            }
+        }
+    }
+
+    std::string result = name.empty() ? "?" : name;
+    result += "(";
+    for (size_t i = 0; i < args.size(); ++i) {
+        if (i) result += ", ";
+        result += args[i];
+    }
+    result += ")";
+    return result;
+}
+
 std::string ASTDecoratedPrinter::inlineExpr(ASTNode* n) const {
     if (!n) return "?";
     if (n->isTerminal) {
@@ -97,7 +182,11 @@ std::string ASTDecoratedPrinter::inlineExpr(ASTNode* n) const {
             return n->tokenValue;
         return opSym(n->tokenType);
     }
+
     const std::string& lbl = n->label;
+    if (lbl == "<variable>") return inlineVarRef(n);
+    if (lbl == "<procedure/function-call>") return inlineProcCall(n);
+
     if (lbl == "<factor>") {
         bool hasNot = false, hasMinus = false;
         for (auto* c : n->children) {
@@ -113,10 +202,20 @@ std::string ASTDecoratedPrinter::inlineExpr(ASTNode* n) const {
         }
         return "?";
     }
+
+    if (lbl == "<index-list>") {
+        std::string result;
+        for (auto* c : n->children) {
+            if (c->isTerminal && c->tokenType == "comma") result += ", ";
+            else result += inlineExpr(c);
+        }
+        return result.empty() ? "?" : result;
+    }
+
     std::string result;
     for (auto* c : n->children) {
         if (!c->isTerminal) result += inlineExpr(c);
-        else                result += opSym(c->tokenType);
+        else if (c->tokenType != "lparent" && c->tokenType != "rparent") result += opSym(c->tokenType);
     }
     return result.empty() ? "?" : result;
 }
@@ -364,20 +463,22 @@ void ASTDecoratedPrinter::doFuncDecl(ASTNode* n, int d) {
     int retType  = TYPE_VOID;
     ASTNode* params = nullptr;
     ASTNode* block  = nullptr;
-    bool seenColon  = false;
     bool seenName   = false;
 
     for (auto* c : n->children) {
         if (!seenName && c->isTerminal && c->tokenType == "ident") {
-            name = c->tokenValue; tabIdx = c->tabIdx; seenName = true;
-        } else if (c->isTerminal && c->tokenType == "colon") {
-            seenColon = true;
-        } else if (seenColon && c->isTerminal && c->tokenType == "ident") {
-            retType = c->semType; seenColon = false;
+            name = c->tokenValue;
+            tabIdx = c->tabIdx;
+            seenName = true;
         }
         if (!c->isTerminal && c->label == "<formal-parameter-list>") params = c;
         if (!c->isTerminal && c->label == "<block>")                 block  = c;
     }
+
+    // Kalau node terminal belum punya tabIdx, ambil dari symbol table
+    // Ini bikin return_type tampil bener, misalnya integer bukan void
+    if (tabIdx < 0 && !name.empty()) tabIdx = findSymbol(name, OBJ_FUNC);
+    if (tabIdx >= 0 && tabIdx < static_cast<int>(_tab.size())) retType = _tab[tabIdx].type;
 
     std::string line = ind(d) + "FunctionDecl(name: '" + name + "'";
     line += ", return_type: " + typeFull(retType);
@@ -450,7 +551,8 @@ void ASTDecoratedPrinter::doAssign(ASTNode* n, int d) {
         else if (!rhs)    rhs = c;
     }
 
-    std::string lhsName = (lhs && lhs->isTerminal) ? lhs->tokenValue : "?";
+    std::string lhsName = "?";
+    if (lhs) lhsName = lhs->isTerminal ? lhs->tokenValue : inlineVarRef(lhs);
     std::string rhsStr  = rhs ? inlineExpr(rhs) : "?";
     emit(ind(d) + "Assign('" + lhsName + "' := " + rhsStr + ", type: void)");
 
@@ -572,17 +674,28 @@ void ASTDecoratedPrinter::doCaseBlock(ASTNode* n, int d) {
 
 void ASTDecoratedPrinter::doProcCall(ASTNode* n, int d) {
     std::string name;
-    int tabIdx = -1;
+    int tabIdx = n ? n->tabIdx : -1;
+    int callType = n ? n->semType : TYPE_VOID;
     ASTNode* paramList = nullptr;
 
     for (auto* c : n->children) {
-        if (c->isTerminal && c->tokenType == "ident") { name = c->tokenValue; tabIdx = c->tabIdx; }
+        if (c->isTerminal && c->tokenType == "ident" && name.empty()) {
+            name = c->tokenValue;
+            if (tabIdx < 0) tabIdx = c->tabIdx;
+        }
         if (!c->isTerminal && c->label == "<parameter-list>") paramList = c;
+    }
+
+    // Built-in / function call kadang belum bawa tabIdx di node terminal,
+    // jadi fallback ke symbol table biar type output lebih akurat
+    if (tabIdx < 0 && !name.empty()) tabIdx = findSymbol(name);
+    if (callType == TYPE_VOID && tabIdx >= 0 && tabIdx < static_cast<int>(_tab.size()) && _tab[tabIdx].obj == OBJ_FUNC) {
+        callType = _tab[tabIdx].type;
     }
 
     std::string line = ind(d) + "ProcCall(name: '" + name + "'";
     if (tabIdx >= 0) line += ", tab_index: " + std::to_string(tabIdx);
-    line += ", type: void)";
+    line += ", type: " + typeFull(callType) + ")";
     emit(line);
 
     if (paramList) {
@@ -822,10 +935,10 @@ void ASTDecoratedPrinter::doBtab() {
         std::ostringstream oss;
         oss << "  "
             << std::setw(3) << i << "  "
-            << std::setw(5) << _btab[i].last << " "
+            << std::setw(4) << _btab[i].last << " "
             << std::setw(5) << _btab[i].lpar << " "
             << std::setw(5) << _btab[i].psze << " "
-            << _btab[i].vsze;
+            << std::setw(5) << _btab[i].vsze;
         emit(oss.str());
     }
     emit("  ----------------------------------------");
