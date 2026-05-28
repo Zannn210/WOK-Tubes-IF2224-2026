@@ -7,6 +7,9 @@
 #include "ArionLexer.hpp"
 #include "Parser.hpp"
 #include "SemanticAnalyzer.hpp"
+#include "IntermediateCodeGenerator.hpp"
+#include "StackInterpreter.hpp"
+#include <fstream>
 
 namespace {
 
@@ -43,11 +46,17 @@ int runAll(const std::string& inputPath, const std::string& milestoneDir, int mi
     const std::string tokenPath = nthOutput(milestoneDir, "token_output_", n);
     const std::string treePath  = nthOutput(milestoneDir, "tree_output_",  n);
     const std::string astPath   = nthOutput(milestoneDir, "ast_output_",   n);
+    const std::string icPath    = nthOutput(milestoneDir, "ic_output_",    n);
+    const std::string runPath   = nthOutput(milestoneDir, "run_output_",   n);
 
     std::cout << "\nFile input   : " << inputPath << "\n";
     std::cout << "Token output : " << tokenPath << "\n";
     if (milestoneNum >= 2) std::cout << "Parse tree   : " << treePath  << "\n";
     if (milestoneNum >= 3) std::cout << "Semantic AST : " << astPath   << "\n";
+    if (milestoneNum >= 4) {
+        std::cout << "IC output    : " << icPath    << "\n";
+        std::cout << "Run output   : " << runPath   << "\n";
+    }
     std::cout << "\n";
 
     // Phase 1: Lexer
@@ -84,8 +93,27 @@ int runAll(const std::string& inputPath, const std::string& milestoneDir, int mi
         std::cout << "=== Semantic Analysis ===\n";
         sa.analyze(parseTree, astPath);
         std::cout << "\n[SUCCESS] Semantic analysis done. AST saved to " << astPath << "\n";
+
+        // Phase 4: Intermediate Code Generation + Stack-Machine Interpreter
+        if (milestoneNum >= 4) {
+            std::cout << "\n=== Intermediate Code Generation ===\n";
+            IntermediateCodeGenerator icg(sa.getTab(), sa.getBtab(), sa.getAtab());
+            Code code = icg.generate(parseTree, icPath);
+            std::cout << "[SUCCESS] IC saved to " << icPath << " (" << code.size() << " instructions)\n";
+
+            std::cout << "\n=== Program Output ===\n";
+            StackInterpreter vm(code);
+            vm.run(std::cout);
+
+            std::ofstream runFile(runPath);
+            if (runFile.is_open()) {
+                StackInterpreter vmFile(code);
+                vmFile.run(runFile);
+                std::cout << "\n[SUCCESS] Runtime output saved to " << runPath << "\n";
+            }
+        }
     } catch (const std::exception& e) {
-        std::cerr << "[SEMANTIC ERROR] " << e.what() << "\n";
+        std::cerr << "[ERROR] " << e.what() << "\n";
         delete parseTree;
         return 1;
     }
@@ -100,8 +128,8 @@ int main(int argc, char* argv[]) {
     // Direct invocation: ./arion_lexer <source.txt>
     if (argc >= 2) {
         const std::string inputPath = argv[1];
-        const std::string outputDir = "test/milestone-3";
-        return runAll(inputPath, outputDir, 3);
+        const std::string outputDir = "test/milestone-4";
+        return runAll(inputPath, outputDir, 4);
     }
 
     // Interactive mode
