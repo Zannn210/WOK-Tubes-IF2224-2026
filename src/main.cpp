@@ -44,6 +44,12 @@ void writeTextFile(const std::string& path, const std::string& text) {
     if (file.is_open()) file << text;
 }
 
+void printIntermediateCode(const Code& code) {
+    for (int i = 0; i < static_cast<int>(code.size()); ++i) {
+        std::cout << code[i].toString(i, true) << '\n';
+    }
+}
+
 std::vector<std::string> listInputFiles(const std::string& dir) {
     std::vector<std::string> files;
     if (!fs::exists(dir)) return files;
@@ -120,7 +126,15 @@ int runAll(const std::string& inputPath, const std::string& milestoneDir, int mi
     } catch (const std::exception& e) {
         const std::string msg = std::string("[PARSE ERROR] ") + e.what() + "\n";
         std::cerr << msg;
-        if (milestoneNum >= 4) writeTextFile(runPath, msg);
+
+        // Supaya folder output tiap input tetap lengkap walaupun parsing gagal
+        // File parse tree berisi error, tahap setelahnya ditandai SKIPPED
+        if (milestoneNum >= 2) writeTextFile(treePath, msg);
+        if (milestoneNum >= 3) writeTextFile(astPath, "[SKIPPED] Decorated AST tidak dibuat karena syntax analysis gagal.\n" + msg);
+        if (milestoneNum >= 4) {
+            writeTextFile(icPath, "[SKIPPED] Intermediate code tidak dibuat karena syntax analysis gagal.\n" + msg);
+            writeTextFile(runPath, "[SYNTAX ERROR] Program tidak dijalankan karena syntax analysis gagal.\n" + msg);
+        }
         return 1;
     }
     if (milestoneNum < 3) { delete parseTree; return 0; }
@@ -130,6 +144,21 @@ int runAll(const std::string& inputPath, const std::string& milestoneDir, int mi
         SemanticAnalyzer sa;
         std::cout << "=== Semantic Analysis ===\n";
         sa.analyze(parseTree, astPath);
+
+        if (sa.hasSemanticError()) {
+            std::cout << "\n[FAILED] Semantic analysis menemukan error. AST/error log saved to " << astPath << "\n";
+
+            // Kalau semantic sudah gagal, backend tidak boleh lanjut
+            // Decorated AST yang valid adalah syarat masuk IC Generator
+            if (milestoneNum >= 4) {
+                writeTextFile(icPath, "[SKIPPED] Intermediate code tidak dibuat karena semantic analysis gagal.\n");
+                writeTextFile(runPath, "[SEMANTIC ERROR] Program tidak dijalankan karena semantic analysis gagal. Lihat decorated AST output untuk detail error.\n");
+            }
+
+            delete parseTree;
+            return 1;
+        }
+
         std::cout << "\n[SUCCESS] Semantic analysis done. AST saved to " << astPath << "\n";
 
         // Fase 4: dari Decorated AST ke instruksi stack machine, lalu dieksekusi VM
@@ -137,10 +166,12 @@ int runAll(const std::string& inputPath, const std::string& milestoneDir, int mi
             std::cout << "\n=== Intermediate Code Generation ===\n";
             IntermediateCodeGenerator icg(sa.getTab(), sa.getBtab(), sa.getAtab());
             Code code = icg.generate(parseTree, icPath);
-            std::cout << "[SUCCESS] IC saved to " << icPath << " (" << code.size() << " instructions)\n";
+            printIntermediateCode(code);
+            std::cout << "\n[SUCCESS] IC saved to " << icPath << " (" << code.size() << " instructions)\n";
 
             std::cout << "\n=== Program Output ===\n";
 
+            // VM dijalankan ke buffer dulu supaya output normal maupun runtime error bisa ikut tersimpan ke run_<case>.txt
             std::ostringstream runtimeOutput;
             try {
                 StackInterpreter vm(code);
@@ -172,6 +203,8 @@ int runAll(const std::string& inputPath, const std::string& milestoneDir, int mi
 } // namespace
 
 int main(int argc, char* argv[]) {
+    // Mode cepat: ./bin/arion_lexer test/milestone-4/full.txt
+    // Output otomatis masuk ke test/milestone-4/output/full/.
     if (argc >= 2) {
         const std::string inputPath = argv[1];
         fs::path parent = fs::path(inputPath).parent_path();
@@ -179,6 +212,7 @@ int main(int argc, char* argv[]) {
         return runAll(inputPath, outputBaseDir, 4);
     }
 
+    // Mode interaktif: pilih folder milestone dan file input dari folder test/.
     const std::string testRoot = "test";
 
     std::vector<std::string> milestones;
