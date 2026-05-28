@@ -4,11 +4,11 @@ TARGET = arion_lexer
 
 SRC_DIR = src
 TEST_DIR = test
+M4_DIR = $(TEST_DIR)/milestone-4
 BIN_DIR = bin
 
-# Mengambil semua file source code
+# Mengambil semua file source code dari folder src
 SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
-
 OUTPUT = $(BIN_DIR)/$(TARGET)
 
 all: $(OUTPUT)
@@ -16,71 +16,62 @@ all: $(OUTPUT)
 $(OUTPUT): $(SOURCES)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $(SOURCES) -o $(OUTPUT)
-	@echo "Kompilasi berhasil! Gunakan 'make run' untuk melanjutkan."
+	@echo "Kompilasi berhasil! Gunakan 'make run' atau 'make test-m4'."
 
 run: $(OUTPUT)
 	./$(OUTPUT)
 
-test: $(OUTPUT)
-	@echo "Menjalankan Lexer pada file di folder $(TEST_DIR)..."
-	@mkdir -p $(TEST_DIR)
-	@for file in $(TEST_DIR)/input*.txt; do \
-		if [ -f "$$file" ]; then \
-			echo "Menguji $$file"; \
-			basename=$$(basename "$$file" .txt); \
-			inputnum=$$(echo "$$basename" | sed 's/input//'); \
-			if [ -z "$$inputnum" ]; then inputnum="1"; fi; \
-			outfile="$(TEST_DIR)/output_$${inputnum}.txt"; \
-			echo "Menyimpan hasil ke $$outfile"; \
-			./$(OUTPUT) "$$file" > "$$outfile"; \
-			echo "Output disimpan di $$outfile"; \
-			echo "-----------------------------"; \
-		fi; \
-	done
+# Jalankan satu file tertentu.
+# Contoh: make run-file FILE=test/milestone-4/full.txt
+run-file: $(OUTPUT)
+	@if [ -z "$(FILE)" ]; then \
+		echo "Pakai: make run-file FILE=test/milestone-4/nama_file.txt"; \
+		exit 1; \
+	fi
+	./$(OUTPUT) "$(FILE)"
 
-test-all: $(OUTPUT)
-	@echo "Menjalankan Lexer pada semua file .txt di folder $(TEST_DIR)..."
-	@mkdir -p $(TEST_DIR)
-	@last_num=$$(ls -1 $(TEST_DIR)/output_[0-9]*.txt 2>/dev/null \
-		| sed -E 's|.*/output_([0-9]+)\.txt|\1|' \
-		| grep -E '^[0-9]+$$' \
-		| sort -n \
-		| tail -n 1); \
-	if [ -z "$$last_num" ]; then last_num=0; fi; \
-	next_num=$$((last_num + 1)); \
-	for file in $(TEST_DIR)/*.txt; do \
-		if [ -f "$$file" ] && [[ "$$file" != *output_* ]]; then \
+# Jalankan semua input langsung di test/milestone-4/*.txt.
+# Output tiap input masuk ke test/milestone-4/output/<nama_input>/
+test: test-m4
+
+test-m4: $(OUTPUT)
+	@echo "Menjalankan semua file .txt di folder $(M4_DIR)..."
+	@mkdir -p $(M4_DIR)
+	@found=0; \
+	for file in $(M4_DIR)/*.txt; do \
+		if [ -f "$$file" ]; then \
+			found=1; \
 			echo "Menguji $$file"; \
-			outfile="$(TEST_DIR)/output_$${next_num}.txt"; \
-			echo "Menyimpan hasil ke $$outfile"; \
-			./$(OUTPUT) "$$file" > "$$outfile"; \
-			echo "Output disimpan di $$outfile"; \
+			./$(OUTPUT) "$$file"; \
+			echo "Output disimpan di $(M4_DIR)/output/$$(basename "$$file" .txt)/"; \
 			echo "-----------------------------"; \
-			next_num=$$((next_num + 1)); \
 		fi; \
-	done
+	done; \
+	if [ "$$found" -eq 0 ]; then \
+		echo "Tidak ada file input .txt di $(M4_DIR)."; \
+	fi
 
 clean:
 	rm -f $(OUTPUT)
 	@echo "File executable berhasil dihapus."
 
 clean-output:
-	rm -f $(TEST_DIR)/output_*.txt
-	@echo "Semua file output berhasil dihapus."
+	rm -rf $(M4_DIR)/output
+	@echo "Folder output milestone-4 berhasil dihapus."
 
 clean-all: clean clean-output
 	@echo "Semua file executable dan output berhasil dihapus."
 
 help:
-	@echo "=== Arion Lexer + Parser Makefile ==="
+	@echo "=== Arion Compiler Makefile ==="
 	@echo "Target yang tersedia:"
-	@echo "  make              - Kompilasi program"
-	@echo "  make run          - Jalankan compiler secara interaktif (pilih milestone & file)"
-	@echo "  make test         - Test semua file input*.txt (output ke output_N.txt)"
-	@echo "  make test-all     - Test semua file .txt (output auto-increment)"
-	@echo "  make clean        - Hapus executable"
-	@echo "  make clean-output - Hapus semua file output_*.txt"
-	@echo "  make clean-all    - Hapus executable dan output"
-	@echo "  make help         - Tampilkan pesan ini"
+	@echo "  make                         - Kompilasi program"
+	@echo "  make run                     - Jalankan mode interaktif"
+	@echo "  make run-file FILE=<path>    - Jalankan satu file input tertentu"
+	@echo "  make test / make test-m4     - Test semua .txt di test/milestone-4"
+	@echo "  make clean                   - Hapus executable"
+	@echo "  make clean-output            - Hapus folder output milestone-4"
+	@echo "  make clean-all               - Hapus executable dan output"
+	@echo "  make help                    - Tampilkan pesan ini"
 
-.PHONY: all clean clean-output clean-all test test-all run help
+.PHONY: all clean clean-output clean-all test test-m4 run run-file help
