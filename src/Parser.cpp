@@ -1,6 +1,8 @@
 #include "Parser.hpp"
 #include <iostream>
 #include <cstdlib>
+#include <stdexcept>
+#include <sstream>
 #include <unordered_map>
 
 // Token file loader 
@@ -132,9 +134,9 @@ ASTNode* Parser::match(const std::string& expectedType) {
         node->line = t.line;
         return node;
     }
-    std::cerr << "\n[SYNTAX ERROR] Unexpected token '" << t.type
-              << "', expected '" << expectedType << "'\n";
-    exit(1);
+    std::ostringstream oss;
+    oss << "Unexpected token '" << t.type << "', expected '" << expectedType << "'";
+    throw std::runtime_error(oss.str());
 }
 
 // Entry point
@@ -142,8 +144,7 @@ ASTNode* Parser::match(const std::string& expectedType) {
 ASTNode* Parser::parse() {
     ASTNode* root = parseProgram();
     if (!check("EOF")) {
-        std::cerr << "\n[SYNTAX ERROR] Unexpected token '" << currentToken().type << "' after program end\n";
-        exit(1);
+        throw std::runtime_error("Unexpected token '" + currentToken().type + "' after program end");
     }
     return root;
 }
@@ -233,8 +234,7 @@ ASTNode* Parser::parseConstant() {
         else if (check("intcon"))  node->addChild(match("intcon"));
         else if (check("realcon")) node->addChild(match("realcon"));
         else {
-            std::cerr << "[SYNTAX ERROR] Expected constant, got '" << currentToken().type << "'\n";
-            exit(1);
+            throw std::runtime_error("Expected constant, got '" + currentToken().type + "'");
         }
     }
 
@@ -281,8 +281,7 @@ ASTNode* Parser::parseType() {
             node->addChild(match("ident"));
         }
     } else {
-        std::cerr << "[SYNTAX ERROR] Expected type, got '" << currentToken().type << "'\n";
-        exit(1);
+        throw std::runtime_error("Expected type, got '" + currentToken().type + "'");
     }
 
     indentLevel--;
@@ -614,9 +613,7 @@ ASTNode* Parser::parseIndexList() {
     else if (check("charcon")) node->addChild(match("charcon"));
     else if (check("ident"))   node->addChild(match("ident"));
     else {
-        std::cerr << "[SYNTAX ERROR] Expected index, got '"
-                  << currentToken().type << "'\n";
-        exit(1);
+        throw std::runtime_error("Expected index, got '" + currentToken().type + "'");
     }
 
     while (check("comma")) {
@@ -742,9 +739,7 @@ ASTNode* Parser::parseForStatement() {
     if      (check("tosy"))      node->addChild(match("tosy"));
     else if (check("downtosy"))  node->addChild(match("downtosy"));
     else {
-        std::cerr << "[SYNTAX ERROR] Expected 'to' or 'downto', got '"
-                  << currentToken().type << "'\n";
-        exit(1);
+        throw std::runtime_error("Expected 'to' or 'downto', got '" + currentToken().type + "'");
     }
 
     node->addChild(parseExpression());
@@ -865,8 +860,7 @@ ASTNode* Parser::parseFactor() {
             node->addChild(match("ident"));
         }
     } else {
-        std::cerr << "[SYNTAX ERROR] Unexpected token in factor: '" << currentToken().type << "'\n";
-        exit(1);
+        throw std::runtime_error("Unexpected token in factor: '" + currentToken().type + "'");
     }
 
     indentLevel--;
