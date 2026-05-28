@@ -14,6 +14,11 @@ public:
 
     void analyze(ASTNode* root, const std::string& outFilename);
 
+    const std::vector<TabEntry>&  getTab()  const { return tab; }
+    const std::vector<BtabEntry>& getBtab() const { return btab; }
+    const std::vector<AtabEntry>& getAtab() const { return atab; }
+    bool hasSemanticError() const { return hasError; }
+
 private:
     // Symbol tables
     std::vector<TabEntry> tab;
