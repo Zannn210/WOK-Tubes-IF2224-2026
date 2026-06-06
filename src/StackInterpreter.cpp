@@ -97,8 +97,22 @@ RuntimeValue StackInterpreter::parseLiteral(const std::string& raw) const {
     }
     if (raw == "true") return RuntimeValue::boolean(true);
     if (raw == "false") return RuntimeValue::boolean(false);
-    if (raw.find('.') != std::string::npos) return RuntimeValue::real(std::stod(raw));
-    return RuntimeValue::integer(std::stoll(raw));
+    
+    // Real literal
+    if (raw.find('.') != std::string::npos) {
+        try {
+            return RuntimeValue::real(std::stod(raw));
+        } catch (const std::out_of_range&) {
+            throw std::runtime_error("Runtime Error: Real literal out of range: " + raw);
+        }
+    }
+    
+    // Integer literal
+    try {
+        return RuntimeValue::integer(std::stoll(raw));
+    } catch (const std::out_of_range&) {
+        throw std::runtime_error("Runtime Error: Integer literal out of range: " + raw);
+    }
 }
 
 // Operasi stack dasar
