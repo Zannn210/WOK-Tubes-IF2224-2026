@@ -142,7 +142,8 @@ int IntermediateCodeGenerator::opFromToken(const std::string& tokenType) const {
     if (tokenType == "plus") return OPR_ADD;
     if (tokenType == "minus") return OPR_SUB;
     if (tokenType == "times") return OPR_MUL;
-    if (tokenType == "rdiv" || tokenType == "idiv") return OPR_DIV;
+    if (tokenType == "rdiv") return OPR_RDIV;      // real division
+    if (tokenType == "idiv") return OPR_DIV;       // integer division
     if (tokenType == "imod") return OPR_MOD;
     if (tokenType == "eql") return OPR_EQL;
     if (tokenType == "neq") return OPR_NEQ;

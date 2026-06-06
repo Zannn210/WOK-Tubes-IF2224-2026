@@ -182,7 +182,7 @@ RuntimeValue StackInterpreter::numericOp(const RuntimeValue& a, const RuntimeVal
     if ((a.kind == RuntimeValue::STRING || b.kind == RuntimeValue::STRING) && opr == OPR_ADD)
         return RuntimeValue::string(a.toString() + b.toString());
 
-    const bool realResult = a.kind == RuntimeValue::REAL || b.kind == RuntimeValue::REAL || opr == OPR_DIV;
+    const bool realResult = (a.kind == RuntimeValue::REAL || b.kind == RuntimeValue::REAL);
     const double ar = asReal(a), br = asReal(b);
     const long long ai = asInt(a), bi = asInt(b);
 
@@ -208,6 +208,9 @@ RuntimeValue StackInterpreter::numericOp(const RuntimeValue& a, const RuntimeVal
                 return RuntimeValue::integer(ai * bi);
             case OPR_DIV:
                 if (bi == 0) throw std::runtime_error("Runtime Error: Division by zero");
+                if (ai == LLONG_MIN && bi == -1) {
+                    throw std::runtime_error("Runtime Error: Integer overflow in division");
+                }
                 return RuntimeValue::integer(ai / bi);
             case OPR_MOD:
                 if (bi == 0) throw std::runtime_error("Runtime Error: Modulo by zero");
@@ -294,6 +297,14 @@ void StackInterpreter::execOpr(int opr, std::ostream& out) {
     if (opr == OPR_TO_CHAR) {
         RuntimeValue v = pop();
         push(RuntimeValue::character(static_cast<char>(asInt(v))));
+        return;
+    }
+    if (opr == OPR_RDIV) {
+        RuntimeValue right = pop();
+        RuntimeValue left = pop();
+        double ar = asReal(left), br = asReal(right);
+        if (std::fabs(br) < 1e-12) throw std::runtime_error("Runtime Error: Division by zero");
+        push(RuntimeValue::real(ar / br));
         return;
     }
 

@@ -42,7 +42,7 @@ enum OprCode {
     OPR_ADD = 2,
     OPR_SUB = 3,
     OPR_MUL = 4,
-    OPR_DIV = 5,
+    OPR_DIV = 5, // integer division
     OPR_MOD = 6,
     OPR_EQL = 7,
     OPR_NEQ = 8,
@@ -57,7 +57,8 @@ enum OprCode {
     OPR_OR = 17,
     OPR_NEWLINE = 18,
     OPR_TO_CHAR = 19,
-    OPR_NOOP = 20
+    OPR_NOOP = 20,
+    OPR_RDIV = 21 // real division
 };
 
 using Code = std::vector<Instruction>;
