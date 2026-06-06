@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <climits>
 
 namespace {
 // Basis pengkodean alamat: blockId * ADDR_BASE + offset
@@ -171,17 +172,47 @@ RuntimeValue StackInterpreter::numericOp(const RuntimeValue& a, const RuntimeVal
     const double ar = asReal(a), br = asReal(b);
     const long long ai = asInt(a), bi = asInt(b);
 
-    switch (opr) {
-        case OPR_ADD: return realResult ? RuntimeValue::real(ar + br) : RuntimeValue::integer(ai + bi);
-        case OPR_SUB: return realResult ? RuntimeValue::real(ar - br) : RuntimeValue::integer(ai - bi);
-        case OPR_MUL: return realResult ? RuntimeValue::real(ar * br) : RuntimeValue::integer(ai * bi);
-        case OPR_DIV:
-            if (std::fabs(br) < 1e-12) throw std::runtime_error("Runtime Error: Division by zero");
-            if (a.kind == RuntimeValue::INTEGER && b.kind == RuntimeValue::INTEGER) return RuntimeValue::integer(ai / bi);
-            return RuntimeValue::real(ar / br);
-        case OPR_MOD:
-            if (bi == 0) throw std::runtime_error("Runtime Error: Modulo by zero");
-            return RuntimeValue::integer(ai % bi);
+    // Integer operations with overflow checking
+    if (!realResult) {
+        switch (opr) {
+            case OPR_ADD:
+                if ((bi > 0 && ai > LLONG_MAX - bi) || (bi < 0 && ai < LLONG_MIN - bi))
+                    throw std::runtime_error("Runtime Error: Integer overflow in addition");
+                return RuntimeValue::integer(ai + bi);
+            case OPR_SUB:
+                if ((bi > 0 && ai < LLONG_MIN + bi) || (bi < 0 && ai > LLONG_MAX + bi))
+                    throw std::runtime_error("Runtime Error: Integer overflow in subtraction");
+                return RuntimeValue::integer(ai - bi);
+            case OPR_MUL:
+                if (ai != 0 && bi != 0) {
+                    if ((ai > 0 && bi > 0 && ai > LLONG_MAX / bi) ||
+                        (ai > 0 && bi < 0 && bi < LLONG_MIN / ai) ||
+                        (ai < 0 && bi > 0 && ai < LLONG_MIN / bi) ||
+                        (ai < 0 && bi < 0 && -ai > LLONG_MAX / -bi))
+                        throw std::runtime_error("Runtime Error: Integer overflow in multiplication");
+                }
+                return RuntimeValue::integer(ai * bi);
+            case OPR_DIV:
+                if (bi == 0) throw std::runtime_error("Runtime Error: Division by zero");
+                return RuntimeValue::integer(ai / bi);
+            case OPR_MOD:
+                if (bi == 0) throw std::runtime_error("Runtime Error: Modulo by zero");
+                return RuntimeValue::integer(ai % bi);
+            default:
+                break;
+        }
+    } else {
+        // Real operations (no overflow checking)
+        switch (opr) {
+            case OPR_ADD: return RuntimeValue::real(ar + br);
+            case OPR_SUB: return RuntimeValue::real(ar - br);
+            case OPR_MUL: return RuntimeValue::real(ar * br);
+            case OPR_DIV:
+                if (std::fabs(br) < 1e-12) throw std::runtime_error("Runtime Error: Division by zero");
+                return RuntimeValue::real(ar / br);
+            default:
+                break;
+        }
     }
     return RuntimeValue::none();
 }
