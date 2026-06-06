@@ -262,8 +262,15 @@ void StackInterpreter::execOpr(int opr, std::ostream& out) {
     if (opr == OPR_NOOP) return;
     if (opr == OPR_NEG) {
         RuntimeValue v = pop();
-        if (v.kind == RuntimeValue::REAL) push(RuntimeValue::real(-v.r));
-        else push(RuntimeValue::integer(-asInt(v)));
+        if (v.kind == RuntimeValue::REAL) {
+            push(RuntimeValue::real(-v.r));
+        } else {
+            long long val = asInt(v);
+            if (val == LLONG_MIN) {
+                throw std::runtime_error("Runtime Error: Integer overflow in unary negation");
+            }
+            push(RuntimeValue::integer(-val));
+        }
         return;
     }
     if (opr == OPR_NOT) {
