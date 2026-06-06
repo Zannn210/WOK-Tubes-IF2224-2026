@@ -1,0 +1,658 @@
+\documentclass[12pt, a4paper]{article}
+
+% --- Packages Minimalis untuk Compile Super Cepat ---
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{float}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{ragged2e}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{placeins}
+\usepackage{pdflscape}
+\usepackage{adjustbox}
+
+% Konfigurasi listing kode sumber
+\lstset{
+  language=C++,
+  frame=single,
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  numbers=none,
+  showstringspaces=false,
+  tabsize=2,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red!70!black}
+}
+
+% Mengatur jarak spasi baris
+\renewcommand{\baselinestretch}{1.15}
+
+\begin{document}
+
+% ==========================================
+% COVER PAGE
+% ==========================================
+\begin{titlepage}
+    \centering
+    
+    {\Large \textbf{LAPORAN TUGAS BESAR \\IF2224 Teori Bahasa Formal dan Otomata}}\\[1cm]
+    
+    {\large \textbf{``Milestone 4 - Intermediate Code Generation and Interpreter''}}\\[1cm]
+
+    
+    % --- FOTO KELOMPOK ---
+    \includegraphics[width=10cm]{fotokelompok.jpeg}\\[0.5cm] 
+    
+    Dipersiapkan oleh:
+    
+    % Tabel Nama Anggota
+    \begin{table}[h]
+        \centering
+        \begin{tabular}{lc}
+            \textbf{Nama lengkap} & \textbf{NIM} \\
+            Fauzan Mohamad Abdul Ghani & 13524113 \\
+            Safira Berlianti & 13524128 \\
+            Eduard Daniel Ariajaya & 13524129 \\
+            Muhammad Daffa Arrizki Yanma & 13524133 \\
+            Reysha Syafitri MR & 13524137 \\
+        \end{tabular}
+    \end{table}
+
+    \vspace{1cm}
+    \begin{center}
+    \textbf
+    {Laboratorium Ilmu dan Rekayasa Komputasi \\ 
+    Program Studi Teknik Informatika \\
+    Sekolah Teknik Elektro dan Informatika \\
+    Institut Teknologi Bandung \\
+    }
+    \end{center}
+    \vspace{1cm}
+
+    \vfill
+    
+\end{titlepage}
+
+% ==========================================
+% DAFTAR ISI
+% ==========================================
+\newpage
+\tableofcontents
+\newpage
+
+% ==========================================
+% KONTEN LAPORAN
+% ==========================================
+
+\section{Landasan Teori}
+
+\subsection{Intermediate Code (Kode Antara)}
+\textit{Intermediate Code} (IC) atau kode antara adalah representasi perantara dari program sumber yang dihasilkan oleh \textit{compiler} setelah tahap analisis (leksikal, sintaksis, dan semantik) selesai dilakukan. Kode antara ini berada di antara representasi tingkat tinggi (\textit{source code}) dan representasi tingkat rendah (\textit{machine code}) sehingga bersifat independen terhadap arsitektur mesin target tertentu.
+
+\begin{itemize}
+    \item \textbf{Tujuan:} Tujuan utama dari pembuatan kode antara adalah untuk memisahkan \textit{front-end} kompilator (analisis bahasa sumber) dari \textit{back-end} (pembangkitan kode mesin). Dengan pemisahan ini, satu \textit{front-end} dapat dipasangkan dengan banyak \textit{back-end} untuk menghasilkan kode mesin berbagai platform, atau sebaliknya. Selain itu, kode antara mempermudah proses optimasi karena transformasi dapat dilakukan pada tingkat abstraksi menengah tanpa harus memikirkan detail arsitektur.
+    \item \textbf{Bentuk Representasi:} Terdapat beberapa bentuk representasi kode antara yang umum digunakan, antara lain:
+    \begin{itemize}
+        \item \textbf{\textit{Three-Address Code} (TAC):} Setiap instruksi memiliki paling banyak tiga operand (dua sumber dan satu tujuan). Contoh: \texttt{t1 = a + b}.
+        \item \textbf{\textit{Stack Machine Code}:} Instruksi beroperasi pada sebuah \textit{stack} tanpa membutuhkan register eksplisit. Operand di-\textit{push} ke \textit{stack} dan operator mengambil operand dari puncak \textit{stack}.
+        \item \textbf{\textit{Directed Acyclic Graph} (DAG):} Representasi graf yang mengeliminasi sub-ekspresi yang berulang (\textit{common subexpressions}).
+    \end{itemize}
+    \item \textbf{Kaitan dengan Decorated AST:} Pada arsitektur kompilator Arion, kode antara dihasilkan dari \textit{Decorated Abstract Syntax Tree} (Decorated AST) yang telah diperkaya dengan informasi tipe data, indeks \textit{symbol table}, dan level leksikal oleh \textit{Semantic Analyzer} pada Milestone 3. Informasi dekorasi ini digunakan oleh \textit{Intermediate Code Generator} untuk menentukan ukuran memori, jenis operasi, dan alamat variabel secara tepat.
+\end{itemize}
+
+\subsection{Arsitektur Stack Machine}
+\textit{Stack Machine} adalah model komputasi di mana operasi aritmatika dan logika dilakukan menggunakan sebuah \textit{operand stack} alih-alih register bernama. Model ini dipilih karena kesederhanaannya dalam memetakan ekspresi aritmatika dari pohon sintaks.
+
+\begin{itemize}
+    \item \textbf{Prinsip Kerja:} Instruksi \textit{stack machine} umumnya mengikuti pola berikut: operand di-\textit{push} ke puncak \textit{stack} menggunakan instruksi \texttt{LIT} atau \texttt{LOD}; operator (misalnya \texttt{OPR}) mengambil (\textit{pop}) satu atau dua operand dari puncak \textit{stack}, melakukan operasi, lalu meletakkan (\textit{push}) hasilnya kembali ke puncak \textit{stack}; hasil akhir kemudian disimpan ke memori menggunakan instruksi \texttt{STO} atau \texttt{STI}.
+    \item \textbf{Komponen Utama:}
+    \begin{itemize}
+        \item \textbf{\textit{Program Counter} (PC):} Menyimpan alamat instruksi yang sedang dieksekusi. Nilainya bertambah secara sekuensial, kecuali terdapat instruksi \textit{jump} (\texttt{JMP}, \texttt{JPC}).
+        \item \textbf{\textit{Operand Stack}:} Struktur data LIFO (\textit{Last-In First-Out}) yang menyimpan nilai sementara selama evaluasi ekspresi.
+        \item \textbf{\textit{Global Memory}:} Area memori linier yang menyimpan variabel global program.
+        \item \textbf{\textit{Activation Frame}:} Struktur data yang dialokasikan saat pemanggilan \textit{procedure} atau \textit{function}. Setiap \textit{frame} menyimpan variabel lokal, parameter, alamat kembali (\textit{return address}), serta (untuk \textit{function}) slot untuk nilai kembalian.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Instruction Set (Set Instruksi)}
+Berikut adalah set instruksi \textit{stack machine} yang digunakan pada kompilator Arion Milestone 4:
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|l|l|p{0.52\textwidth}|}
+        \hline
+        \textbf{Instruksi} & \textbf{Format} & \textbf{Deskripsi} \\
+        \hline
+        \texttt{INT} & \texttt{INT L N} & Alokasikan \texttt{N} slot memori pada blok \texttt{L} (0 = global) \\
+        \hline
+        \texttt{LIT} & \texttt{LIT 0 V} & \textit{Push} literal \texttt{V} (angka/string/char/boolean) ke \textit{stack} \\
+        \hline
+        \texttt{LOD} & \texttt{LOD L A} & \textit{Push} nilai dari memori blok \texttt{L} offset \texttt{A} ke \textit{stack} \\
+        \hline
+        \texttt{STO} & \texttt{STO L A} & \textit{Pop} puncak \textit{stack}, simpan ke memori blok \texttt{L} offset \texttt{A} \\
+        \hline
+        \texttt{LDA} & \texttt{LDA L A} & \textit{Push} alamat (blok \texttt{L}, offset \texttt{A}) ke \textit{stack} \\
+        \hline
+        \texttt{LDI} & \texttt{LDI 0 0} & \textit{Load indirect}: \textit{pop} alamat, \textit{push} nilai di alamat tersebut \\
+        \hline
+        \texttt{STI} & \texttt{STI 0 0} & \textit{Store indirect}: \textit{pop} nilai dan alamat, simpan nilai ke alamat \\
+        \hline
+        \texttt{OPR} & \texttt{OPR 0 K} & Eksekusi operasi ke-\texttt{K} (aritmatika, relasional, I/O, dll.) \\
+        \hline
+        \texttt{JMP} & \texttt{JMP 0 T} & Lompat tanpa syarat ke instruksi alamat \texttt{T} \\
+        \hline
+        \texttt{JPC} & \texttt{JPC 0 T} & Lompat ke \texttt{T} jika puncak \textit{stack} bernilai \textit{false} (0) \\
+        \hline
+        \texttt{CAL} & \texttt{CAL B T} & Panggil subprogram di alamat \texttt{T} dengan blok \texttt{B} \\
+        \hline
+        \texttt{RET} & \texttt{RET 0 0} & Kembali dari subprogram; buang \textit{frame} aktivasi \\
+        \hline
+        \texttt{CHK} & \texttt{CHK L H} & Periksa indeks array di puncak \textit{stack} ada di rentang [\texttt{L}..\texttt{H}] \\
+        \hline
+        \texttt{POP} & \texttt{POP 0 0} & Buang nilai di puncak \textit{stack} \\
+        \hline
+    \end{tabular}
+    \caption{Set instruksi \textit{stack machine} kompilator Arion}
+\end{table}
+
+\subsection{Kode Operasi (\texttt{OPR})}
+Instruksi \texttt{OPR} meng-\textit{encode} berbagai operasi melalui argumen kode operasi:
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|c|l||c|l|}
+        \hline
+        \textbf{Kode} & \textbf{Operasi} & \textbf{Kode} & \textbf{Operasi} \\
+        \hline
+        1 & NEG (negasi unary)     & 11 & GTR ($>$)         \\
+        2 & ADD ($+$)               & 12 & GEQ ($\geq$)      \\
+        3 & SUB ($-$)               & 13 & READLN (baca input) \\
+        4 & MUL ($\times$)          & 14 & WRITE (cetak)       \\
+        5 & DIV ($\div$ / \texttt{div}) & 15 & NOT (negasi logika) \\
+        6 & MOD (\texttt{mod})       & 16 & AND (\texttt{and})  \\
+        7 & EQL ($=$)               & 17 & OR (\texttt{or})    \\
+        8 & NEQ ($\neq$)            & 18 & NEWLINE (baris baru) \\
+        9 & LSS ($<$)               & 19 & TO\_CHAR (konversi ke char) \\
+        10 & LEQ ($\leq$)           & 20 & NOOP (tanpa operasi) \\
+        \hline
+    \end{tabular}
+    \caption{Kode operasi untuk instruksi \texttt{OPR}}
+\end{table}
+
+\subsection{Mekanisme Pemanggilan Subprogram}
+Saat sebuah \textit{procedure} atau \textit{function} dipanggil melalui instruksi \texttt{CAL}, \textit{interpreter} melakukan langkah-langkah berikut:
+\begin{enumerate}
+    \item Membuat \textit{activation frame} baru dengan \texttt{blockId} sesuai parameter instruksi.
+    \item Mengambil (\textit{pop}) argumen aktual dari \textit{operand stack} dan menyalinnya ke slot parameter dalam \textit{frame}.
+    \item Menyimpan \textit{return address} (nilai PC saat ini) ke dalam \textit{frame}.
+    \item Memindahkan PC ke alamat instruksi pertama subprogram.
+\end{enumerate}
+
+Saat instruksi \texttt{RET} ditemui, \textit{frame} terakhir dibuang (\textit{pop}) dari tumpukan \textit{frame}. Jika subprogram adalah \textit{function}, nilai di slot 0 \textit{frame} (yang telah diisi oleh \textit{assignment} ke nama fungsi) di-\textit{push} ke \textit{operand stack} sebagai nilai kembalian. PC dikembalikan ke \textit{return address} yang tersimpan.
+
+
+\section{Perancangan dan Implementasi}
+
+\subsection{Perancangan Program}
+Perancangan program pada Milestone 4 melanjutkan arsitektur \textit{modular} berbasis OOP yang telah dibangun sejak Milestone 1. Dua komponen utama yang ditambahkan adalah:
+
+\begin{itemize}
+    \item \textbf{Teknologi yang digunakan:} GNU C/C++ (standar C++17) dan Makefile.
+    
+    \item \textbf{Struktur Program \& Komponen Baru:}
+    \begin{itemize}
+        \item \texttt{IntermediateCode.hpp}: Mendefinisikan struktur data \texttt{Instruction} (satu baris instruksi IC dengan field \texttt{op}, \texttt{level}, \texttt{arg}, \texttt{literal}, \texttt{comment}), enum \texttt{OprCode} yang memetakan kode operasi ke konstanta bernama, dan alias \texttt{Code = vector<Instruction>}.
+        
+        \item \texttt{IntermediateCodeGenerator (.hpp/.cpp)}: Kelas yang melakukan \textit{traversal} pada \textit{Decorated AST} secara \textit{recursive descent} untuk menghasilkan rangkaian instruksi IC. Kelas ini bertanggung jawab atas: \textit{memory layouting} (menentukan alamat setiap variabel global dan lokal), \textit{code emission} (menambahkan instruksi ke vektor \texttt{code}), serta \textit{backpatching} (mengisi target \textit{jump} yang belum diketahui saat instruksi dibuat).
+        
+        \item \texttt{StackInterpreter (.hpp/.cpp)}: Kelas yang mengeksekusi rangkaian instruksi IC menggunakan model \textit{stack machine}. Kelas ini mengelola \textit{global memory}, \textit{activation frames}, dan \textit{operand stack}. Setiap instruksi dieksekusi dalam siklus \textit{fetch-decode-execute}.
+        
+        \item \texttt{main.cpp}: Diperluas untuk mendukung Fase 4 --- setelah \textit{Semantic Analysis} berhasil, program memanggil \texttt{IntermediateCodeGenerator} untuk menghasilkan IC, mencetak IC ke terminal dan file, lalu menjalankan IC menggunakan \texttt{StackInterpreter} dan menyimpan \textit{runtime output}.
+    \end{itemize}
+    
+    \item \textbf{Alur Kerja Program (Pipeline Lengkap):}
+    Program beroperasi dalam empat fase berurutan:
+    \begin{enumerate}
+        \item \textbf{Fase 1 --- Lexical Analysis:} \texttt{ArionLexer} membaca file sumber dan menghasilkan daftar token.
+        \item \textbf{Fase 2 --- Syntax Analysis:} \texttt{Parser} membangun \textit{parse tree}/AST dari daftar token.
+        \item \textbf{Fase 3 --- Semantic Analysis:} \texttt{SemanticAnalyzer} mendekorasi AST dengan informasi tipe, \textit{scope}, dan \textit{symbol table}.
+        \item \textbf{Fase 4 --- IC Generation \& Interpretation:} \texttt{IntermediateCodeGenerator} mengubah \textit{Decorated AST} menjadi instruksi IC, lalu \texttt{StackInterpreter} menjalankan instruksi IC tersebut dan menghasilkan output program.
+    \end{enumerate}
+    Jika salah satu fase gagal (misalnya \textit{syntax error} atau \textit{semantic error}), fase-fase selanjutnya di-\textit{skip} dan pesan \textit{error} ditulis ke file output.
+    
+    \item \textbf{Justifikasi Implementasi:}
+    \begin{itemize}
+        \item \textbf{\textit{Stack machine} dipilih} sebagai model eksekusi karena pemetaan ekspresi aritmatika dari AST ke instruksi \textit{stack} bersifat langsung dan natural --- setiap \textit{leaf} node menghasilkan \texttt{LIT}/\texttt{LOD} dan setiap operator menghasilkan \texttt{OPR}.
+        \item \textbf{\textit{Addressing} berbasis \texttt{LDA}/\texttt{LDI}/\texttt{STI}} digunakan untuk mendukung akses elemen \textit{array} dan \textit{field record} secara seragam melalui komputasi alamat di \textit{stack}.
+        \item \textbf{\textit{Backpatching}} digunakan untuk menangani \textit{forward jumps} pada konstruksi IF, WHILE, FOR, dan CASE di mana target \textit{jump} belum diketahui saat instruksi \textit{jump} dibuat.
+        \item \textbf{Pemisahan IC Generator dan Interpreter} ke dalam kelas terpisah memudahkan pengujian dan debugging masing-masing komponen secara independen.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Hasil Implementasi}
+
+Berikut adalah dokumentasi dari komponen-komponen penting dalam implementasi Milestone 4:
+
+\subsubsection*{1. Struktur Data Instruksi dan Kode Operasi}
+Bagian ini mendefinisikan representasi satu baris instruksi IC beserta enum kode operasi yang digunakan oleh instruksi \texttt{OPR}.
+
+\begin{lstlisting}[caption={Struktur data Instruction dan enum OprCode}]
+struct Instruction {
+    std::string op;      // mnemonic: LIT, LOD, STO, OPR, JMP, dst
+    int level = 0;       // block id (global = 0)
+    int arg = 0;         // operand angka/alamat/target jump
+    std::string literal; // operand non-angka (string literal, metadata CAL)
+    std::string comment; // komentar untuk file IC
+};
+
+enum OprCode {
+    OPR_NEG = 1,  OPR_ADD = 2,  OPR_SUB = 3,
+    OPR_MUL = 4,  OPR_DIV = 5,  OPR_MOD = 6,
+    OPR_EQL = 7,  OPR_NEQ = 8,  OPR_LSS = 9,
+    OPR_LEQ = 10, OPR_GTR = 11, OPR_GEQ = 12,
+    OPR_READLN = 13, OPR_WRITE = 14,
+    OPR_NOT = 15, OPR_AND = 16, OPR_OR = 17,
+    OPR_NEWLINE = 18, OPR_TO_CHAR = 19, OPR_NOOP = 20
+};
+\end{lstlisting}
+
+\textbf{Penjelasan:} Setiap instruksi terdiri dari \textit{opcode} (\texttt{op}), level blok, argumen numerik, serta opsional \texttt{literal} dan \texttt{comment}. Enum \texttt{OprCode} memetakan setiap operasi ke konstanta bernama sehingga kode generator tidak bergantung pada angka mentah.
+
+\vspace{0.5cm}
+
+\subsubsection*{2. Entry Point IC Generator dan Memory Layouting}
+Fungsi \texttt{generate()} merupakan titik masuk utama yang mereset \textit{state}, menyiapkan \textit{layout} memori, lalu men-\textit{generate} program utama.
+
+\begin{lstlisting}[caption={Entry point dan memory layouting pada IntermediateCodeGenerator}]
+Code IntermediateCodeGenerator::generate(ASTNode* root,
+                                const std::string& outFilename) {
+    code.clear(); locations.clear();
+    subprograms.clear(); subprogramOrder.clear();
+    globalSize = 0; currentBlockId = 0;
+    if (!root) return code;
+    prepareLayouts(root);
+    genProgram(root);
+    if (!outFilename.empty()) writeToFile(outFilename);
+    return code;
+}
+
+void IntermediateCodeGenerator::prepareLayouts(ASTNode* root) {
+    ASTNode* declPart = childNT(root, "<declaration-part>");
+    collectGlobalVars(declPart);
+    collectSubprograms(declPart);
+    for (int idx : subprogramOrder)
+        buildSubprogramLayout(subprograms[idx]);
+}
+\end{lstlisting}
+
+\textbf{Penjelasan:} Sebelum satu pun instruksi di-\textit{emit}, fungsi \texttt{prepareLayouts} mengumpulkan seluruh deklarasi variabel global dan subprogram dari \textit{Decorated AST}. Variabel global ditempatkan di \texttt{blockId = 0} dengan \textit{offset} naik sesuai ukuran tipe, sedangkan setiap subprogram memperoleh \texttt{blockId} tersendiri dengan \textit{layout frame} yang mencakup slot parameter dan variabel lokal.
+
+\vspace{0.5cm}
+
+\subsubsection*{3. Backpatching pada Struktur Kontrol}
+Teknik \textit{backpatching} digunakan untuk menangani instruksi lompat bersyarat (\texttt{JPC}) dan tak bersyarat (\texttt{JMP}) yang target alamatnya belum diketahui saat instruksi tersebut di-\textit{emit}.
+
+\begin{lstlisting}[caption={Backpatching pada genIf untuk konstruksi IF-THEN-ELSE}]
+void IntermediateCodeGenerator::genIf(ASTNode* node) {
+    // ... parsing children AST ...
+    if (cond) genExpression(cond);
+    int jpc = emit("JPC", 0, 0, "", "if false");
+    if (thenStmt) genStatement(thenStmt);
+    if (elseStmt) {
+        int jmpEnd = emit("JMP", 0, 0, "", "skip else");
+        patchArg(jpc, static_cast<int>(code.size()));
+        genStatement(elseStmt);
+        patchArg(jmpEnd, static_cast<int>(code.size()));
+    } else {
+        patchArg(jpc, static_cast<int>(code.size()));
+    }
+}
+\end{lstlisting}
+
+\textbf{Penjelasan:} Saat \texttt{JPC} di-\textit{emit}, target lompat diisi sementara dengan 0. Setelah kode blok \texttt{then} selesai di-\textit{generate}, alamat instruksi berikutnya (yaitu awal blok \texttt{else} atau akhir \texttt{if}) digunakan untuk mengisi kembali (\textit{patch}) target lompat tersebut.
+
+\vspace{0.5cm}
+
+\subsubsection*{4. Fetch-Decode-Execute Cycle pada StackInterpreter}
+Inti dari \textit{interpreter} adalah siklus \textit{fetch-decode-execute} yang membaca instruksi berdasarkan \texttt{PC}, mendekodekan \textit{opcode}, lalu mengeksekusinya.
+
+\begin{lstlisting}[caption={Siklus eksekusi utama pada StackInterpreter::run}]
+void StackInterpreter::run(std::ostream& out) {
+    pc = 0; halted = false;
+    globalMemory.clear(); frames.clear(); operandStack.clear();
+    while (!halted && pc >= 0 &&
+           pc < static_cast<int>(program.size())) {
+        const Instruction& ins = program[pc++];
+        if (ins.op == "INT") {
+            // Alokasi memori global atau resize frame
+        } else if (ins.op == "LIT") {
+            push(parseLiteral(ins.literal.empty() ?
+                 std::to_string(ins.arg) : ins.literal));
+        } else if (ins.op == "LDA") {
+            push(RuntimeValue::address(ins.level, ins.arg));
+        } else if (ins.op == "LDI") {
+            push(resolveAddress(pop()));
+        } else if (ins.op == "STI") {
+            RuntimeValue val = pop();
+            resolveAddress(pop()) = val;
+        }
+        // ... OPR, JMP, JPC, CAL, RET, CHK, dll ...
+    }
+}
+\end{lstlisting}
+
+\textbf{Penjelasan:} Setiap iterasi, instruksi diambil dari vektor \texttt{program} berdasarkan \texttt{pc} (yang langsung di-\textit{increment}). Instruksi didekodekan berdasarkan \textit{string} \texttt{op}-nya. \texttt{LIT} mem-\textit{push} literal, \texttt{LDA} mem-\textit{push} alamat, \texttt{LDI}/\texttt{STI} melakukan \textit{load}/\textit{store indirect}, dan \texttt{OPR} mendelegasikan ke \texttt{execOpr}.
+
+
+\section{Pengujian}
+Berikut adalah dokumentasi 10 pengujian mandiri dengan kasus yang unik untuk memastikan kebenaran \textit{Intermediate Code Generation} dan \textit{Stack Interpreter}. Setiap kasus uji menyertakan kode sumber Arion (\textit{input}), Intermediate Code yang dihasilkan, serta \textit{output} eksekusi program.
+
+\begin{enumerate}
+
+    % --- TEST CASE 1 ---
+    \item \textbf{Kasus Uji 1: Assignment dan Aritmatika Dasar} \\
+    Tujuan: Menguji alokasi memori global, \textit{assignment} variabel, operasi penjumlahan, serta \textit{output} \texttt{writeln}. \\
+    \vspace{0.2cm}
+    \textbf{Input (Kode Sumber Arion):}
+\begin{lstlisting}[language=Pascal]
+program BasicAssign;
+var x, y: integer;
+begin
+  x := 4;
+  y := x + 6;
+  writeln(y);
+end.
+\end{lstlisting}
+    \textbf{Intermediate Code yang Dihasilkan:}
+\begin{lstlisting}[language={},numbers=none,basicstyle=\ttfamily\footnotesize]
+ 0 INT 0 2    ; allocate global memory
+ 1 JMP 0 2    ; jump over subprogram bodies
+ 2 LDA 0 0    ; address of x
+ 3 LIT 0 4    ; literal
+ 4 STI 0 0    ; store assignment target
+ 5 LDA 0 1    ; address of y
+ 6 LDA 0 0    ; address of x
+ 7 LDI 0 0    ; load indirect
+ 8 LIT 0 6    ; literal
+ 9 OPR 0 2    ; ADD
+10 STI 0 0    ; store assignment target
+11 LDA 0 1    ; address of y
+12 LDI 0 0    ; load indirect
+13 OPR 0 14   ; WRITE
+14 OPR 0 18   ; NEWLINE
+15 RET 0 0    ; end program
+\end{lstlisting}
+    \textbf{Output Eksekusi:} \texttt{10}
+    \vspace{0.5cm}
+
+    % --- TEST CASE 2 ---
+    \item \textbf{Kasus Uji 2: Preseden Operator Aritmatika} \\
+    Tujuan: Menguji urutan prioritas operator (\texttt{*}, \texttt{div}, \texttt{+}, \texttt{-}) dan penggunaan tanda kurung pada ekspresi. \\
+    \vspace{0.2cm}
+    \textbf{Input (Kode Sumber Arion):}
+\begin{lstlisting}[language=Pascal]
+program ArithmeticPrecedence;
+var a, b, c, d, z: integer;
+begin
+  a := 2; b := 3; c := 4; d := 8;
+  z := (a + b) * c - d div 2;
+  writeln(z);
+end.
+\end{lstlisting}
+    \textbf{Output Eksekusi:} \texttt{16} \\
+    \textbf{Penjelasan:} $(2+3) \times 4 - 8 \div 2 = 20 - 4 = 16$. IC menghasilkan urutan yang benar: \texttt{LIT} operand, \texttt{OPR ADD}, \texttt{OPR MUL}, \texttt{OPR DIV}, \texttt{OPR SUB}.
+    \vspace{0.5cm}
+
+    % --- TEST CASE 3 ---
+    \item \textbf{Kasus Uji 3: Percabangan IF-THEN-ELSE (\textit{else branch})} \\
+    Tujuan: Menguji instruksi \texttt{JPC} dan \texttt{JMP} pada konstruksi \texttt{if-then-else} di mana kondisi bernilai \textit{false}. \\
+    \vspace{0.2cm}
+    \textbf{Input (Kode Sumber Arion):}
+\begin{lstlisting}[language=Pascal]
+program IfElseFalse;
+var x, y: integer;
+begin
+  x := 3;
+  if x > 5 then y := 1 else y := 2;
+  writeln(y);
+end.
+\end{lstlisting}
+    \textbf{Output Eksekusi:} \texttt{2} \\
+    \textbf{Penjelasan:} Karena $x = 3$ tidak lebih besar dari 5, kondisi \textit{false} menyebabkan \texttt{JPC} melompat melewati blok \texttt{then} ke blok \texttt{else}, sehingga $y = 2$.
+    \vspace{0.5cm}
+
+    % --- TEST CASE 4 ---
+    \item \textbf{Kasus Uji 4: Perulangan WHILE (Zero Iteration)} \\
+    Tujuan: Menguji bahwa body \texttt{while} tidak dieksekusi jika kondisi awal sudah \textit{false}. \\
+    \vspace{0.2cm}
+    \textbf{Input (Kode Sumber Arion):}
+\begin{lstlisting}[language=Pascal]
+program WhileZeroIteration;
+var x: integer;
+begin
+  x := 5;
+  while x < 3 do begin x := x + 1; end;
+  writeln(x);
+end.
+\end{lstlisting}
+    \textbf{Output Eksekusi:} \texttt{5} \\
+    \textbf{Penjelasan:} Kondisi $5 < 3$ langsung \textit{false}, sehingga \texttt{JPC} melompat keluar loop dan $x$ tetap 5.
+    \vspace{0.5cm}
+
+    % --- TEST CASE 5 ---
+    \item \textbf{Kasus Uji 5: Perulangan WHILE (Akumulasi)} \\
+    Tujuan: Menguji loop \texttt{while} yang berjalan beberapa iterasi untuk mengakumulasi nilai. \\
+    \vspace{0.2cm}
+    \textbf{Input (Kode Sumber Arion):}
+\begin{lstlisting}[language=Pascal]
+program WhileSum;
+var x, sum: integer;
+begin
+  x := 0; sum := 0;
+  while x < 4 do begin
+    x := x + 1;
+    sum := sum + x;
+  end;
+  writeln(sum);
+end.
+\end{lstlisting}
+    \textbf{Output Eksekusi:} \texttt{10} \\
+    \textbf{Penjelasan:} Loop berjalan 4 kali ($x = 1, 2, 3, 4$), sehingga $sum = 1+2+3+4 = 10$. Pola IC: \texttt{JPC} untuk keluar loop dan \texttt{JMP} untuk kembali ke pengecekan kondisi.
+    \vspace{0.5cm}
+
+    % --- TEST CASE 6 ---
+    \item \textbf{Kasus Uji 6: Perulangan REPEAT-UNTIL} \\
+    Tujuan: Menguji bahwa body \texttt{repeat} dieksekusi minimal satu kali sebelum kondisi dicek. \\
+    \vspace{0.2cm}
+    \textbf{Input (Kode Sumber Arion):}
+\begin{lstlisting}[language=Pascal]
+program RepeatOnce;
+var x: integer;
+begin
+  x := 10;
+  repeat x := x + 1; until x > 10;
+  writeln(x);
+end.
+\end{lstlisting}
+    \textbf{Output Eksekusi:} \texttt{11} \\
+    \textbf{Penjelasan:} Body dieksekusi sekali ($x$ menjadi 11), kemudian kondisi $11 > 10$ bernilai \textit{true} sehingga loop berhenti. Pola IC: body ditaruh di awal, lalu \texttt{JPC} kembali ke awal body jika kondisi \textit{false}.
+    \vspace{0.5cm}
+
+    % --- TEST CASE 7 ---
+    \item \textbf{Kasus Uji 7: Perulangan FOR-TO} \\
+    Tujuan: Menguji instruksi FOR dengan \texttt{to} yang melakukan iterasi maju dan akumulasi. \\
+    \vspace{0.2cm}
+    \textbf{Input (Kode Sumber Arion):}
+\begin{lstlisting}[language=Pascal]
+program ForToSum;
+var i, sum: integer;
+begin
+  sum := 0;
+  for i := 1 to 5 do begin
+    sum := sum + i;
+  end;
+  writeln(sum);
+end.
+\end{lstlisting}
+    \textbf{Output Eksekusi:} \texttt{15} \\
+    \textbf{Penjelasan:} $sum = 1+2+3+4+5 = 15$. IC menyimpan batas akhir (5) di slot \textit{temporary} global, lalu menggunakan \texttt{OPR LEQ} untuk mengecek kondisi dan \texttt{OPR ADD} dengan \texttt{LIT 1} untuk \textit{increment}.
+    \vspace{0.5cm}
+
+    % --- TEST CASE 8 ---
+    \item \textbf{Kasus Uji 8: Perulangan FOR-DOWNTO} \\
+    Tujuan: Menguji instruksi FOR dengan \texttt{downto} yang melakukan iterasi mundur. \\
+    \vspace{0.2cm}
+    \textbf{Input (Kode Sumber Arion):}
+\begin{lstlisting}[language=Pascal]
+program ForDowntoSum;
+var i, sum: integer;
+begin
+  sum := 0;
+  for i := 5 downto 1 do begin
+    sum := sum + i;
+  end;
+  writeln(sum);
+end.
+\end{lstlisting}
+    \textbf{Output Eksekusi:} \texttt{15} \\
+    \textbf{Penjelasan:} Hasil sama dengan FOR-TO ($15$). IC menggunakan \texttt{OPR GEQ} untuk kondisi (bukan \texttt{LEQ}) dan \texttt{OPR SUB} untuk \textit{decrement} (bukan \texttt{ADD}).
+    \vspace{0.5cm}
+
+    % --- TEST CASE 9 ---
+    \item \textbf{Kasus Uji 9: Percabangan CASE} \\
+    Tujuan: Menguji pemilihan cabang pada konstruksi \texttt{case} dengan beberapa konstanta. \\
+    \vspace{0.2cm}
+    \textbf{Input (Kode Sumber Arion):}
+\begin{lstlisting}[language=Pascal]
+program CaseSecondBranch;
+var choice, ans: integer;
+begin
+  choice := 2; ans := 0;
+  case choice of
+    1: ans := 100;
+    2: ans := 200;
+    3: ans := 300;
+  end;
+  writeln(ans);
+end.
+\end{lstlisting}
+    \textbf{Output Eksekusi:} \texttt{200} \\
+    \textbf{Penjelasan:} Selector bernilai 2, sehingga cabang kedua dieksekusi ($ans = 200$). IC menyimpan selector di \textit{temporary} global, lalu setiap cabang membandingkan selector dengan konstantanya menggunakan \texttt{OPR EQL} dan \texttt{JPC}.
+    \vspace{0.5cm}
+
+    % --- TEST CASE 10 ---
+    \item \textbf{Kasus Uji 10: Procedure, Function, dan Array} \\
+    Tujuan: Menguji pemanggilan \texttt{procedure} dengan parameter, \texttt{function} dengan nilai kembalian, serta akses elemen \texttt{array}. \\
+    \vspace{0.2cm}
+    \textbf{Input (Kode Sumber Arion):}
+\begin{lstlisting}[language=Pascal]
+program ProcFuncArray;
+type Arr == array[1..2] of integer;
+var a: Arr; x, y: integer;
+procedure inc(v: integer);
+begin x := x + v; end;
+function double(v: integer): integer;
+begin double := v * 2; end;
+begin
+  x := 5;
+  a[1] := 10; a[2] := 15;
+  inc(a[1]);
+  y := double(a[2]) + x;
+  writeln(y);
+end.
+\end{lstlisting}
+    \textbf{Output Eksekusi:} \texttt{45} \\
+    \textbf{Penjelasan:} \texttt{inc(10)} menambah $x$ menjadi 15. \texttt{double(15)} mengembalikan 30. Kemudian $y = 30 + 15 = 45$. IC menggunakan \texttt{CAL} untuk memanggil subprogram, \texttt{CHK} untuk \textit{bounds checking} array, dan slot 0 pada \textit{frame} \texttt{double} untuk menyimpan nilai kembalian.
+
+\end{enumerate}
+
+\section{Kesimpulan dan Saran}
+\subsection{Kesimpulan}
+Berdasarkan hasil perancangan, implementasi, dan pengujian yang telah dilakukan, dapat disimpulkan bahwa program \textit{Intermediate Code Generator} dan \textit{Stack Interpreter} untuk bahasa pemrograman ``Arion'' telah berhasil dibangun dan berfungsi sesuai spesifikasi. Kedua komponen ini melengkapi \textit{pipeline} kompilator Arion menjadi empat tahap utuh: \textit{Lexical Analysis}, \textit{Syntax Analysis}, \textit{Semantic Analysis}, serta \textit{Intermediate Code Generation \& Interpretation}.
+
+\textit{Intermediate Code Generator} berhasil mengubah \textit{Decorated AST} menjadi rangkaian instruksi \textit{stack machine} yang mencakup seluruh konstruksi bahasa Arion, termasuk: \textit{assignment}, ekspresi aritmatika dan logika, percabangan (\texttt{if-then-else}, \texttt{case}), perulangan (\texttt{while}, \texttt{repeat-until}, \texttt{for-to/downto}), pemanggilan \textit{procedure} dan \textit{function} dengan parameter, serta akses elemen \textit{array}. Teknik \textit{backpatching} digunakan secara efektif untuk menangani \textit{forward jump}.
+
+\textit{Stack Interpreter} berhasil mengeksekusi instruksi IC dengan benar melalui siklus \textit{fetch-decode-execute}, mengelola memori melalui \textit{global memory} dan \textit{activation frames}, serta mendukung operasi I/O (\texttt{writeln}, \texttt{readln}). Hasil pengujian dari 38 kasus uji (termasuk 10 kasus uji representatif yang didokumentasikan) membuktikan bahwa output eksekusi program Arion konsisten dan sesuai dengan yang diharapkan.
+
+\subsection{Saran}
+Untuk pengembangan lebih lanjut, berikut adalah beberapa saran penyempurnaan:
+\begin{enumerate}
+    \item \textbf{Optimasi Intermediate Code:} Menambahkan tahap optimasi IC seperti \textit{constant folding} (evaluasi ekspresi konstanta saat kompilasi), \textit{dead code elimination} (penghapusan kode yang tidak terjangkau), dan \textit{peephole optimization} (penggabungan instruksi berurutan yang redundan, misalnya \texttt{LDA} yang langsung diikuti \texttt{LDI} menjadi \texttt{LOD}).
+    \item \textbf{Dukungan Nested Procedure/Function:} Saat ini \textit{interpreter} menggunakan pencarian linear pada tumpukan \textit{frame} untuk menemukan \textit{frame} dengan \texttt{blockId} tertentu. Untuk mendukung akses variabel pada \textit{scope} yang lebih dalam secara efisien, dapat ditambahkan \textit{static link} atau \textit{display register}.
+    \item \textbf{Code Generation ke Target Riil:} Menambahkan \textit{back-end} yang mengubah IC menjadi kode mesin riil (misalnya x86-64 atau LLVM IR) sehingga program Arion dapat dikompilasi menjadi \textit{executable} asli yang tidak membutuhkan \textit{interpreter}.
+    \item \textbf{Dukungan Input Interaktif yang Lebih Baik:} Instruksi \texttt{readln} saat ini hanya membaca satu token dari \texttt{stdin}. Dapat dikembangkan agar mendukung pembacaan berbasis baris (\textit{line-buffered}) dan konversi tipe otomatis sesuai deklarasi variabel target.
+\end{enumerate}
+
+\section{Lampiran}
+\begin{itemize}
+    \item \textbf{Link Repository GitHub:} \\
+    \url{https://github.com/Zannn210/WOK-Tubes-IF2224-2026}
+    
+    \vspace{0.2cm}
+    \item \textbf{Tabel Pembagian Tugas:}
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.5}
+    \setlength{\tabcolsep}{6pt}
+    \begin{tabular}{|p{0.22\textwidth}|c|p{0.43\textwidth}|c|}
+        \hline
+        \textbf{Nama Lengkap} & \textbf{NIM} & \textbf{Tugas} & \textbf{Kontribusi} \\
+        \hline
+        
+        Fauzan Mohamad Abdul Ghani & 13524113 & 
+        Arsitektur IC \& Pipeline Integration: Merancang struktur data \texttt{Instruction} dan enum \texttt{OprCode} pada \texttt{IntermediateCode.hpp}. Mengintegrasikan Fase 4 ke dalam \texttt{main.cpp} sehingga pipeline berjalan end-to-end dari lexer hingga interpreter. Menambahkan penanganan error antar-fase (skip file output jika fase sebelumnya gagal).
+        & 20\% \\
+        \hline
+        
+        Muhammad Daffa Arrizki Yanma & 13524133 & 
+        IC Generator --- Statement \& Control Flow: Mengimplementasikan fungsi \texttt{genIf}, \texttt{genCase}, \texttt{genWhile}, \texttt{genRepeat}, \texttt{genFor}, dan \texttt{genAssignment} pada \texttt{IntermediateCodeGenerator.cpp}, termasuk logika \textit{backpatching} untuk semua konstruksi kontrol.
+        & 20\% \\
+        \hline
+        
+        Eduard Daniel Ariajaya & 13524129 & 
+        IC Generator --- Expression \& Memory Layout: Mengimplementasikan \texttt{genExpression}, \texttt{genSimpleExpression}, \texttt{genTerm}, \texttt{genFactor}, dan \texttt{genConstant}. Merancang \textit{memory layouting} (\texttt{prepareLayouts}, \texttt{collectGlobalVars}, \texttt{buildSubprogramLayout}) serta \textit{variable addressing} (\texttt{genAddress}, \texttt{genVariableValue}).
+        & 20\% \\
+        \hline
+        
+        Safira Berlianti & 13524128 & 
+        Stack Interpreter: Mengimplementasikan seluruh kelas \texttt{StackInterpreter} termasuk \texttt{RuntimeValue}, siklus \textit{fetch-decode-execute} pada \texttt{run()}, operasi aritmatika (\texttt{numericOp}), operasi perbandingan (\texttt{compareOp}), serta manajemen \textit{activation frame} pada \texttt{execCal}.
+        & 20\% \\
+        \hline
+        
+        Reysha Syafitri MR & 13524137 & 
+        IC Generator --- Subprogram \& Testing: Mengimplementasikan \texttt{genProcFuncCall} dan \texttt{genSubprogram} untuk pemanggilan procedure/function. Membuat 38 kasus uji komprehensif, menyusun laporan PDF Milestone 4, serta mempersiapkan release GitHub.
+        & 20\% \\
+        \hline
+        
+    \end{tabular}
+    \caption{Pembagian tugas anggota tim}
+\end{table}
+\end{itemize}
+
+\section{Referensi}
+
+\begin{enumerate}
+    \item Aho, A. V., Lam, M. S., Sethi, R., \& Ullman, J. D. (2006). \textit{Compilers: Principles, Techniques, and Tools} (2nd Edition). Pearson.
+    
+    \item Hopcroft, J. E., Motwani, R., \& Ullman, J. D. \textit{Introduction to Automata Theory, Languages, and Computation} (3rd Edition). Pearson.
+    
+    \item \textit{Stack Machine --- Wikipedia}. Diakses dari: \url{https://en.wikipedia.org/wiki/Stack_machine}
+    
+    \item \textit{Intermediate Representation --- Wikipedia}. Diakses dari: \url{https://en.wikipedia.org/wiki/Intermediate_representation}
+    
+    \item Wirth, N. (1996). \textit{Compiler Construction}. Addison-Wesley.
+
+    \item \textit{Guidebook Konvensi Intermediate Code --- Spesifikasi Milestone 4 IF2224 TBFO}. Lampiran Spesifikasi Tugas Besar.
+\end{enumerate}
+
+\end{document}
