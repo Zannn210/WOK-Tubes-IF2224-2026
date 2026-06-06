@@ -1,4 +1,4 @@
-# WOK Tubes IF2224 (2026) - Semantic Analysis (Milestone 3)
+# WOK Tubes IF2224 (2026) - Intermediate Code Generation and Interpreter (Milestone 4)
 
 ## Identitas Kelompok
 
@@ -10,7 +10,18 @@
 
 ## Deskripsi Program
 
-Program ini adalah **semantic analysis**. Semantic analyzer berfungsi melakukan analisis makna (semantic analysis) dengan menggunakan Attributed Grammar untuk memastikan semantik dari program yang telah lolos analisis sintaksis. Tahapan ini mencakup type checking, symbol table management, scope resolution, dan control flow validation. Parse tree yang dihasilkan oleh parser ditelusuri secara top-down menggunakan fungsi visit pada setiap node-nya, menghasilkan Decorated AST dengan informasi tipe data dan referensi ke symbol table.
+Program ini adalah **Intermediate Code Generation and Interpreter** (Milestone 4). Komponen ini melengkapi *pipeline* kompilator Arion menjadi empat tahap utuh:
+
+1. **Lexical Analysis** — `ArionLexer` membaca file sumber dan menghasilkan daftar token.
+2. **Syntax Analysis** — `Parser` membangun *parse tree*/AST dari daftar token.
+3. **Semantic Analysis** — `SemanticAnalyzer` mendekorasi AST dengan informasi tipe, *scope*, dan *symbol table*.
+4. **IC Generation & Interpretation** — `IntermediateCodeGenerator` mengubah *Decorated AST* menjadi instruksi *stack machine*, lalu `StackInterpreter` menjalankan instruksi IC tersebut dan menghasilkan output program.
+
+`IntermediateCodeGenerator` melakukan *traversal* pada *Decorated AST* secara *recursive descent* untuk menghasilkan rangkaian instruksi IC. Kelas ini bertanggung jawab atas *memory layouting*, *code emission*, serta *backpatching* (mengisi target *jump* yang belum diketahui saat instruksi dibuat).
+
+`StackInterpreter` mengeksekusi rangkaian instruksi IC menggunakan model *stack machine*. Kelas ini mengelola *global memory*, *activation frames*, dan *operand stack* melalui siklus *fetch-decode-execute*.
+
+Jika salah satu fase gagal (misalnya *syntax error* atau *semantic error*), fase-fase selanjutnya di-*skip* dan pesan *error* ditulis ke file output.
 
 ## Requirements
 
@@ -42,13 +53,13 @@ make run
 
 Contoh input yang bisa dimasukkan:
 
-- `test/milestone-3/input-1.txt`
+- `test/milestone-4/input-1.txt`
 
 Perilaku `make run`:
 
 - Output **tetap tampil di terminal**.
-- Output juga disimpan ke file baru berurutan:`ast_output_1.txt`, `token_output_1.txt`, `tree_output_2.txt`, dst.
-- Lokasi output disimpan ke folder: `test/milestone-3/`.
+- Output juga disimpan ke file baru berurutan: `token_output_N.txt`, `ast_output_N.txt`, `tree_output_N.txt`, `ic_output_N.txt`, `runtime_output_N.txt`, dst.
+- Lokasi output disimpan ke folder: `test/milestone-4/`.
 
 ### 3) Membersihkan hasil build
 
@@ -72,34 +83,30 @@ make clean-all
 
 ## Pembagian Tugas
 
-### Anggota 1:
+### Anggota 1 (Reysha Syafitri MR — 13524137):
 
-- Menambahkan field anotasi semantik pada ASTNode: semType, tabIdx, lexLevel, dan line untuk menyimpan hasil analisis tipe, referensi symbol table, dan nomor baris.
-- Mengimplementasikan ASTDecoratedPrinter untuk mencetak Decorated AST beserta informasi tipe dan isi symbol table ke terminal dan file keluaran.
-- Mengimplementasikan visitor untuk kerangka utama program: visitProgram, visitDeclarationPart, visitBlock, visitCompoundStatement, visitStatementList, dan visitStatement sebagai dispatcher ke visitor lainnya.
+- Mengimplementasikan `genProcFuncCall` dan `genSubprogram` untuk pemanggilan *procedure*/*function* dengan parameter.
+- Membuat 38 kasus uji komprehensif yang mencakup seluruh konstruksi bahasa Arion.
+- Menyusun laporan PDF Milestone 4 dan mempersiapkan *release* GitHub.
 
-### Anggota 2:
+### Anggota 2 (Safira Berlianti — 13524128):
 
-- Mengimplementasikan 3 Symbol Table utama: tab, btab, atab.
-- Mendaftarkan Predefined Identifier melalui initPredefined(): tipe Integer, Real, Char, Boolean, String, serta konstanta true/false dan prosedur writeln/readln.
-- Membuat fungsi manajemen scope: enterBlock, leaveBlock, addIdentifier, dan lookupIdent.
-- Mengimplementasikan visitor deklarasi: visitConstDeclaration, visitConstant, visitTypeDeclaration, visitType, dan visitVarDeclaration.
+- Mengimplementasikan seluruh kelas `StackInterpreter` termasuk `RuntimeValue`.
+- Mengimplementasikan siklus *fetch-decode-execute* pada `run()`.
+- Mengimplementasikan operasi aritmatika (`numericOp`), operasi perbandingan (`compareOp`), serta manajemen *activation frame* pada `execCal`.
 
-### Anggota 3:
+### Anggota 3 (Eduard Daniel Ariajaya — 13524129):
 
-- Mengimplementasikan visitor subprogram: visitSubprogramDeclaration, visitProcedureDeclaration, visitFunctionDeclaration, visitFormalParameterList, dan visitParameterGroup.
-- Mengimplementasikan visitor akses variabel: visitVariable, visitComponentVariable, dan visitIndexList.
-- Mengimplementasikan visitor visitProcFuncCall dan visitAssignmentStatement beserta validasi assignment-compatibility dan bounds checking untuk subrange.
+- Mengimplementasikan `genExpression`, `genSimpleExpression`, `genTerm`, `genFactor`, dan `genConstant` untuk pembangkitan IC dari ekspresi.
+- Merancang *memory layouting* (`prepareLayouts`, `collectGlobalVars`, `buildSubprogramLayout`) serta *variable addressing* (`genAddress`, `genVariableValue`).
 
-### Anggota 4:
+### Anggota 4 (Muhammad Daffa Arrizki Yanma — 13524133):
 
-- Mengimplementasikan visitor visitStatementList dan visitStatement sebagai dispatcher ke semua jenis statement.
-- Mengimplementasikan visitor percabangan: visitIfStatement, visitCaseStatement, dan visitCaseBlock.
-- Mengimplementasikan visitor perulangan: visitWhileStatement, visitRepeatStatement, dan visitForStatement.
+- Mengimplementasikan fungsi `genIf`, `genCase`, `genWhile`, `genRepeat`, `genFor`, dan `genAssignment` pada `IntermediateCodeGenerator.cpp`.
+- Mengimplementasikan logika *backpatching* untuk semua konstruksi kontrol (IF, WHILE, FOR, CASE).
 
+### Anggota 5 (Fauzan Mohamad Abdul Ghani — 13524113):
 
-### Anggota 5:
-
-- Mengimplementasikan visitor structured type: visitArrayType, visitRecordType, visitFieldList, dan visitFieldPart.
-- Menerapkan error handling menyeluruh melalui fungsi semanticError dengan nomor baris, serta validasi tipe pada setiap node ekspresi.
-- Menyiapkan minimal 5 test case unik dan memastikan Decorated AST serta Symbol Table tercetak ke terminal dan file keluaran.
+- Merancang struktur data `Instruction` dan enum `OprCode` pada `IntermediateCode.hpp`.
+- Mengintegrasikan Fase 4 ke dalam `main.cpp` sehingga *pipeline* berjalan *end-to-end* dari *lexer* hingga *interpreter*.
+- Menambahkan penanganan *error* antar-fase (skip file output jika fase sebelumnya gagal).
