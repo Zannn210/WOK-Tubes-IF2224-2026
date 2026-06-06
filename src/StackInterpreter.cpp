@@ -83,7 +83,7 @@ int RuntimeValue::addressOffset() const {
 
 // Constructor: simpan program dan batas maksimum stack
 StackInterpreter::StackInterpreter(Code p, std::size_t limit)
-    : program(std::move(p)), stackLimit(limit) {}
+    : program(std::move(p)), stackLimit(limit), frameDepth(0) {}
 
 // Parsing literal dari string (integer, real, string, char, boolean)
 RuntimeValue StackInterpreter::parseLiteral(const std::string& raw) const {
@@ -273,6 +273,10 @@ void StackInterpreter::execCal(const Instruction& ins) {
     int firstParamOffset = ret ? 1 : 0;
     if (size < params + firstParamOffset) size = params + firstParamOffset;
 
+    if (frameDepth >= MAX_FRAME_DEPTH) {
+        throw std::runtime_error("Runtime Error: Stack Overflow (too many nested calls)");
+    }
+
     Frame f;
     f.blockId = ins.level;
     f.mem.assign(size, RuntimeValue::none());
@@ -284,6 +288,7 @@ void StackInterpreter::execCal(const Instruction& ins) {
         f.mem[firstParamOffset + i] = actual;
     }
     frames.push_back(std::move(f));
+    frameDepth++;
     pc = ins.arg;
 }
 
@@ -291,6 +296,7 @@ void StackInterpreter::execCal(const Instruction& ins) {
 void StackInterpreter::run(std::ostream& out) {
     pc = 0;
     halted = false;
+    frameDepth = 0;
     globalMemory.clear();
     frames.clear();
     operandStack.clear();
@@ -338,9 +344,11 @@ void StackInterpreter::run(std::ostream& out) {
         } else if (ins.op == "RET") {
             if (frames.empty()) {
                 halted = true;
+                frameDepth = 0; // reset jika program selesai (opsional)
             } else {
                 Frame f = frames.back();
                 frames.pop_back();
+                frameDepth--; // kurangi kedalaman frame
                 if (f.hasReturnValue) push(f.mem.empty() ? RuntimeValue::none() : f.mem[0]);
                 pc = f.returnPc;
             }

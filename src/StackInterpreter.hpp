@@ -54,6 +54,8 @@ private:
     std::size_t stackLimit;
     int pc = 0;
     bool halted = false;
+    int frameDepth;
+    static constexpr int MAX_FRAME_DEPTH = 1000;
 
     // Helper parsing dan stack manipulation
     RuntimeValue parseLiteral(const std::string& raw) const;
